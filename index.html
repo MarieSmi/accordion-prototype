@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Настройка аккордеона</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="viewport">
+    <div class="stage" id="stage">
+
+      <!-- Шапка конструктора -->
+      <header class="ctor-header">
+        <div class="ctor-header__left">
+          <div class="pill-group">
+            <button class="tb-btn tb-btn--text" type="button"><span class="ico">&#xEBBE;</span><span class="tb-btn__label">Меню</span></button>
+            <button class="tb-btn tb-btn--text" type="button"><span class="ico">&#xE9E2;</span><span class="tb-btn__label">Логотип</span></button>
+          </div>
+        </div>
+
+        <div class="ctor-header__center">
+          <div class="ctor-header__colors">
+            <button class="pill-group theme-btn" type="button">
+              <span class="theme-btn__label">Тема</span>
+              <span class="swatches">
+                <span class="swatch" style="--c:#2c3e50"></span>
+                <span class="swatch" style="--c:#0c94ff"></span>
+                <span class="swatch" style="--c:#cc3d00"></span>
+              </span>
+            </button>
+            <button class="pill-group theme-btn" type="button">
+              <span class="theme-btn__label">Фон</span>
+              <span class="swatches"><span class="swatch" style="--c:#f8f8f8"></span></span>
+            </button>
+          </div>
+
+          <div class="ctor-header__tools">
+            <div class="pill-group">
+              <button class="tb-btn" type="button"><span class="ico">&#xE6C0;</span></button>
+              <button class="tb-btn" type="button"><span class="ico">&#xE6BF;</span></button>
+              <button class="tb-btn is-active" type="button"><span class="ico">&#xE6C2;</span></button>
+            </div>
+            <div class="pill-group pill-group--r12">
+              <button class="tb-btn is-active" type="button"><span class="ico">&#xE730;</span></button>
+              <button class="tb-btn" type="button"><span class="ico">&#xE637;</span></button>
+              <button class="tb-btn" type="button"><span class="ico">&#xEAB4;</span></button>
+            </div>
+            <div class="pill-group pill-group--r12">
+              <button class="tb-btn" type="button"><span class="ico">&#xE6CF;</span></button>
+              <button class="tb-btn" type="button"><span class="ico">&#xE6CA;</span></button>
+              <button class="tb-btn" type="button"><span class="ico">&#xE629;</span></button>
+              <button class="tb-btn tb-btn--zoom" type="button">100%</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="ctor-header__right">
+          <button class="pill-group lang-btn" type="button">Язык RU</button>
+          <button class="done-btn" type="button" aria-label="Сохранить"><span class="ico ico--20">&#xE75E;</span></button>
+          <button class="close-btn" type="button" aria-label="Закрыть"><img src="assets/img/close-header.svg" width="28" height="28" alt=""></button>
+        </div>
+      </header>
+
+      <!-- Аккордеон -->
+      <nav class="accordion" id="accordion" aria-label="Навигация приложения">
+        <div class="acc-header">
+          <div class="acc-header__row">
+            <button class="acc-bird" type="button" aria-label="Логотип"><span class="ico24">&#xE9E2;</span></button>
+            <button class="acc-logo" type="button" id="goHome" aria-label="saby — Главная"><span class="acc-logo__mark"></span></button>
+            <button class="acc-plus" type="button" aria-label="Добавить раздел"><span class="ico">&#xEB25;</span></button>
+          </div>
+          <div class="acc-group">
+            <button class="acc-burger" type="button" aria-label="Свернуть"><span class="acc-icon16">&#xE91F;</span></button>
+            <span class="acc-group__title">предприятие</span>
+          </div>
+        </div>
+        <ul class="acc-list" id="accList"></ul>
+      </nav>
+
+      <!-- Контент: пока скриншоты -->
+      <main class="content">
+        <img class="content__shot" id="contentShot" src="assets/img/page-main.png" alt="">
+      </main>
+
+      <!-- Правая панель -->
+      <aside class="right-panel">
+        <div class="right-panel__cmds">
+          <button class="rp-btn rp-btn--accent" type="button" aria-label="Магазин"><span class="ico24">&#xEADD;</span></button>
+          <button class="rp-btn" type="button" aria-label="Данные"><span class="ico ico--24">&#xEBBC;</span></button>
+          <button class="rp-btn" type="button" aria-label="Слои"><span class="ico ico--24">&#xEBF9;</span></button>
+          <button class="rp-btn" type="button" aria-label="Фильтр"><span class="ico24">&#xE94C;</span></button>
+          <button class="rp-btn" type="button" aria-label="Поиск"><span class="ico24">&#xEAA7;</span></button>
+          <button class="rp-btn" type="button" aria-label="Настройки"><span class="ico24">&#xEAA9;</span></button>
+        </div>
+        <button class="rp-more" type="button" aria-label="Ещё"><span class="ico ico--20">&#xE9D9;</span></button>
+        <div class="right-panel__spacer"></div>
+        <button class="rp-help" type="button" aria-label="Помощь"><img src="assets/img/help.svg" width="12" height="16" alt=""></button>
+      </aside>
+
+      <!-- Слой для подменю -->
+      <div class="submenu-layer" id="submenuLayer"></div>
+    </div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
