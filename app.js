@@ -628,8 +628,8 @@
     ed = null;
   }
 
-  // Плавающий тулбар выделенного виджета (Figma rHabzni5OI5D4fxBLQdj2m 131:17364): ⚙, удалить, ⋯.
-  // Удаление работает, ⚙ и ⋯ — пока только наведение.
+  // Плавающий тулбар выделенного виджета (Figma rHabzni5OI5D4fxBLQdj2m 131:17364, состав 854:7145): ‹, ⚙, удалить, ⋯.
+  // ‹ снимает выделение, удаление работает, ⚙ и ⋯ — пока только наведение.
   function toolbar() {
     const tb = el('div', 'sme-tb');
     const btn = (cls, ch, label) => {
@@ -639,6 +639,7 @@
       tb.append(b);
       return b;
     };
+    btn('', '', 'Назад').addEventListener('click', () => select(null));
     btn('', '', 'Настройки');
     btn('sme-tb__btn--del', '', 'Удалить').addEventListener('click', deleteSelected);
     btn('', '', 'Ещё');
