@@ -397,6 +397,7 @@
 
   function navigate(section, item) {
     state.page = { section, item };
+    if (section) leaveTabs();
     updatePage();
     closeSubmenu();
     setPanelOpen(false);
@@ -482,7 +483,7 @@
   }
 
   // Всплывающие списки внутри окон («Вид панели», «Иконка»).
-  function closePopups() { closeDropdown(); closeIconMenu(); }
+  function closePopups() { closeDropdown(); closeIconMenu(); closeTabMenus(); }
 
   // ---------- Окно «Меню» ----------
   const menuWin = $('#menuWin');
@@ -797,10 +798,351 @@
   });
   smeConfirm.addEventListener('click', (e) => {
     const answer = e.target.closest('[data-answer]')?.dataset.answer;
+    // Это же подтверждение спрашивает и окно «Вкладки».
+    if (tw) { answerTabsConfirm(answer); return; }
     if (answer === 'yes') saveEditor();
     else if (answer === 'no') closeEditor();
     else if (answer === 'cancel') smeConfirm.hidden = true;
   });
+
+  // ---------- Виджет «Вкладки» на Главной (Figma xMQ3ZEN4AUINgwjVoxR8hS 18731:100134) ----------
+  // Клик по вкладке переключает содержимое дашборда и выделяет виджет (рамка + тулбар «+ ⚙ ⋯»), клик мимо снимает
+  // выделение. Двойной клик — переименование на месте; вкладки перетаскиваются мышью. pane — что показывает вкладка:
+  // 'main' — дашборд Главной, 'managers' — «Для менеджеров», 'empty' — пустая ячейка (новые и дублированные вкладки).
+  // После перезагрузки страницы всё возвращается к исходному.
+  let tabs = [{ id: 1, title: 'Главный', pane: 'main' }, { id: 2, title: 'Для менеджеров', pane: 'managers' }];
+  let activeTab = 1;
+  let nextTabId = 3;
+
+  const tabsW = $('#tabsWidget');
+  const tabsList = $('#tabsList');
+  const tabAddMenu = $('#tabAddMenu');
+  const tabDotsMenu = $('#tabDotsMenu');
+  const findTab = (id) => tabs.find((t) => t.id === id);
+
+  function renderTabs() {
+    tabsList.innerHTML = '';
+    for (const t of tabs) {
+      const tab = el('span', 'pg-tab' + (t.id === activeTab ? ' is-active' : ''));
+      tab.dataset.id = t.id;
+      const text = el('span', 'pg-tab__text');
+      text.textContent = t.title;
+      text.dataset.text = t.title;
+      tab.append(text);
+      tabsList.append(tab);
+    }
+    const pane = findTab(activeTab).pane;
+    for (const p of pageMain.querySelectorAll('.dash')) p.hidden = p.dataset.pane !== pane;
+  }
+
+  function setActiveTab(id) {
+    if (activeTab === id) return;
+    activeTab = id;
+    renderTabs();
+  }
+
+  // Перестановка мышью (вкладки в виджете — по X, строки в окне — по Y): элемент едет за курсором через соседей,
+  // порядок применяется по отпусканию. Без сдвига (меньше 4px) это просто клик — onEnd(false).
+  function startReorder(e, item, axis, onEnd) {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    const box = item.parentElement;
+    const pos = (ev) => (axis === 'x' ? ev.clientX : ev.clientY);
+    const start = pos(e);
+    let moved = false;
+    const move = (ev) => {
+      const p = pos(ev);
+      if (!moved) {
+        if (Math.abs(p - start) < 4) return;
+        moved = true;
+        item.classList.add('is-dragging');
+      }
+      const before = [...box.children].find((n) => {
+        if (n === item) return false;
+        const r = n.getBoundingClientRect();
+        return p < (axis === 'x' ? r.left + r.width / 2 : r.top + r.height / 2);
+      });
+      if (item.nextElementSibling !== (before || null)) box.insertBefore(item, before || null);
+    };
+    const up = () => {
+      document.removeEventListener('mousemove', move);
+      document.removeEventListener('mouseup', up);
+      item.classList.remove('is-dragging');
+      if (moved) {
+        const order = [...box.children].map((n) => +n.dataset.id);
+        tabs = order.map(findTab);
+      }
+      onEnd(moved);
+    };
+    document.addEventListener('mousemove', move);
+    document.addEventListener('mouseup', up);
+  }
+
+  // ----- выделение виджета -----
+  function selectTabs(on) {
+    tabsW.classList.toggle('is-selected', on);
+    if (!on) closeTabMenus();
+  }
+
+  tabsW.addEventListener('mousedown', (e) => {
+    if (e.target.closest('.is-editing, .tabs-w__bar')) return;
+    selectTabs(true);
+    const tab = e.target.closest('.pg-tab');
+    if (!tab) return;
+    const id = +tab.dataset.id;
+    startReorder(e, tab, 'x', (moved) => {
+      if (moved) { renderTabs(); renderTabsWin(); } else setActiveTab(id);
+    });
+  });
+  tabsW.addEventListener('dblclick', (e) => {
+    const tab = e.target.closest('.pg-tab');
+    if (tab) startTabRename(tab);
+  });
+
+  // Клик мимо виджета, его меню и окна снимает выделение; пока открыто окно «Вкладки», виджет остаётся выделенным.
+  stage.addEventListener('mousedown', (e) => {
+    if (tw || e.target.closest('#tabsWidget, #tabAddMenu, #tabDotsMenu, #tabsWin, #smeConfirm')) return;
+    selectTabs(false);
+  });
+
+  // Уход с Главной: меню и окно закрываются (изменения остаются), выделение снимается.
+  function leaveTabs() {
+    if (tw) closeTabsWin();
+    selectTabs(false);
+  }
+
+  // ----- переименование на месте (двойной клик): Enter или уход фокуса — применить, Esc — отменить -----
+  function startTabRename(tabEl) {
+    const t = findTab(+tabEl.dataset.id);
+    const text = $('.pg-tab__text', tabEl);
+    closeTabMenus();
+    text.classList.add('is-editing');
+    text.contentEditable = 'plaintext-only';
+    text.focus();
+    const range = document.createRange();
+    range.selectNodeContents(text);
+    const s = getSelection();
+    s.removeAllRanges();
+    s.addRange(range);
+    let done = false;
+    const finish = (apply) => {
+      if (done) return;
+      done = true;
+      const value = text.textContent.replace(/\s+/g, ' ').trim();
+      if (apply && value) t.title = value;
+      renderTabs();
+      renderTabsWin();
+    };
+    text.addEventListener('input', () => { text.dataset.text = text.textContent; });
+    text.addEventListener('blur', () => finish(true));
+    text.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); text.blur(); }
+      else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); finish(false); }
+    });
+  }
+
+  // ----- меню «+» и «⋯» -----
+  // «+»: заголовок меню («+ ВКЛАДКА») встаёт под кнопкой — его «+» по центру кнопки, на 4px ниже неё.
+  // Из окна «Вкладки» — «+» меню ровно поверх «+» окна (как меню «Иконка» в окне «Логотип»).
+  // 20 — отступ заголовка слева, 12 — половина иконки; 8 — верхний отступ меню, 14 — половина строки заголовка.
+  function openAddMenu(trigger, over = false) {
+    closeTabMenus();
+    tabAddMenu.hidden = false;
+    trigger.classList.add('is-active');
+    const r = stageRect(trigger);
+    tabAddMenu.style.left = Math.round(r.left + r.width / 2 - 20 - 12) + 'px';
+    tabAddMenu.style.top = Math.round(over ? r.top + r.height / 2 - 8 - 14 : r.top + r.height + 4) + 'px';
+    tabAddMenu.trigger = trigger;
+  }
+  // «⋯»: под кнопкой на 4px, иконка первого пункта — под кнопкой (8 — отступ списка, 12 — отступ пункта).
+  function openDotsMenu(trigger) {
+    closeTabMenus();
+    tabDotsMenu.hidden = false;
+    trigger.classList.add('is-active');
+    const r = stageRect(trigger);
+    tabDotsMenu.style.left = Math.round(r.left + r.width / 2 - 8 - 12 - 12) + 'px';
+    tabDotsMenu.style.top = Math.round(r.top + r.height + 4) + 'px';
+  }
+  function closeTabMenus() {
+    tabAddMenu.hidden = true;
+    tabDotsMenu.hidden = true;
+    for (const b of document.querySelectorAll('.tabs-w__btn.is-active, .tw-plus.is-active')) b.classList.remove('is-active');
+  }
+  const tabMenuOpen = () => !tabAddMenu.hidden || !tabDotsMenu.hidden;
+
+  $('#tabsPlus').addEventListener('click', (e) => (tabAddMenu.hidden ? openAddMenu(e.currentTarget) : closeTabMenus()));
+  $('#tabsDots').addEventListener('click', (e) => (tabDotsMenu.hidden ? openDotsMenu(e.currentTarget) : closeTabMenus()));
+  $('#tabsGear').addEventListener('click', () => { closeTabMenus(); openTabsWin('list'); });
+  $('#tabAddClose').addEventListener('click', closeTabMenus);
+  $('#tabDotsClose').addEventListener('click', closeTabMenus);
+  $('#tabAddBlank').addEventListener('click', () => { closeTabMenus(); openTabsWin('new'); });
+  tabDotsMenu.addEventListener('click', (e) => {
+    const act = e.target.closest('[data-act]')?.dataset.act;
+    if (act === 'add') openAddMenu($('#tabsPlus'));
+    else if (act === 'settings') { closeTabMenus(); openTabsWin('list'); }
+  });
+  stage.addEventListener('mousedown', (e) => {
+    if (!tabMenuOpen() || e.target.closest('#tabAddMenu, #tabDotsMenu, #tabsPlus, #tabsDots, #twPlus')) return;
+    closeTabMenus();
+  });
+
+  // ---------- Окно «Вкладки» (Figma 18772:35266) ----------
+  // Встаёт справа от виджета (8px). Экраны: список вкладок и одна вкладка (название, доступ).
+  // Изменения сразу видны на дашборде; ↺ возвращает всё как было при открытии окна, ✓ закрывает,
+  // ✕ при изменениях спрашивает «Сохранить изменения?» («Нет» — вернуть как было).
+  // Новая вкладка («С чистого листа») появляется, как только у неё есть название.
+  const tabsWin = $('#tabsWin');
+  const twList = $('#twList');
+  const twInput = $('#twInput');
+  const twReset = $('#twReset');
+  // tw: { start — снимок при открытии, screen: 'list' | 'edit', editId — открытая вкладка, isNew — экран новой вкладки, prevActive }
+  let tw = null;
+
+  const tabsSnapshot = () => JSON.stringify({ tabs, activeTab });
+  function restoreTabs(snap) {
+    const s = JSON.parse(snap);
+    tabs = s.tabs;
+    activeTab = s.activeTab;
+  }
+
+  function openTabsWin(screen) {
+    if (!tw) {
+      setWindow(null);
+      tw = { start: tabsSnapshot() };
+      tabsWin.hidden = false;
+      const r = stageRect(tabsW);
+      tabsWin.style.left = Math.round(Math.min(r.left + r.width + 8, 1600 - tabsWin.offsetWidth)) + 'px';
+      tabsWin.style.top = Math.round(Math.max(0, r.top)) + 'px';
+    }
+    selectTabs(true);
+    if (screen === 'new') showTabEdit(null);
+    else showTabList();
+  }
+
+  function closeTabsWin() {
+    closeTabMenus();
+    smeConfirm.hidden = true;
+    tabsWin.hidden = true;
+    tw = null;
+  }
+
+  function showTabList() {
+    tw.screen = 'list';
+    tw.editId = null;
+    tw.isNew = false;
+    renderTabsWin();
+  }
+
+  // id = null — новая вкладка: пустое поле, вкладка создаётся с первым символом названия.
+  function showTabEdit(id) {
+    tw.screen = 'edit';
+    tw.editId = id;
+    tw.isNew = id == null;
+    tw.prevActive = activeTab;
+    twInput.value = id == null ? '' : findTab(id).title;
+    renderTabsWin();
+    twInput.focus();
+    twInput.setSelectionRange(twInput.value.length, twInput.value.length);
+  }
+
+  function renderTabsWin() {
+    if (!tw) return;
+    const edit = tw.screen === 'edit';
+    tabsWin.classList.toggle('is-edit', edit);
+    $('#twTitle').textContent = edit ? 'Вкладка' : 'Вкладки';
+    twReset.disabled = tabsSnapshot() === tw.start;
+    if (edit) return;
+    twList.innerHTML = '';
+    tabs.forEach((t, i) => {
+      const row = el('div', 'tw-row');
+      row.dataset.id = t.id;
+      const text = el('span', 'tw-row__text');
+      text.textContent = t.title;
+      const cmds = el('span', 'tw-row__cmds',
+        `<button class="tw-row__cmd" type="button" data-cmd="edit" aria-label="Настроить"><span class="ico24">&#xEAA9;</span></button>
+         <button class="tw-row__cmd" type="button" data-cmd="copy" aria-label="Дублировать"><span class="ico24">&#xE669;</span></button>` +
+        (i > 0 ? '<button class="tw-row__cmd tw-row__cmd--del" type="button" data-cmd="delete" aria-label="Удалить"><span class="ico24">&#xE65C;</span></button>' : ''));
+      row.append(text, cmds);
+      twList.append(row);
+    });
+  }
+
+  // После любой правки — дашборд и окно перерисовываются.
+  function tabsChanged() {
+    if (!findTab(activeTab)) activeTab = tabs[0].id;
+    renderTabs();
+    renderTabsWin();
+  }
+
+  twList.addEventListener('mousedown', (e) => {
+    const row = e.target.closest('.tw-row');
+    if (!row) return;
+    const id = +row.dataset.id;
+    const cmd = e.target.closest('[data-cmd]')?.dataset.cmd;
+    if (cmd) {
+      e.preventDefault();
+      if (cmd === 'edit') showTabEdit(id);
+      else if (cmd === 'copy') {
+        const i = tabs.findIndex((t) => t.id === id);
+        tabs.splice(i + 1, 0, { id: nextTabId++, title: tabs[i].title, pane: 'empty' });
+        tabsChanged();
+      } else if (cmd === 'delete') {
+        tabs = tabs.filter((t) => t.id !== id);
+        tabsChanged();
+      }
+      return;
+    }
+    startReorder(e, row, 'y', (moved) => (moved ? tabsChanged() : showTabEdit(id)));
+  });
+
+  // Название применяется на лету; пустое поле у существующей вкладки не стирает её название.
+  twInput.addEventListener('input', () => {
+    const value = twInput.value.replace(/\s+/g, ' ').trim();
+    if (tw.isNew) {
+      if (value && tw.editId == null) {
+        tw.editId = nextTabId++;
+        tabs.push({ id: tw.editId, title: value, pane: 'empty' });
+        activeTab = tw.editId;
+      } else if (value) findTab(tw.editId).title = value;
+      else if (tw.editId != null) {
+        tabs = tabs.filter((t) => t.id !== tw.editId);
+        tw.editId = null;
+        activeTab = tw.prevActive;
+      }
+    } else if (value) findTab(tw.editId).title = value;
+    tabsChanged();
+  });
+  twInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); showTabList(); }
+  });
+
+  $('#twBack').addEventListener('click', showTabList);
+  $('#twPlus').addEventListener('click', (e) => (tabAddMenu.hidden ? openAddMenu(e.currentTarget, true) : closeTabMenus()));
+  $('#twDone').addEventListener('click', closeTabsWin);
+  twReset.addEventListener('click', () => {
+    restoreTabs(tw.start);
+    tabsChanged();
+    showTabList();
+  });
+  $('#twClose').addEventListener('click', () => {
+    if (tabsSnapshot() === tw.start) closeTabsWin();
+    else smeConfirm.hidden = false;
+  });
+  function answerTabsConfirm(answer) {
+    if (answer === 'yes') closeTabsWin();
+    else if (answer === 'no') { restoreTabs(tw.start); closeTabsWin(); renderTabs(); }
+    else if (answer === 'cancel') smeConfirm.hidden = true;
+  }
+  tabsWin.querySelector('.set-win__head').addEventListener('mousedown', (e) => startDrag(e, tabsWin));
+
+  // Esc: подтверждение — «Отмена»; иначе снимает выделение виджета (если окно не открыто).
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape' || ed) return;
+    if (tw && !smeConfirm.hidden) { e.stopImmediatePropagation(); smeConfirm.hidden = true; return; }
+    if (!tw && !tabMenuOpen() && e.target === document.body) selectTabs(false);
+  });
+
+  renderTabs();
 
   // ---------- Выбор иконки раздела (Figma 44fX18O5Huk4hmoaANMNIC 10506:57779, без выбора цвета) ----------
   // Открывается по клику на иконку в шапке редактора, встаёт под ней. Выбранная иконка — в черновик (с отменой),
@@ -914,7 +1256,7 @@
 
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
-    if (!dropdown.hidden || !iconMenu.hidden) closePopups();
+    if (!dropdown.hidden || !iconMenu.hidden || tabMenuOpen()) closePopups();
     else closeSubmenu();
   });
 

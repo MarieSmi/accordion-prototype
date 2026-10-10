@@ -86,11 +86,16 @@
           <!-- Главная -->
           <section class="page" id="pageMain">
             <div class="pg-head"><div class="pg-search">Найти</div></div>
-            <div class="pg-tabs">
-              <span class="pg-tab is-active"><span class="pg-tab__text" data-text="Главный">Главный</span></span>
-              <span class="pg-tab"><span class="pg-tab__text" data-text="Для менеджеров">Для менеджеров</span></span>
+            <!-- Виджет «Вкладки» (Figma xMQ3ZEN4AUINgwjVoxR8hS 18731:100134): вкладки рисует app.js -->
+            <div class="tabs-w" id="tabsWidget">
+              <div class="pg-tabs" id="tabsList"></div>
+              <div class="tabs-w__bar" id="tabsBar">
+                <button class="tabs-w__btn" type="button" id="tabsPlus" aria-label="Добавить вкладку"><span class="ico24">&#xE95D;</span></button>
+                <button class="tabs-w__btn" type="button" id="tabsGear" aria-label="Настроить вкладки"><span class="ico24">&#xE75D;</span></button>
+                <button class="tabs-w__btn" type="button" id="tabsDots" aria-label="Ещё"><span class="ico24">&#xEAB4;</span></button>
+              </div>
             </div>
-            <div class="dash">
+            <div class="dash" data-pane="main">
               <div class="dash-row">
                 <div class="dash-counter"><span class="dash-counter__label">Новые клиенты</span><span class="dash-counter__value"><img src="assets/img/dash-new-clients.png" width="20" height="18" alt="">2561</span></div>
                 <div class="dash-counter"><span class="dash-counter__label">Просроченные лиды</span><span class="dash-counter__value"><img src="assets/img/dash-overdue-leads.png" width="20" height="18" alt="">2561</span></div>
@@ -185,6 +190,99 @@
                   <div class="w-empty__action w-empty__action--main"><span class="ico24">&#xE6D3;</span>Виджет</div>
                   <div class="w-empty__action"><span class="ico24">&#xEAC3;</span>Строки</div>
                 </div>
+              </div>
+            </div>
+
+            <!-- Вкладка «Для менеджеров» (Figma xMQ3ZEN4AUINgwjVoxR8hS 18771:29704) -->
+            <div class="dash" data-pane="managers" hidden>
+              <div class="dash-row">
+                <div class="widget m-discount">
+                  <div class="m-discount__top">
+                    <div class="m-discount__total"><span class="m-label">Сумма скидки</span><span class="m-num">128 256</span></div>
+                    <div class="m-cols">
+                      <div class="m-col"><span class="m-label">Продажи</span><span class="m-num m-num--muted">1 024</span></div>
+                      <div class="m-col"><span class="m-label">Сумма</span><span class="m-num">512 384</span></div>
+                    </div>
+                  </div>
+                  <div class="m-chart">
+                    <div class="m-donut">
+                      <img src="assets/img/donut1-a.svg" width="57.5043" height="51.4215" alt="" style="left:44.07px;top:-.42px">
+                      <img src="assets/img/donut1-b.svg" alt="" style="left:-.42px;top:-.11px">
+                      <img src="assets/img/donut1-c.svg" alt="" style="left:-.35px;top:51.99px">
+                      <img src="assets/img/donut1-d.svg" alt="" style="left:38.32px;top:50.16px">
+                      <div class="m-donut__center"><span class="m-label">Скидка</span><span class="m-num">51.2%</span></div>
+                    </div>
+                    <div class="m-legend">
+                      <div class="m-legend__row"><span class="m-legend__name" style="--c:#d9d9d9">5% постоянные покупатели</span><span class="m-legend__v m-legend__v--muted">141</span><span class="m-legend__v">58 204</span></div>
+                      <div class="m-legend__row"><span class="m-legend__name" style="--c:#7cb5ec">10 VIP</span><span class="m-legend__v m-legend__v--muted">213</span><span class="m-legend__v">34 680</span></div>
+                      <div class="m-legend__row"><span class="m-legend__name" style="--c:#ff9c6c">20% в день</span><span class="m-legend__v m-legend__v--muted">96</span><span class="m-legend__v">26 998</span></div>
+                      <div class="m-legend__row"><span class="m-legend__name" style="--c:#555bb2">Новогодние праздники</span><span class="m-legend__v m-legend__v--muted">120</span><span class="m-legend__v">14 654</span></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="widget m-cats">
+                  <div class="m-cat">
+                    <img src="assets/img/mgr-auto.png" width="32" height="32" alt="">
+                    <div class="m-cat__body"><div class="m-cat__title">Автотовары</div>
+                      <div class="m-cat__tags"><span>Автоаксессуары</span><span>Автозапчасти</span><span>Автомобильные масла</span><span>Автохимия и автокосметика</span><span>Автоэлектроника</span></div></div>
+                  </div>
+                  <div class="m-cat">
+                    <img src="assets/img/mgr-alco.png" width="32" height="32" alt="">
+                    <div class="m-cat__body"><div class="m-cat__title">Алкогольная продукция</div>
+                      <div class="m-cat__tags"><span>Бренди</span><span>Вина и винные напитки</span><span>Вина игристые</span><span>Виски</span><span>Водка</span><span>Граппа</span><span>Джин</span><span>Другие напитки</span></div></div>
+                  </div>
+                  <div class="m-cat">
+                    <img src="assets/img/mgr-appliances.png" width="32" height="32" alt="">
+                    <div class="m-cat__body"><div class="m-cat__title">Бытовая техника</div>
+                      <div class="m-cat__tags"><span>Встраиваемая техника</span><span>Климатическая техника</span><span>Техника для дома</span><span>Техника для кухни</span></div></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="dash-row">
+                <div class="widget">
+                  <div class="m-head"><img class="widget__marker" src="assets/img/dash-marker.svg" width="3.3719" height="17.7025" alt="">Компании</div>
+                  <div class="widget__body m-companies">
+                    <div class="m-company"><span class="m-company__name">РЖД, ПАО</span><span class="m-company__city">Ярославль</span><span class="m-company__inn">78421847848</span></div>
+                    <div class="m-company"><span class="m-company__name">Абрау-Дюрсо, ООО</span><span class="m-company__city">Гагры</span><span class="m-company__inn">78464564565</span></div>
+                    <div class="m-company"><span class="m-company__name">Альберто, ООО</span><span class="m-company__city">Ярославль</span><span class="m-company__inn">78453543333</span></div>
+                    <div class="m-company"><span class="m-company__name">Транснефть, ПАО</span><span class="m-company__city">Москва</span><span class="m-company__inn">7825706086</span></div>
+                    <div class="m-company"><span class="m-company__name">ПАО СБЕРБАНК</span><span class="m-company__city">Москва</span><span class="m-company__inn">7707083893</span></div>
+                    <div class="m-company"><span class="m-company__name">ТК "Мегаполис", АО</span><span class="m-company__city">Булат...</span><span class="m-company__inn">7825706086</span></div>
+                    <div class="m-company"><span class="m-company__name">БАНК ВТБ (ПАО)</span><span class="m-company__city">Санкт-Пе...</span><span class="m-company__inn">7825706086</span></div>
+                    <div class="m-company"><span class="m-company__name">Новатэк, ПАО</span><span class="m-company__city">Тарко-Сале</span><span class="m-company__inn">7825706086</span></div>
+                  </div>
+                </div>
+
+                <div class="widget">
+                  <div class="m-head"><img class="widget__marker" src="assets/img/dash-marker.svg" width="3.3719" height="17.7025" alt="">Компании</div>
+                  <div class="widget__body">
+                    <div class="m-chart m-chart--right">
+                      <div class="m-legend m-legend--plain">
+                        <div class="m-legend__row"><span class="m-legend__name" style="--c:#0c94ff">СБИС</span><span class="m-legend__v">18 204</span></div>
+                        <div class="m-legend__row"><span class="m-legend__name" style="--c:#00c5a8">Контур</span><span class="m-legend__v">845</span></div>
+                        <div class="m-legend__row"><span class="m-legend__name" style="--c:#fec63f">Другие</span><span class="m-legend__v">945</span></div>
+                        <div class="m-legend__row"><span class="m-legend__name" style="--c:#999">Не подключен</span><span class="m-legend__v">2 856</span></div>
+                      </div>
+                      <div class="m-donut">
+                        <img src="assets/img/donut2-a.svg" alt="" style="left:44.07px;top:-.42px">
+                        <img src="assets/img/donut2-b.svg" alt="" style="left:-.42px;top:-.11px">
+                        <img src="assets/img/donut2-c.svg" alt="" style="left:-.35px;top:51.99px">
+                        <img src="assets/img/donut2-d.svg" alt="" style="left:38.32px;top:50.16px">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Новая вкладка: пустая ячейка конструктора на всю ширину (Figma 18797:65819) -->
+            <div class="dash" data-pane="empty" hidden>
+              <div class="w-empty w-empty--tab">
+                <div class="w-empty__action"><span class="ico24">&#xEAEE;</span>Колонки</div>
+                <div class="w-empty__action w-empty__action--main"><span class="ico24">&#xE6D3;</span>Виджет</div>
+                <div class="w-empty__action"><span class="ico24">&#xEAC3;</span>Строки</div>
               </div>
             </div>
           </section>
@@ -360,6 +458,51 @@
           <div class="icon-pick__list" id="iconPickList"></div>
           <div class="icon-pick__tabs" id="iconPickTabs"></div>
         </div>
+      </div>
+
+      <!-- Окно «Вкладки» (Figma xMQ3ZEN4AUINgwjVoxR8hS 18772:35266): список вкладок / одна вкладка -->
+      <section class="set-win tabs-win" id="tabsWin" hidden aria-label="Вкладки">
+        <div class="set-win__head">
+          <button class="tw-back" type="button" id="twBack" aria-label="Назад"><img src="assets/img/back-arrow.svg" width="7.5" height="13" alt=""></button>
+          <span class="set-win__title" id="twTitle">Вкладки</span>
+          <button class="tw-plus" type="button" id="twPlus" aria-label="Добавить вкладку"><span class="ico">&#xEADD;</span></button>
+          <div class="set-win__cmds">
+            <button class="sw-reset" type="button" id="twReset" aria-label="Сбросить настройки" disabled><span class="ico24">&#xE629;</span></button>
+            <button class="sw-done" type="button" id="twDone" aria-label="Сохранить и закрыть"><span class="ico">&#xE75E;</span></button>
+            <button class="sw-close" type="button" id="twClose" aria-label="Закрыть"><span class="ico24">&#xE66C;</span></button>
+          </div>
+        </div>
+        <div class="tw-list" id="twList"></div>
+        <div class="set-win__body tw-edit" id="twEdit">
+          <input class="tw-input" type="text" id="twInput" placeholder="Новая вкладка" spellcheck="false" autocomplete="off">
+          <div class="tw-access"><span class="mw-link">Доступна всем пользователям</span></div>
+        </div>
+      </section>
+
+      <!-- Меню «+» виджета вкладок (Figma 18797:88559): работает только «С чистого листа» -->
+      <div class="icon-menu tab-add" id="tabAddMenu" hidden>
+        <div class="icon-menu__head">
+          <span class="ico24 icon-menu__head-icon">&#xE95D;</span>
+          <span class="icon-menu__title">вкладка</span>
+          <button class="icon-menu__close" type="button" id="tabAddClose" aria-label="Закрыть"><img src="assets/img/close-popup.svg" width="28" height="28" alt=""></button>
+        </div>
+        <div class="icon-menu__list">
+          <button class="icon-menu__item" type="button" id="tabAddBlank"><span class="ico24">&#xE735;</span><span class="icon-menu__text">С чистого листа</span></button>
+          <div class="tab-add__sep"></div>
+          <div class="icon-menu__item is-static"><span class="ico24">&#xE730;</span><span class="icon-menu__text">С компьютера</span></div>
+          <div class="icon-menu__item is-static"><span class="tab-add__ico16"><span class="ico">&#xE6FD;</span></span><span class="icon-menu__text">Из буфера обмена</span><span class="ico tab-add__more">&#xE6A2;</span></div>
+          <div class="icon-menu__item is-static"><span class="ico24">&#xE607;</span><span class="icon-menu__text">Из документов</span></div>
+          <div class="icon-menu__item is-static"><span class="ico24">&#xEB59;</span><span class="icon-menu__text">Нашей компании</span></div>
+        </div>
+      </div>
+
+      <!-- Меню «⋯» виджета вкладок (как Figma 18715:98626, только «Добавить» и «Настроить») -->
+      <div class="tab-dots" id="tabDotsMenu" hidden>
+        <div class="tab-dots__list">
+          <button class="icon-menu__item" type="button" data-act="add"><span class="ico24">&#xE95D;</span><span class="icon-menu__text">Добавить</span></button>
+          <button class="icon-menu__item" type="button" data-act="settings"><span class="ico24">&#xEAA9;</span><span class="icon-menu__text">Настроить</span></button>
+        </div>
+        <button class="mw-menu__close" type="button" id="tabDotsClose" aria-label="Закрыть"><img src="assets/img/close-menu.svg" width="12" height="12" alt=""></button>
       </div>
 
       <!-- Подтверждение «Сохранить изменения?» (Figma nuC4KFMiS36uDWDUp9wKGl 4064:21938) — по центру сцены, поверх всего -->
