@@ -15,8 +15,8 @@
       <header class="ctor-header">
         <div class="ctor-header__left">
           <div class="pill-group">
-            <button class="tb-btn tb-btn--text" type="button"><span class="ico">&#xEBBE;</span><span class="tb-btn__label">Меню</span></button>
-            <button class="tb-btn tb-btn--text" type="button"><span class="ico">&#xE9E2;</span><span class="tb-btn__label">Логотип</span></button>
+            <button class="tb-btn tb-btn--text" type="button" id="menuBtn"><span class="ico">&#xEBBE;</span><span class="tb-btn__label">Меню</span></button>
+            <button class="tb-btn tb-btn--text" type="button" id="logoBtn"><span class="ico">&#xE9E2;</span><span class="tb-btn__label">Логотип</span></button>
           </div>
         </div>
 
@@ -101,6 +101,117 @@
 
       <!-- Слой для подменю -->
       <div class="submenu-layer" id="submenuLayer"></div>
+
+      <!-- Окно настроек «Меню» -->
+      <section class="set-win" id="menuWin" hidden aria-label="Меню">
+        <div class="set-win__head">
+          <span class="set-win__title">Меню</span>
+          <div class="set-win__cmds">
+            <button class="sw-reset" type="button" id="mwReset" aria-label="Сбросить настройки" disabled><span class="ico24">&#xE629;</span></button>
+            <button class="sw-done" type="button" id="mwDone" aria-label="Сохранить и закрыть"><span class="ico">&#xE75E;</span></button>
+            <button class="sw-close" type="button" id="mwClose" aria-label="Закрыть"><span class="ico24">&#xE66C;</span></button>
+          </div>
+        </div>
+        <div class="set-win__body">
+          <div class="mw-tiles">
+            <button class="mw-tile mw-tile--wide" type="button" data-view="wide" aria-label="Раскрытый аккордеон">
+              <span class="mw-tile__in">
+                <span class="mw-tile__acc"><span class="mw-tile__row"><i></i><b></b></span><span class="mw-tile__row is-mid"><i></i><b></b></span><span class="mw-tile__row"><i></i><b></b></span></span>
+                <span class="mw-tile__page"><span class="mw-tile__title"><b></b></span><span class="mw-tile__sheet"></span></span>
+              </span>
+            </button>
+            <button class="mw-tile mw-tile--narrow" type="button" data-view="narrow" aria-label="Узкий аккордеон">
+              <span class="mw-tile__in">
+                <span class="mw-tile__acc"><span class="mw-tile__row"><i></i><b></b></span><span class="mw-tile__row is-mid"><i></i><b></b></span><span class="mw-tile__row"><i></i><b></b></span></span>
+                <span class="mw-tile__page"><span class="mw-tile__title"><b></b></span><span class="mw-tile__sheet"><b></b><b></b></span></span>
+              </span>
+            </button>
+          </div>
+          <div class="mw-prop" id="mwNarrowRow">
+            <span class="mw-prop__name">Вид панели</span>
+            <button class="mw-link" type="button" id="mwNarrowLink"></button>
+          </div>
+          <div class="mw-prop">
+            <span class="mw-prop__name">Открывать подменю</span>
+            <div class="mw-radios" id="mwTrigger">
+              <button class="mw-radio" type="button" data-trigger="hover"><span class="mw-radio__box"></span><span class="mw-radio__text">По наведению</span></button>
+              <button class="mw-radio" type="button" data-trigger="click"><span class="mw-radio__box"></span><span class="mw-radio__text">По клику</span></button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Выпадающий список «Вид панели» -->
+      <div class="mw-menu" id="mwMenu" hidden>
+        <div class="mw-menu__list" id="mwMenuList"></div>
+        <button class="mw-menu__close" type="button" id="mwMenuClose" aria-label="Закрыть"><img src="assets/img/close-menu.svg" width="12" height="12" alt=""></button>
+      </div>
+
+      <!-- Окно настроек «Логотип» -->
+      <section class="set-win" id="logoWin" hidden aria-label="Логотип">
+        <div class="set-win__head">
+          <span class="set-win__title">Логотип</span>
+          <div class="set-win__cmds">
+            <button class="sw-reset" type="button" id="lwReset" aria-label="Сбросить настройки" disabled><span class="ico24">&#xE629;</span></button>
+            <button class="sw-done" type="button" aria-label="Сохранить и закрыть"><span class="ico">&#xE75E;</span></button>
+            <button class="sw-close" type="button" aria-label="Закрыть"><span class="ico24">&#xE66C;</span></button>
+          </div>
+        </div>
+        <div class="lw-blocks">
+          <div class="set-win__body">
+            <p class="lw-hint"><span class="lw-link">Выберите</span> логотип из коллекции или <span class="lw-link">сделайте текстовый логотип</span></p>
+            <div class="lw-preview">
+              <button class="lw-bird" type="button" id="lwBird" aria-label="Загрузить иконку">
+                <span class="lw-bird__logo"></span>
+                <span class="lw-bird__clip ico">&#xE671;</span>
+              </button>
+              <span class="lw-preview__text">saby</span>
+            </div>
+          </div>
+          <div class="lw-actions">
+            <div class="lw-actions__head">
+              <span class="lw-actions__title">Действия по плюсу</span>
+              <span class="lw-round"><span class="ico">&#xEADD;</span></span>
+              <span class="lw-round"><span class="ico">&#xE668;</span></span>
+            </div>
+            <ul class="lw-actions__list">
+              <li class="lw-action">
+                <span class="lw-action__icon"><span class="ico">&#xE95D;</span></span><span class="lw-action__text">Создать задачу</span>
+                <span class="lw-action__cmds"><span class="ico24">&#xEAA9;</span><span class="ico lw-action__del">&#xE65C;</span><span class="ico24">&#xE9D9;</span></span>
+              </li>
+              <li class="lw-action">
+                <span class="lw-action__icon"><span class="ico">&#xE654;</span></span><span class="lw-action__text">Совещание</span>
+                <span class="lw-action__cmds"><span class="ico24">&#xEAA9;</span><span class="ico lw-action__del">&#xE65C;</span><span class="ico24">&#xE9D9;</span></span>
+              </li>
+              <li class="lw-action">
+                <span class="lw-action__icon"><span class="ico">&#xEA38;</span></span><span class="lw-action__text">Авансовый отчет</span>
+                <span class="lw-action__cmds"><span class="ico24">&#xEAA9;</span><span class="ico lw-action__del">&#xE65C;</span><span class="ico24">&#xE9D9;</span></span>
+              </li>
+              <li class="lw-action">
+                <span class="lw-action__icon"><span class="ico">&#xEB33;</span></span><span class="lw-action__text">Новость</span>
+                <span class="lw-action__cmds"><span class="ico24">&#xEAA9;</span><span class="ico lw-action__del">&#xE65C;</span><span class="ico24">&#xE9D9;</span></span>
+              </li>
+              <li class="lw-action">
+                <span class="lw-action__icon"><span class="ico">&#xE671;</span></span><span class="lw-action__text">Загрузить</span>
+                <span class="lw-action__cmds"><span class="ico24">&#xEAA9;</span><span class="ico lw-action__del">&#xE65C;</span><span class="ico24">&#xE9D9;</span></span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Меню «Иконка» (загрузка логотипа) -->
+      <div class="icon-menu" id="iconMenu" hidden>
+        <div class="icon-menu__head">
+          <span class="ico24 icon-menu__head-icon">&#xE671;</span>
+          <span class="icon-menu__title">иконка</span>
+          <button class="icon-menu__close" type="button" id="iconMenuClose" aria-label="Закрыть"><img src="assets/img/close-popup.svg" width="28" height="28" alt=""></button>
+        </div>
+        <div class="icon-menu__list">
+          <button class="icon-menu__item" type="button"><span class="ico24">&#xE730;</span><span class="icon-menu__text">С компьютера</span></button>
+          <button class="icon-menu__item" type="button"><span class="ico24">&#xE90A;</span><span class="icon-menu__text">Из коллекции</span></button>
+        </div>
+      </div>
     </div>
   </div>
   <script src="app.js"></script>

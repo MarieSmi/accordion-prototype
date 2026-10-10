@@ -1,6 +1,6 @@
 /* ---------- Шрифты ---------- */
-@font-face { font-family: "Inter"; font-weight: 100 900; font-display: block; src: url("assets/fonts/inter-cyrillic.woff2") format("woff2"); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
-@font-face { font-family: "Inter"; font-weight: 100 900; font-display: block; src: url("assets/fonts/inter-latin.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Inter"; font-weight: 100 900; font-display: block; src: url("assets/fonts/inter-var-cyrillic.woff2") format("woff2"); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: "Inter"; font-weight: 100 900; font-display: block; src: url("assets/fonts/inter-var-latin.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
 @font-face { font-family: "Maison Neue Extended"; font-weight: 400; font-display: block; src: url("assets/fonts/maison-neue-extended-book.woff2") format("woff2"); }
 @font-face { font-family: "Accordion-Font"; src: url("assets/fonts/Accordion-Font.ttf") format("truetype"); font-display: block; }
 @font-face { font-family: "cbuc-icons"; src: url("assets/fonts/cbuc-icons.ttf") format("truetype"); font-display: block; }
@@ -37,6 +37,20 @@
   --submenu-shadow: 0 0 46px rgba(0, 0, 0, .12), 0 0 15px rgba(0, 0, 0, .12);
   --float-btn-bg: rgba(202, 202, 202, .7);
 
+  /* окно «Меню» */
+  --win-bg: #f3f5f7;           /* background/contrast_background-color */
+  --win-shadow: 0 0 46px rgba(0, 0, 0, .12), 0 0 15px rgba(0, 0, 0, .12); /* shadow_a */
+  --label: #656c87;            /* icon/secondary_icon-color */
+  --link: #2562aa;             /* text/link_text-color */
+  --link-hover: #153f6f;       /* text/link_hover_text-color */
+  --readonly: #ccc;            /* text/readonly_text-color */
+  --switcher-text: #8991a9;    /* components/toggle/text-color_switcher */
+  --border: #d2d6da;           /* border/unaccented_border-color */
+  --accent: #f6733c;           /* background/contrast/primary_color */
+  --accent-bg: #fff8f5;        /* background/primary_background-color */
+  --accent-active-bg: #ffe6db; /* background/primary_active_background-color */
+  --menu-item-hover: #f5f5f5;  /* нет в макете — подобран */
+
   /* правая панель */
   --rp-hover: rgba(90, 73, 171, .08);
   --rp-accent: #db4200;
@@ -53,7 +67,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 .ico--20 { font-size: 20px; width: 20px; height: 20px; }
 .ico--24 { font-size: 24px; width: 24px; height: 24px; }
 .ico24 { font-family: "cbuc-icons24"; font-size: 24px; line-height: 1; color: var(--icon); display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; }
-.acc-icon20 { font-family: "Accordion-Font"; font-size: 20px; line-height: 1; letter-spacing: -.282px; color: var(--acc-icon); }
+.acc-glyph { font-family: "Accordion-Font"; font-size: 20px; line-height: 1; letter-spacing: -.282px; color: var(--acc-icon); }
 .acc-icon16 { font-family: "Accordion-Font"; font-size: 16px; line-height: 1; color: var(--acc-icon); }
 
 /* ---------- Сцена 1600×900, масштабируется под окно ---------- */
@@ -109,8 +123,8 @@ ul { list-style: none; margin: 0; padding: 0; }
   background: var(--acc-bg); border-top-left-radius: 8px;
   display: flex; flex-direction: column; color: var(--acc-text);
 }
-/* Светлый текст на тёмном фоне в браузере выглядит жирнее, чем в Figma — компенсируем начертанием */
-.accordion, .submenu { font-weight: 350; }
+/* Светлый текст на тёмном фоне выглядит жирнее, чем в Figma — компенсируем тонким начертанием (Inter переменной толщины) */
+.accordion, .submenu, .lw-preview { font-weight: 350; -webkit-font-smoothing: antialiased; }
 .acc-header { display: flex; flex-direction: column; gap: 2px; padding-bottom: 5px; }
 .acc-header__row {
   margin: 3px 4px 0; height: 40px; padding: 4px 4px 4px 8px;
@@ -125,6 +139,9 @@ ul { list-style: none; margin: 0; padding: 0; }
   height: 32px; display: flex; align-items: center; padding-top: 2px;
   font-family: "Maison Neue Extended", var(--font); font-weight: 400; font-size: 20px; color: var(--acc-text);
 }
+/* У логотипного шрифта одно начертание — утоньшаем светлые буквы обводкой цвета фона */
+.acc-logo, .lw-preview__text { -webkit-text-stroke: .5px var(--acc-bg); }
+.acc-header__row:hover .acc-logo { -webkit-text-stroke-color: var(--acc-item-hover); }
 .acc-plus { margin-left: auto; width: 28px; height: 28px; border-radius: 14px; display: flex; align-items: center; justify-content: center; transition: background-color .12s; }
 .acc-plus .ico { color: var(--acc-plus); }
 .acc-plus:hover { background: rgba(255, 255, 255, .1); }
@@ -175,10 +192,69 @@ ul { list-style: none; margin: 0; padding: 0; }
 .acc-cmd:hover .ico { color: #fff; }
 .acc-item.is-delay .acc-cmds,
 .acc-item.is-selected.is-hover .acc-cmds { opacity: 1; pointer-events: auto; }
+.acc-item__short { display: none; }
+
+/* ---------- Узкий аккордеон (56px) ---------- */
+.accordion.is-narrow { width: 56px; z-index: 5; }
+.accordion.is-panel-open { width: 200px; }
+
+/* шапка: только птичка и бургер */
+.accordion.is-compact .acc-header { align-items: center; gap: 6px; padding: 7px 0 3px; }
+.accordion.is-compact .acc-header__row { margin: 0; height: 32px; padding: 0; gap: 0; background: none; }
+.accordion.is-compact .acc-logo,
+.accordion.is-compact .acc-plus,
+.accordion.is-compact .acc-group__title { display: none; }
+.accordion.is-compact .acc-group { padding: 0; gap: 0; }
+.accordion.is-narrow .acc-bird { background: var(--acc-item-selected); }
+/* у панели бургера и «+» нет */
+.accordion.is-panel .acc-burger { visibility: hidden; }
+.accordion.is-panel .acc-plus { display: none; }
+
+/* пункты */
+.accordion.is-compact .acc-list { padding-top: 2px; gap: 2px; }
+.accordion.is-compact .acc-item__btn {
+  width: 48px; height: 48px; flex-direction: column; justify-content: center; gap: 0;
+  padding: 4px 0; overflow: visible;
+}
+.accordion.is-compact .acc-item__title,
+.accordion.is-compact .acc-cmds { display: none; }
+.accordion.is-compact .acc-item__icon { width: 24px; height: 24px; padding: 0 0 2px; }
+.accordion.is-compact .acc-glyph { font-size: 24px; letter-spacing: -.3384px; }
+.accordion.is-compact .acc-cal { width: 24px; height: 24px; }
+.accordion.is-compact .acc-cal__frame { top: -2px; }
+.accordion.is-compact .acc-cal__day { top: 14px; font-size: 18px; letter-spacing: -.2538px; }
+/* с названиями: иконка сверху, подпись 10px снизу */
+.accordion.is-compact.is-labels .acc-item__btn { justify-content: flex-start; padding: 8px 0 4px; }
+.accordion.is-compact.is-labels .acc-item__btn--photo { padding-bottom: 2px; }
+.accordion.is-compact.is-labels .acc-item__icon,
+.accordion.is-compact.is-labels .acc-cal,
+.accordion.is-compact.is-labels .acc-item__photo { margin-bottom: -1px; }
+.accordion.is-compact.is-labels .acc-item__short {
+  display: block; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  text-align: center; font-size: 10px; letter-spacing: -.141px; line-height: 12px; color: var(--acc-text);
+}
+/* маркер выбранного раздела — короче, с отступами 8px */
+.accordion.is-compact .acc-item.is-selected::before { top: 8px; height: 32px; border-radius: 4px; }
+
+/* панель: свёрнутая — иконки 20px в пунктах 48×44; раскрытая — пункты 40px в строках 44px */
+.accordion.is-panel .acc-list { gap: 0; }
+.accordion.is-panel.is-compact .acc-item__btn { height: 44px; padding: 0; justify-content: center; }
+.accordion.is-panel.is-compact .acc-item__icon { width: 20px; height: 20px; padding: 1px 0 0; }
+.accordion.is-panel.is-compact .acc-glyph { font-size: 20px; letter-spacing: -.282px; }
+.accordion.is-panel.is-compact .acc-cal { width: 20px; height: 20px; }
+.accordion.is-panel.is-compact .acc-cal__frame { top: 0; }
+.accordion.is-panel.is-compact .acc-cal__day { top: 12px; font-size: 15px; letter-spacing: -.2115px; }
+.accordion.is-panel.is-compact .acc-item.is-selected::before { height: 28px; }
+.accordion.is-panel-open .acc-item { height: 44px; display: flex; align-items: center; }
+.accordion.is-panel-open .acc-item.is-selected::before { top: 2px; }
+.accordion.is-panel-open .acc-cmds { display: none; }
 
 /* ---------- Контент ---------- */
-.content { position: absolute; left: 229px; top: 45px; width: 1318px; height: 855px; overflow: hidden; background: #f8f8f8; }
-.content__shot { display: block; width: 1318px; height: 855px; }
+.content { position: absolute; left: 229px; top: 45px; width: 1318px; height: 855px; overflow: hidden; background: #f8f8f8; display: flex; justify-content: flex-end; }
+/* высота фиксирована, ширина — по пропорциям скриншота (обычные — 1318, под узкий аккордеон — 1482) */
+.content__shot { display: block; flex: none; width: auto; height: 855px; }
+/* при узком аккордеоне контент шире; скриншот без узкой версии прижат вправо, слева — фон страницы */
+.stage.is-narrow .content { left: 65px; width: 1482px; }
 
 /* ---------- Правая панель ---------- */
 .right-panel {
@@ -221,7 +297,172 @@ ul { list-style: none; margin: 0; padding: 0; }
 .sm-head__icon { padding: 0 2px 0 10px; display: flex; align-items: center; height: 20px; }
 .sm-head__title { padding: 0 16px 0 12px; font-size: 16px; letter-spacing: -.2256px; color: var(--acc-text); white-space: nowrap; }
 
+/* подменю узкого аккордеона и панели: без иконки, без отступа под неё */
+.submenu--narrow .submenu__panel, .submenu--panel .submenu__panel { min-width: 212px; }
+.submenu--narrow .submenu__head { padding: 5px 6px 2px; }
+.submenu--narrow .sm-head { padding-left: 10px; }
+.submenu--narrow .sm-head__title { padding: 0 10px 0 0; font-size: 20px; font-weight: 600; letter-spacing: -.282px; }
+.submenu--narrow .submenu__cols, .submenu--panel .submenu__cols { padding: 0 6px; }
+.submenu--panel .submenu__cols { padding-top: 6px; }
+.submenu--narrow .sm-item, .submenu--panel .submenu__cols .sm-item { padding: 0 10px; }
+.submenu--narrow .sm-item--sub, .submenu--panel .sm-item--sub { padding-left: 20px; }
+
 .submenu__float { position: absolute; right: -32px; top: 4px; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
 .float-btn { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--float-btn-bg); box-shadow: 1px 1px 6px rgba(0, 0, 0, .1); transition: background-color .12s; }
 .float-btn:hover { background: rgba(170, 170, 170, .85); }
 .float-btn .ico { color: #fff; font-size: 14px; width: 14px; height: 14px; }
+.float-btn img { display: block; }
+
+/* ---------- Окно «Меню» ---------- */
+.set-win {
+  position: absolute; left: 8px; top: 0; width: 350px; z-index: 20;
+  display: flex; flex-direction: column; padding: 0 4px 4px;
+  background: var(--win-bg); border-radius: 12px; box-shadow: var(--win-shadow);
+}
+.set-win[hidden], .mw-menu[hidden], .mw-prop[hidden] { display: none; }
+.set-win__head { height: 44px; display: flex; align-items: center; padding: 6px 0; cursor: grab; user-select: none; }
+.set-win.is-dragging, .set-win.is-dragging .set-win__head { cursor: grabbing; }
+.set-win__title { padding-left: 12px; font-size: 16px; font-weight: 600; letter-spacing: -.2256px; color: var(--text); }
+.set-win__cmds { margin-left: auto; display: flex; align-items: center; gap: 12px; padding: 0 4px 0 10px; }
+.sw-reset, .sw-close { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.sw-reset .ico24 { color: var(--label); transition: color .12s; }
+.sw-reset:hover .ico24 { color: var(--text); }
+.sw-reset:disabled { cursor: default; }
+.sw-reset:disabled .ico24 { color: var(--readonly); }
+.sw-done {
+  width: 28px; height: 28px; border-radius: 50%; background: var(--success);
+  display: flex; align-items: center; justify-content: center;
+  filter: drop-shadow(0 0 3px rgba(0, 0, 0, .1)); transition: filter .12s;
+}
+.sw-done .ico { color: #fff; }
+.sw-done:hover { filter: drop-shadow(0 0 3px rgba(0, 0, 0, .1)) brightness(1.08); }
+.sw-close { padding-bottom: 2px; }
+.sw-close .ico24 { color: var(--label); transition: color .12s; }
+.sw-close:hover .ico24 { color: var(--text); }
+
+.set-win__body { display: flex; flex-direction: column; gap: 8px; padding: 8px 12px; background: #fff; border-radius: 8px; }
+
+/* плитки: раскрытый и узкий аккордеон */
+.mw-tiles { display: flex; gap: 8px; }
+.mw-tile {
+  --tile-fill: rgba(0, 0, 0, .06); --tile-mark: rgba(0, 0, 0, .2);
+  position: relative; flex: 1 0 0; height: 62px; overflow: hidden;
+  background: #f2f2f2; border: 1px solid rgba(0, 0, 0, .2); border-radius: 8px;
+}
+.mw-tile:hover { --tile-fill: rgba(0, 0, 0, .1); --tile-mark: rgba(0, 0, 0, .3); border-color: rgba(0, 0, 0, .3); }
+.mw-tile.is-active { --tile-mark: var(--accent); border-color: var(--accent); cursor: default; }
+.mw-tile__in { position: absolute; inset: -1px; display: flex; gap: 4px; padding-right: 5px; }
+.mw-tile__acc { display: flex; flex-direction: column; height: 100%; padding: 3px 0; flex: none; width: 60px; background: var(--tile-fill); }
+.mw-tile.is-active .mw-tile__acc { background: var(--accent-bg); }
+.mw-tile__row { flex: 1 0 0; display: flex; align-items: center; gap: 3px; padding: 0 6px; }
+.mw-tile__row.is-mid { background: var(--tile-fill); }
+.mw-tile.is-active .mw-tile__row.is-mid { background: var(--accent-active-bg); }
+.mw-tile__row i { width: 4px; height: 4px; border-radius: 4px; background: var(--tile-mark); flex: none; }
+.mw-tile__row b { width: 30px; height: 4px; border-radius: 4px; background: var(--tile-mark); flex: none; }
+.mw-tile__page { flex: 1 0 0; min-width: 0; display: flex; flex-direction: column; gap: 5px; padding-top: 8px; }
+.mw-tile__title { display: flex; }
+.mw-tile__title b { width: 16px; height: 3px; border-radius: 6px; background: rgba(51, 51, 51, .15); }
+.mw-tile__sheet { flex: 1 0 0; background: #fff; border-radius: 3.438px 3.438px 0 0; }
+.mw-tile--narrow .mw-tile__acc { width: 30px; }
+.mw-tile--narrow .mw-tile__row { flex-direction: column; justify-content: center; }
+.mw-tile--narrow .mw-tile__row b { width: 16px; }
+.mw-tile--narrow .mw-tile__title { padding: 0 5px; }
+.mw-tile--narrow .mw-tile__title b { width: 30px; }
+.mw-tile--narrow .mw-tile__sheet { display: flex; flex-direction: column; gap: 6px; padding: 5px; }
+.mw-tile--narrow .mw-tile__sheet b { height: 3px; border-radius: 6px; background: rgba(51, 51, 51, .15); }
+
+/* свойства */
+.mw-prop { display: flex; align-items: flex-start; gap: 8px; }
+.mw-prop__name { width: 140px; height: 24px; flex: none; display: flex; align-items: center; font-size: 14px; letter-spacing: -.1974px; color: var(--label); }
+.mw-link { height: 24px; padding-bottom: 1px; font-size: 14px; letter-spacing: -.1974px; color: var(--link); }
+.mw-link { transition: color .12s; }
+.mw-link:hover, .lw-link:hover { color: var(--link-hover); text-decoration: underline; text-underline-offset: 2px; }
+.mw-radios { display: flex; flex-direction: column; }
+.mw-radio { display: flex; align-items: flex-start; text-align: left; }
+.mw-radio__box { height: 24px; display: flex; align-items: center; padding-right: 4px; }
+.mw-radio__box::before { content: ""; width: 12px; height: 12px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box; }
+.mw-radio__text { padding: 2px 0 1px; font-size: 14px; line-height: 1.4; letter-spacing: -.1974px; color: var(--switcher-text); }
+.mw-radio.is-on { cursor: default; }
+.mw-radio.is-on .mw-radio__box::before { border: 0; background: url("assets/img/radio-on.svg") no-repeat; }
+.mw-radio.is-forced .mw-radio__box::before { background-image: url("assets/img/radio-on-2.svg"); }
+.mw-radio.is-on .mw-radio__text { color: var(--text); }
+.mw-radio:disabled { cursor: default; }
+.mw-radio:disabled .mw-radio__box::before { height: 13px; border: 0; background: url("assets/img/radio-disabled.svg") no-repeat; }
+.mw-radio:disabled .mw-radio__text { color: var(--readonly); }
+
+/* выпадающий список «Вид панели» */
+.mw-menu { position: absolute; z-index: 30; width: 244px; }
+.mw-menu__list {
+  display: flex; flex-direction: column; gap: 6px; padding: 12px 8px;
+  background: #fff; border-radius: 8px; box-shadow: var(--win-shadow);
+}
+.mw-menu__item { display: flex; align-items: flex-start; padding: 0 16px 0 8px; border-radius: 16px; text-align: left; transition: background-color .12s; }
+.mw-menu__item:hover { background: var(--menu-item-hover); }
+.mw-menu__dot { height: 32px; display: flex; align-items: center; padding-right: 2px; flex: none; }
+.mw-menu__dot::before { content: ""; width: 12px; height: 12px; }
+.mw-menu__item.is-on .mw-menu__dot::before { background: url("assets/img/menu-dot.svg") no-repeat; }
+.mw-menu__text { flex: 1 0 0; min-width: 0; min-height: 32px; display: flex; align-items: center; padding-top: 1px; font-size: 16px; letter-spacing: -.2256px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mw-menu__close {
+  position: absolute; right: -14px; top: 8px; width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(205, 205, 205, .8); transition: background-color .12s;
+}
+.mw-menu__close:hover { background: rgba(170, 170, 170, .85); }
+.mw-menu__close img { display: block; }
+
+/* ---------- Окно «Логотип» ---------- */
+.lw-blocks { display: flex; flex-direction: column; gap: 4px; }
+.lw-hint { margin: 0; font-size: 14px; line-height: 18px; letter-spacing: -.1974px; color: #999; }
+.lw-link { color: var(--link); cursor: pointer; transition: color .12s; }
+
+/* превью шапки аккордеона */
+.lw-preview {
+  position: relative; width: 200px; height: 40px; display: flex; align-items: center; gap: 8px; padding: 0 4px 0 12px;
+  background: var(--acc-bg); border: 1px solid var(--acc-bg); border-radius: 8px;
+}
+.lw-bird { position: relative; width: 32px; height: 32px; flex: none; border-radius: 16px; background: var(--acc-item-selected); }
+.lw-bird__logo { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding-bottom: 2px; transition: opacity .12s; }
+.lw-bird__logo .ico24 { color: var(--acc-marker); }
+.lw-bird__clip { position: absolute; left: 8px; top: 8px; color: var(--acc-text); opacity: 0; transition: opacity .12s; }
+.lw-bird:hover { background-image: linear-gradient(rgba(0, 0, 0, .07), rgba(0, 0, 0, .07)); }
+.lw-bird:hover .lw-bird__logo { opacity: .3; }
+.lw-bird:hover .lw-bird__clip { opacity: 1; }
+.lw-preview__text { padding-top: 1px; font-family: "Maison Neue Extended", var(--font); font-size: 20px; color: var(--acc-text); }
+.logo-img { display: block; }
+
+/* действия по плюсу */
+.lw-actions { display: flex; flex-direction: column; padding: 8px 0; background: #fff; border-radius: 8px; }
+.lw-actions__head { display: flex; align-items: center; gap: 8px; padding: 0 12px; }
+.lw-actions__title { font-size: 15px; font-weight: 600; letter-spacing: -.2115px; color: var(--text); }
+.lw-round { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(51, 51, 51, .05); }
+.lw-actions__list { padding-top: 4px; }
+.lw-action { position: relative; display: flex; align-items: center; gap: 2px; padding: 3px 6px 4px 8px; transition: background-color .12s; }
+.lw-action__icon { width: 24px; height: 24px; flex: none; display: flex; align-items: center; justify-content: center; padding-top: 1px; }
+.lw-action__icon .ico { color: var(--label); }
+.lw-action__text { font-size: 14px; letter-spacing: -.1974px; color: var(--text); }
+.lw-action__cmds {
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+  display: flex; align-items: center; gap: 12px; opacity: 0; transition: opacity .12s;
+}
+.lw-action__cmds .ico24, .lw-action__cmds .ico { color: var(--label); }
+.lw-action__cmds .lw-action__del { color: #c2140a; } /* icon/danger_icon-color */
+.lw-action:hover { background: var(--menu-item-hover); }
+.lw-action:hover .lw-action__cmds { opacity: 1; }
+
+/* меню «Иконка» */
+.icon-menu {
+  position: absolute; z-index: 30; width: 210px; display: flex; flex-direction: column; padding: 8px 0;
+  background: #fff; border-radius: 8px; box-shadow: var(--win-shadow);
+}
+.icon-menu[hidden] { display: none; }
+.icon-menu__head { display: flex; align-items: center; padding: 0 8px 6px 20px; }
+.icon-menu__head-icon { color: var(--label); margin-right: 8px; }
+.icon-menu__title { flex: 1 0 0; font-size: 14px; letter-spacing: 1.25px; text-transform: uppercase; color: var(--switcher-text); }
+.icon-menu__close { height: 28px; padding: 0 4px; display: flex; align-items: center; opacity: .9; transition: opacity .12s; }
+.icon-menu__close:hover { opacity: 1; }
+.icon-menu__close img { display: block; }
+.icon-menu__list { display: flex; flex-direction: column; gap: 6px; padding: 0 8px; }
+.icon-menu__item { display: flex; align-items: center; min-height: 32px; padding: 0 16px 0 12px; border-radius: 16px; text-align: left; transition: background-color .12s; }
+.icon-menu__item:hover { background: var(--menu-item-hover); }
+.icon-menu__item .ico24 { color: var(--label); margin-right: 8px; }
+.icon-menu__text { padding-top: 1px; font-size: 16px; letter-spacing: -.2256px; color: var(--text); }

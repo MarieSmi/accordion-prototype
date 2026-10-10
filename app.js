@@ -3,9 +3,14 @@
 
   // ---------- Данные ----------
   // Страница → скриншот контентной области. Для страниц без своего макета — скелетон.
+  // narrow — скриншоты под узкий аккордеон (контент шире на 164px).
   const SHOTS = {
     main: 'assets/img/page-main.png',
     skeleton: 'assets/img/page-contacts-skeleton.png',
+    narrow: {
+      main: 'assets/img/page-main-narrow.png',
+      skeleton: 'assets/img/page-contacts-skeleton-narrow.png',
+    },
   };
 
   // Пункт подменю: [заголовок, уровень (1|2)]
@@ -14,10 +19,10 @@
   // Разделы аккордеона. icon — символ шрифта Accordion-Font.
   // submenu.cols — колонки подменю; head — пункт-заголовок подменю (ведёт на страницу раздела).
   const SECTIONS = [
-    { id: 'contacts', title: 'Контакты', icon: '',
+    { id: 'contacts', title: 'Контакты', short: 'Контакты', icon: '',
       submenu: { cols: [[sub('Группы'), sub('Каналы'), sub('Новости'), sub('Звонки'), sub('Почта'), sub('Обсуждения'), sub('Обращения'), sub('Заявки')]] } },
-    { id: 'tasks', title: 'Задачи', icon: '' },
-    { id: 'business', title: 'Бизнес', icon: '',
+    { id: 'tasks', title: 'Задачи', short: 'Задачи', icon: '' },
+    { id: 'business', title: 'Бизнес', short: 'Бизнес', icon: '',
       submenu: { cols: [
         [sub('Продажи/CRM'), sub('Документы', 2), sub('Заказы', 2), sub('Клиенты', 2), sub('Активности', 2),
          sub('Розница/Кассы'), sub('Сервис'), sub('Сметы', 2), sub('Справочники', 2), sub('Виды работ', 2),
@@ -25,28 +30,46 @@
         [sub('Каталог'), sub('Цены', 2), sub('Скидки и акции', 2), sub('Сертификаты', 2), sub('Списки товаров', 2), sub('Конкуренты', 2),
          sub('Маркетплейсы'), sub('Склад'), sub('Документы', 2), sub('Закупки/Расходы'), sub('Поставщики', 2), sub('Планы потребностей', 2), sub('Маркет')],
       ] } },
-    { id: 'staff', title: 'Сотрудники', icon: '' },
-    { id: 'docs', title: 'Документы', icon: '' },
-    { id: 'accounting', title: 'Учет', icon: '' },
-    { id: 'reports', title: 'Отчетность', icon: '' },
-    { id: 'companies', title: 'Компании', icon: '' },
-    { id: 'marketing', title: 'Маркетинг', icon: '' },
-    { id: 'contact-center', title: 'Контакт-центр', icon: '' },
-    { id: 'calendar', title: 'Календарь', calendar: true,
+    { id: 'staff', title: 'Сотрудники', short: 'Сотр-ки', icon: '' },
+    { id: 'docs', title: 'Документы', short: 'Док-ты', icon: '' },
+    { id: 'accounting', title: 'Учет', short: 'Учет', icon: '' },
+    { id: 'reports', title: 'Отчетность', short: 'Отчет-ть', icon: '' },
+    { id: 'companies', title: 'Компании', short: 'Комп-и', icon: '' },
+    { id: 'marketing', title: 'Маркетинг', short: 'Марке-нг', icon: '' },
+    { id: 'contact-center', title: 'Контакт-центр', short: 'К-центр', icon: '' },
+    { id: 'calendar', title: 'Календарь', short: 'Кален-рь', calendar: true,
       submenu: { cols: [[sub('Ежедневник'), sub('Табель'), sub('Встречи'), sub('Куда уходит время'), sub('Помещения')]] } },
-    { id: 'profile', title: 'Сдобников С.В.', photo: 'assets/img/avatar-sdobnikov.png' },
-    { id: 'settings', title: 'Настройки', icon: '' },
+    { id: 'profile', title: 'Сдобников С.В.', short: 'Сдобников', photo: 'assets/img/avatar-sdobnikov.png' },
+    { id: 'settings', title: 'Настройки', short: 'Настр-ки', icon: '' },
   ];
 
-  // Настройки аккордеона (позже будут меняться из окна «Меню»).
-  const settings = {
+  // Виды узкого аккордеона (окно «Меню» → «Вид панели»).
+  const NARROW_VIEWS = [
+    { id: 'labels', title: 'С названиями разделов' },
+    { id: 'icons', title: 'Без названий' },
+    { id: 'panel', title: 'Раскрывается по ховеру' },
+  ];
+
+  // Настройки аккордеона — меняются в окне «Меню» и применяются сразу.
+  const DEFAULTS = {
+    view: 'wide',            // 'wide' — раскрытый | 'narrow' — узкий
+    narrowView: 'labels',    // 'labels' | 'icons' | 'panel'
     submenuTrigger: 'click', // 'click' | 'hover'
-    commandsDelay: 600,      // мс до появления ✎ ⋮ на пункте
   };
+  const settings = { ...DEFAULTS };
+  const COMMANDS_DELAY = 600; // мс до появления ✎ ⋮ на пункте
+  const LEAVE_DELAY = 200;    // мс до закрытия подменю после ухода курсора (режим «по наведению»)
+
+  const isNarrow = () => settings.view === 'narrow';
+  const isPanel = () => isNarrow() && settings.narrowView === 'panel';
+  // Без названий и в панели подменю открывается только по наведению.
+  const triggerForced = () => isNarrow() && settings.narrowView !== 'labels';
+  const trigger = () => (triggerForced() ? 'hover' : settings.submenuTrigger);
 
   const state = {
     page: { section: null, item: null }, // section=null → Главная
     openSection: null,
+    panelOpen: false, // панель раскрыта по ховеру
   };
 
   // ---------- DOM ----------
@@ -59,26 +82,36 @@
   };
 
   const stage = $('#stage');
+  const acc = $('#accordion');
   const list = $('#accList');
   const layer = $('#submenuLayer');
   const shot = $('#contentShot');
 
   // Сцена 1600×900 вписывается в окно браузера с сохранением пропорций.
+  let scale = 1;
   function fitStage() {
     const w = document.documentElement.clientWidth;
     const h = document.documentElement.clientHeight;
-    const s = Math.min(w / 1600, h / 900);
-    stage.style.transform = `translate(${(w - 1600 * s) / 2}px, ${(h - 900 * s) / 2}px) scale(${s})`;
+    scale = Math.min(w / 1600, h / 900);
+    stage.style.transform = `translate(${(w - 1600 * scale) / 2}px, ${(h - 900 * scale) / 2}px) scale(${scale})`;
   }
   new ResizeObserver(fitStage).observe(document.documentElement);
   fitStage();
 
+  // Прямоугольник элемента в координатах сцены.
+  function stageRect(node) {
+    const s = stage.getBoundingClientRect();
+    const r = node.getBoundingClientRect();
+    return { left: (r.left - s.left) / scale, top: (r.top - s.top) / scale, width: r.width / scale, height: r.height / scale };
+  }
+
+  const calendarHTML = () =>
+    `<span class="acc-cal"><span class="acc-glyph acc-cal__frame"></span><span class="acc-cal__day">${new Date().getDate()}</span></span>`;
+
   function iconHTML(sec) {
     if (sec.photo) return `<img class="acc-item__photo" src="${sec.photo}" alt="">`;
-    if (sec.calendar) {
-      return `<span class="acc-cal"><span class="acc-icon20 acc-cal__frame"></span><span class="acc-cal__day">${new Date().getDate()}</span></span>`;
-    }
-    return `<span class="acc-item__icon"><span class="acc-icon20">${sec.icon}</span></span>`;
+    if (sec.calendar) return calendarHTML();
+    return `<span class="acc-item__icon"><span class="acc-glyph">${sec.icon}</span></span>`;
   }
 
   // ---------- Аккордеон ----------
@@ -89,19 +122,24 @@
       li.dataset.id = sec.id;
       const btn = el('button', 'acc-item__btn' + (sec.photo ? ' acc-item__btn--photo' : ''),
         `${iconHTML(sec)}<span class="acc-item__title">${sec.title}</span>
+         <span class="acc-item__short">${sec.short}</span>
          <span class="acc-cmds">
            <span class="acc-cmd" role="button" aria-label="Настроить"><span class="ico"></span></span>
            <span class="acc-cmd acc-cmd--dots" role="button" aria-label="Ещё"><span class="ico"></span></span>
          </span>`);
       btn.type = 'button';
+      btn.title = sec.title;
       li.append(btn);
       list.append(li);
 
       let timer = null;
       btn.addEventListener('mouseenter', () => {
         li.classList.add('is-hover');
-        timer = setTimeout(() => li.classList.add('is-delay'), settings.commandsDelay);
-        if (settings.submenuTrigger === 'hover') openSubmenu(sec.id);
+        timer = setTimeout(() => li.classList.add('is-delay'), COMMANDS_DELAY);
+        if (trigger() === 'hover') {
+          if (sec.submenu) { if (state.openSection !== sec.id) openSubmenu(sec.id); }
+          else closeSubmenu();
+        }
       });
       btn.addEventListener('mouseleave', () => {
         clearTimeout(timer);
@@ -110,7 +148,9 @@
       btn.addEventListener('click', (e) => {
         // Команды ✎ ⋮ — поведение по клику пока не задано.
         if (e.target.closest('.acc-cmd')) return;
-        if (state.openSection === sec.id) closeSubmenu();
+        // Подменю для раздела ещё не нарисовано — переходим сразу на страницу раздела.
+        if (!sec.submenu) { navigate(sec.id, null); return; }
+        if (state.openSection === sec.id) { if (trigger() === 'click') closeSubmenu(); }
         else openSubmenu(sec.id);
       });
     }
@@ -124,29 +164,62 @@
     }
   }
 
+  // Вид аккордеона по настройкам: раскрытый, узкий (с названиями / без), панель (свёрнута / раскрыта).
+  function applyView() {
+    const narrow = isNarrow();
+    const panel = isPanel();
+    if (!panel) state.panelOpen = false;
+    stage.classList.toggle('is-narrow', narrow);
+    acc.classList.toggle('is-narrow', narrow);
+    acc.classList.toggle('is-panel', panel);
+    acc.classList.toggle('is-panel-open', panel && state.panelOpen);
+    acc.classList.toggle('is-compact', narrow && !(panel && state.panelOpen));
+    acc.classList.toggle('is-labels', narrow && settings.narrowView === 'labels');
+    updateShot();
+  }
+
+  function setPanelOpen(open) {
+    if (!isPanel() || state.panelOpen === open) return;
+    state.panelOpen = open;
+    applyView();
+  }
+
+  // ---------- Уход курсора (режим «по наведению») ----------
+  let leaveTimer = null;
+  const cancelLeave = () => clearTimeout(leaveTimer);
+  function scheduleLeave() {
+    if (trigger() !== 'hover') return;
+    cancelLeave();
+    leaveTimer = setTimeout(() => { closeSubmenu(); setPanelOpen(false); }, LEAVE_DELAY);
+  }
+
+  acc.addEventListener('mouseenter', () => { cancelLeave(); setPanelOpen(true); });
+  acc.addEventListener('mouseleave', scheduleLeave);
+
   // ---------- Подменю ----------
   function openSubmenu(id) {
     const sec = SECTIONS.find((s) => s.id === id);
     closeSubmenu();
-    if (!sec || !sec.submenu) {
-      // Подменю для раздела ещё не нарисовано — переходим сразу на страницу раздела.
-      if (sec) navigate(sec.id, null);
-      return;
-    }
+    if (!sec || !sec.submenu) return;
     state.openSection = id;
 
+    // Вид подменю: по клику у раскрытого аккордеона — поверх пункта, с иконкой раздела;
+    // по наведению и у узкого — справа от аккордеона, с жирным заголовком; у панели — справа, без заголовка.
+    const kind = isPanel() ? 'panel' : (isNarrow() || trigger() === 'hover') ? 'narrow' : 'wide';
     const multi = sec.submenu.cols.length > 1;
-    const box = el('div', 'submenu' + (multi ? ' submenu--multi' : ''));
+    const box = el('div', `submenu submenu--${kind}` + (multi ? ' submenu--multi' : ''));
     const panel = el('div', 'submenu__panel');
 
-    const head = el('div', 'submenu__head');
-    const headBtn = el('button', 'sm-head',
-      `<span class="sm-head__icon">${sec.calendar
-        ? `<span class="acc-cal"><span class="acc-icon20 acc-cal__frame"></span><span class="acc-cal__day">${new Date().getDate()}</span></span>`
-        : `<span class="acc-icon20">${sec.icon}</span>`}</span><span class="sm-head__title">${sec.title}</span>`);
-    headBtn.type = 'button';
-    headBtn.addEventListener('click', () => navigate(sec.id, null));
-    head.append(headBtn);
+    if (kind !== 'panel') {
+      const head = el('div', 'submenu__head');
+      const headBtn = el('button', 'sm-head', kind === 'wide'
+        ? `<span class="sm-head__icon">${sec.calendar ? calendarHTML() : `<span class="acc-glyph">${sec.icon}</span>`}</span><span class="sm-head__title">${sec.title}</span>`
+        : `<span class="sm-head__title">${sec.title}</span>`);
+      headBtn.type = 'button';
+      headBtn.addEventListener('click', () => navigate(sec.id, null));
+      head.append(headBtn);
+      panel.append(head);
+    }
 
     const cols = el('div', 'submenu__cols');
     sec.submenu.cols.forEach((col, ci) => {
@@ -161,38 +234,37 @@
       });
       cols.append(c);
     });
+    panel.append(cols);
+    box.append(panel);
 
-    panel.append(head, cols);
-
-    const float = el('div', 'submenu__float');
-    const close = el('button', 'float-btn', `<svg width="12" height="12" viewBox="8 8 12 12" fill="none"><path d="M19.7917 18.875C19.9306 18.9861 20 19.1389 20 19.3333C20 19.5278 19.9306 19.6806 19.7917 19.7917C19.6806 19.9306 19.5278 20 19.3333 20C19.1389 20 18.9861 19.9306 18.875 19.7917L14 14.9583L9.125 19.7917C9.01389 19.9306 8.86111 20 8.66667 20C8.47222 20 8.31944 19.9306 8.20833 19.7917C8.06944 19.6806 8 19.5278 8 19.3333C8 19.1389 8.06944 18.9861 8.20833 18.875L13.0417 14L8.20833 9.125C8.06944 9.01389 8 8.86111 8 8.66667C8 8.47222 8.06944 8.31944 8.20833 8.20833C8.31944 8.06944 8.47222 8 8.66667 8C8.86111 8 9.01389 8.06944 9.125 8.20833L14 13.0417L18.875 8.20833C18.9861 8.06944 19.1389 8 19.3333 8C19.5278 8 19.6806 8.06944 19.7917 8.20833C19.9306 8.31944 20 8.47222 20 8.66667C20 8.86111 19.9306 9.01389 19.7917 9.125L14.9583 14L19.7917 18.875Z" fill="white"/></svg>`);
-    close.type = 'button';
-    close.setAttribute('aria-label', 'Закрыть');
-    close.addEventListener('click', closeSubmenu);
-    float.append(close);
-    if (!multi) {
-      const edit = el('button', 'float-btn', '<span class="ico"></span>');
-      edit.type = 'button';
-      edit.setAttribute('aria-label', 'Редактировать подменю');
-      // Окно редактирования подменю — отдельный этап.
-      float.append(edit);
+    if (kind !== 'panel') {
+      const float = el('div', 'submenu__float');
+      const close = el('button', 'float-btn', `<img src="assets/img/close-menu.svg" width="12" height="12" alt="">`);
+      close.type = 'button';
+      close.setAttribute('aria-label', 'Закрыть');
+      close.addEventListener('click', closeSubmenu);
+      float.append(close);
+      if (!isNarrow() && !multi) {
+        const edit = el('button', 'float-btn', '<span class="ico"></span>');
+        edit.type = 'button';
+        edit.setAttribute('aria-label', 'Редактировать подменю');
+        // Окно редактирования подменю — отдельный этап.
+        float.append(edit);
+      }
+      box.append(float);
     }
 
-    box.append(panel, float);
     layer.append(box);
 
-    // Позиция: поверх пункта, иконка заголовка совпадает с иконкой пункта.
+    // Позиция: поверх пункта (иконка заголовка совпадает с иконкой пункта)
+    // или справа от аккордеона, вровень с пунктом.
     const li = list.querySelector(`[data-id="${id}"]`);
-    const acc = $('#accordion');
     const top = acc.offsetTop + li.offsetTop; // li позиционируется относительно .accordion
-    box.style.left = (acc.offsetLeft + 4) + 'px';
+    box.style.left = (kind === 'wide' ? acc.offsetLeft + 4 : acc.offsetLeft + acc.offsetWidth + 4) + 'px';
     box.style.top = Math.min(top, 900 - box.offsetHeight - 8) + 'px';
 
-    if (settings.submenuTrigger === 'hover') {
-      box.addEventListener('mouseleave', (e) => {
-        if (!e.relatedTarget || !li.contains(e.relatedTarget)) closeSubmenu();
-      });
-    }
+    box.addEventListener('mouseenter', cancelLeave);
+    box.addEventListener('mouseleave', scheduleLeave);
     syncAccordion();
   }
 
@@ -203,13 +275,23 @@
   }
 
   // ---------- Навигация ----------
+  // Скриншот зависит от страницы и вида аккордеона; если под узкий вид скриншота нет — берём обычный.
+  function updateShot() {
+    const page = state.page.section ? 'skeleton' : 'main';
+    const src = (isNarrow() && SHOTS.narrow[page]) || SHOTS[page];
+    if (!shot.src.endsWith(src)) shot.src = src;
+  }
+
   function navigate(section, item) {
     state.page = { section, item };
-    shot.src = section ? SHOTS.skeleton : SHOTS.main;
+    updateShot();
     closeSubmenu();
+    setPanelOpen(false);
   }
 
   $('#goHome').addEventListener('click', () => navigate(null, null));
+  // В узком аккордеоне надписи «saby» нет — на «Главную» ведёт птичка.
+  $('.acc-bird').addEventListener('click', () => { if (isNarrow()) navigate(null, null); });
 
   // Клик вне подменю и аккордеона закрывает подменю.
   stage.addEventListener('mousedown', (e) => {
@@ -217,7 +299,176 @@
     if (e.target.closest('.submenu') || e.target.closest('.acc-item')) return;
     closeSubmenu();
   });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSubmenu(); });
+
+  // ---------- Окна настроек (общее) ----------
+  // Открыто всегда только одно окно. Окно открывается поверх вызвавшей кнопки (левый край — по кнопке,
+  // верх — по верху шапки, как в макете) и перетаскивается за шапку в пределах сцены.
+  const windows = {}; // имя → { win, btn, onOpen, onClose }
+  let openWin = null;
+
+  function registerWindow(name, { win, btn, onOpen = () => {}, onClose = () => {} }) {
+    windows[name] = { win, btn, onOpen, onClose };
+    btn.addEventListener('click', () => setWindow(openWin === name ? null : name));
+    win.querySelector('.sw-done').addEventListener('click', () => setWindow(null));
+    win.querySelector('.sw-close').addEventListener('click', () => setWindow(null));
+    win.querySelector('.set-win__head').addEventListener('mousedown', (e) => startDrag(e, name));
+  }
+
+  function setWindow(name) {
+    if (openWin) {
+      const w = windows[openWin];
+      w.win.hidden = true;
+      w.btn.classList.remove('is-active');
+      w.onClose();
+    }
+    openWin = name;
+    if (!name) return;
+    const w = windows[name];
+    w.win.hidden = false;
+    w.btn.classList.add('is-active');
+    // 1 — внутренний отступ группы кнопок: окно встаёт по её краю, как в макете (Меню — 8px, Логотип — 86px).
+    w.win.style.left = Math.round(stageRect(w.btn).left - 1) + 'px';
+    w.win.style.top = '0px';
+    w.onOpen();
+  }
+
+  function startDrag(e, name) {
+    if (e.button !== 0 || e.target.closest('button')) return;
+    e.preventDefault();
+    const { win } = windows[name];
+    closePopups();
+    const startX = e.clientX, startY = e.clientY;
+    const left0 = win.offsetLeft, top0 = win.offsetTop;
+    const move = (ev) => {
+      const left = left0 + (ev.clientX - startX) / scale;
+      const top = top0 + (ev.clientY - startY) / scale;
+      win.style.left = Math.max(0, Math.min(1600 - win.offsetWidth, left)) + 'px';
+      win.style.top = Math.max(0, Math.min(900 - win.offsetHeight, top)) + 'px';
+    };
+    const up = () => {
+      document.removeEventListener('mousemove', move);
+      document.removeEventListener('mouseup', up);
+      win.classList.remove('is-dragging');
+    };
+    win.classList.add('is-dragging');
+    document.addEventListener('mousemove', move);
+    document.addEventListener('mouseup', up);
+  }
+
+  // Всплывающие списки внутри окон («Вид панели», «Иконка»).
+  function closePopups() { closeDropdown(); closeIconMenu(); }
+
+  // ---------- Окно «Меню» ----------
+  const menuWin = $('#menuWin');
+  const resetBtn = $('#mwReset');
+  const narrowRow = $('#mwNarrowRow');
+  const narrowLink = $('#mwNarrowLink');
+  const dropdown = $('#mwMenu');
+  const dropdownList = $('#mwMenuList');
+
+  function renderWin() {
+    for (const t of menuWin.querySelectorAll('.mw-tile')) t.classList.toggle('is-active', t.dataset.view === settings.view);
+    narrowRow.hidden = !isNarrow();
+    narrowLink.textContent = NARROW_VIEWS.find((v) => v.id === settings.narrowView).title;
+    const forced = triggerForced();
+    for (const r of menuWin.querySelectorAll('.mw-radio')) {
+      const value = r.dataset.trigger;
+      r.classList.toggle('is-on', value === trigger());
+      r.classList.toggle('is-forced', forced && value === 'hover');
+      r.disabled = forced && value === 'click';
+    }
+    resetBtn.disabled = Object.keys(DEFAULTS).every((k) => settings[k] === DEFAULTS[k]);
+  }
+
+  // Любое изменение в окне применяется к аккордеону сразу.
+  function update(patch) {
+    Object.assign(settings, patch);
+    closeSubmenu();
+    applyView();
+    renderWin();
+  }
+
+  registerWindow('menu', { win: menuWin, btn: $('#menuBtn'), onOpen: renderWin, onClose: closeDropdown });
+  resetBtn.addEventListener('click', () => update(DEFAULTS));
+  for (const t of menuWin.querySelectorAll('.mw-tile')) t.addEventListener('click', () => update({ view: t.dataset.view }));
+  for (const r of menuWin.querySelectorAll('.mw-radio')) r.addEventListener('click', () => update({ submenuTrigger: r.dataset.trigger }));
+
+  // Выпадающий список «Вид панели»: всегда открывается на одном месте — первый пункт встаёт на место ссылки.
+  function openDropdown() {
+    dropdownList.innerHTML = '';
+    NARROW_VIEWS.forEach((v) => {
+      const b = el('button', 'mw-menu__item' + (v.id === settings.narrowView ? ' is-on' : ''),
+        `<span class="mw-menu__dot"></span><span class="mw-menu__text">${v.title}</span>`);
+      b.type = 'button';
+      b.addEventListener('click', () => { closeDropdown(); update({ narrowView: v.id }); });
+      dropdownList.append(b);
+    });
+    dropdown.hidden = false;
+    const r = stageRect(narrowLink);
+    // 30 = отступ списка 8 + отступ пункта 8 + маркер 12 + 2; 12 — верхний отступ списка, 16 — половина пункта.
+    dropdown.style.left = (r.left - 30) + 'px';
+    dropdown.style.top = (r.top + r.height / 2 - 12 - 16) + 'px';
+  }
+  function closeDropdown() { dropdown.hidden = true; }
+
+  narrowLink.addEventListener('click', () => (dropdown.hidden ? openDropdown() : closeDropdown()));
+  $('#mwMenuClose').addEventListener('click', closeDropdown);
+  stage.addEventListener('mousedown', (e) => {
+    if (dropdown.hidden || e.target.closest('#mwMenu') || e.target === narrowLink) return;
+    closeDropdown();
+  });
+
+  // ---------- Окно «Логотип» ----------
+  // Логотип — иконка вместо птички в шапке аккордеона. «Загрузка» подставляет случайную иконку из набора.
+  const LOGOS = ['leaf', 'sun', 'drop', 'hex', 'star'].map((n) => `assets/img/logos/${n}.svg`);
+  const logoWin = $('#logoWin');
+  const logoReset = $('#lwReset');
+  const iconMenu = $('#iconMenu');
+  let logo = null; // null — стандартная птичка
+
+  const logoHTML = () => (logo ? `<img class="logo-img" src="${logo}" width="24" height="24" alt="">` : '<span class="ico24"></span>');
+
+  // Логотип применяется сразу: в шапке аккордеона и в превью окна.
+  function renderLogo() {
+    $('.acc-bird').innerHTML = logoHTML();
+    $('#lwBird .lw-bird__logo').innerHTML = logoHTML();
+    logoReset.disabled = logo === null;
+  }
+
+  function setLogo(src) { logo = src; renderLogo(); }
+
+  // Меню «Иконка»: открывается так, что скрепка в его заголовке встаёт на место нажатой кнопки.
+  function openIconMenu(trigger) {
+    iconMenu.hidden = false;
+    const r = stageRect(trigger);
+    // 20 — отступ заголовка слева, 12 — половина иконки 24; 8 — верхний отступ меню, 14 — половина строки заголовка.
+    iconMenu.style.left = Math.round(r.left + r.width / 2 - 20 - 12) + 'px';
+    iconMenu.style.top = Math.round(r.top + r.height / 2 - 8 - 14) + 'px';
+  }
+  function closeIconMenu() { iconMenu.hidden = true; }
+
+  registerWindow('logo', { win: logoWin, btn: $('#logoBtn'), onOpen: renderLogo, onClose: closeIconMenu });
+  logoReset.addEventListener('click', () => setLogo(null));
+  $('#lwBird').addEventListener('click', (e) => openIconMenu(e.currentTarget));
+  $('#iconMenuClose').addEventListener('click', closeIconMenu);
+  for (const item of iconMenu.querySelectorAll('.icon-menu__item')) {
+    item.addEventListener('click', () => {
+      const choices = LOGOS.filter((src) => src !== logo);
+      setLogo(choices[Math.floor(Math.random() * choices.length)]);
+      closeIconMenu();
+    });
+  }
+  stage.addEventListener('mousedown', (e) => {
+    if (iconMenu.hidden || e.target.closest('#iconMenu') || e.target.closest('#lwBird')) return;
+    closeIconMenu();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (!dropdown.hidden || !iconMenu.hidden) closePopups();
+    else closeSubmenu();
+  });
 
   renderAccordion();
+  applyView();
 })();
