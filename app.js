@@ -2,25 +2,13 @@
   'use strict';
 
   // ---------- Данные ----------
-  // Страница → скриншот контентной области. Для страниц без своего макета — скелетон.
-  // narrow — скриншоты под узкий аккордеон (контент шире на 164px).
-  const SHOTS = {
-    main: 'assets/img/page-main.png',
-    skeleton: 'assets/img/page-contacts-skeleton.png',
-    narrow: {
-      main: 'assets/img/page-main-narrow.png',
-      skeleton: 'assets/img/page-contacts-skeleton-narrow.png',
-    },
-    // «По центру» / «Слева»: контент 696 (под узкий аккордеон — 860), блок шириной 1238.
-    fixed: {
-      main: 'assets/img/page-main-center.png',
-      skeleton: 'assets/img/page-contacts-skeleton-center.png',
-      narrow: {
-        main: 'assets/img/page-main-center-narrow.png',
-        skeleton: 'assets/img/page-contacts-skeleton-center-narrow.png',
-      },
-    },
+  // Середина контента свёрстана (Главная / скелетон страницы раздела), справа — скриншот информеров и ЦУ.
+  // Страница → скриншот, из которого видны только последние 322px (информеры + ЦУ).
+  const SIDE_SHOTS = {
+    main: 'assets/img/page-main-center.png',
+    skeleton: 'assets/img/page-contacts-skeleton-center.png',
   };
+  const SKELETON_ROWS = 8;
 
   // Пункт подменю: [заголовок, уровень (1|2)]
   const sub = (title, level = 1) => ({ title, level });
@@ -116,8 +104,6 @@
 
   const isNarrow = () => settings.view === 'narrow';
   const isPanel = () => isNarrow() && settings.narrowView === 'panel';
-  // Ширина середины контента: «Растянуть» 996, «По центру» / «Слева» 696; узкий аккордеон +164.
-  const midWidth = () => (state.align === 'stretch' ? 996 : 696) + (isNarrow() ? 164 : 0);
   // Без названий и в панели подменю открывается только по наведению.
   const triggerForced = () => isNarrow() && settings.narrowView !== 'labels';
   const trigger = () => (triggerForced() ? 'hover' : settings.submenuTrigger);
@@ -142,11 +128,9 @@
   const acc = $('#accordion');
   const list = $('#accList');
   const layer = $('#submenuLayer');
-  const shot = $('#contentShot');
-  const shotSide = $('#contentShotSide'); // тот же скриншот, справа — только информеры и ЦУ
-  const shotLayer = $('#shotLayer');
-  const prevLayer = $('#prevLayer'); // прежняя середина: гаснет поверх новой при переключении позиционирования
-  const prevShot = $('#prevShot');
+  const pageMain = $('#pageMain');
+  const pageSkeleton = $('#pageSkeleton');
+  const shotSide = $('#contentShotSide'); // информеры и ЦУ
 
   // Сцена 1600×900 вписывается в окно браузера с сохранением пропорций.
   let scale = 1;
@@ -265,7 +249,6 @@
     acc.classList.toggle('is-compact', narrow && !(panel && state.panelOpen));
     acc.classList.toggle('is-labels', narrow && settings.narrowView === 'labels');
     $('#accBurger').setAttribute('aria-label', narrow ? 'Развернуть меню' : 'Свернуть меню');
-    updateShot();
   }
 
   function setPanelOpen(open) {
@@ -378,15 +361,13 @@
   // ---------- Позиционирование контента (переключатель в шапке) ----------
   // «Растянуть» — контент на всю рабочую область; «По центру» / «Слева» — блок 1238
   // (аккордеон + контент + информеры + ЦУ) по центру области 1538 или у её левого края.
-  // Плавно меняются ширина середины и центровка (CSS, --mid / --center), аккордеон и ЦУ идут за краями середины.
-  // Прежний скриншот середины в это время плавно гаснет поверх нового.
+  // Плавно меняются ширина середины и центровка (CSS, --mid / --center): середина перестраивается
+  // по ширине, аккордеон и ЦУ идут за её краями.
   const ALIGN_MS = 300; // как transition у .stage.is-aligning
   const alignBtns = [...document.querySelectorAll('#alignGroup .tb-btn')];
   let alignTimer = null;
   function setAlign(align) {
     if (align === state.align) return;
-    const from = midWidth();
-    const fromSrc = shot.src;
     state.align = align;
     clearTimeout(alignTimer);
     stage.classList.add('is-aligning');
@@ -399,35 +380,24 @@
       b.setAttribute('aria-checked', on);
     }
     closeSubmenu();
-    updateShot();
-    if (shot.src !== fromSrc) {
-      prevShot.src = fromSrc;
-      prevLayer.style.width = from + 'px';
-      prevLayer.classList.remove('is-out');
-      prevLayer.hidden = false;
-      void prevLayer.offsetWidth; // зафиксировать opacity 1 перед переходом
-      prevLayer.classList.add('is-out');
-    }
-    alignTimer = setTimeout(() => {
-      stage.classList.remove('is-aligning');
-      prevLayer.hidden = true;
-    }, ALIGN_MS);
+    alignTimer = setTimeout(() => stage.classList.remove('is-aligning'), ALIGN_MS);
   }
   for (const b of alignBtns) b.addEventListener('click', () => setAlign(b.dataset.align));
 
   // ---------- Навигация ----------
-  // Скриншот зависит от страницы и вида аккордеона; если под узкий вид скриншота нет — берём обычный.
-  function updateShot() {
+  // Главная или скелетон страницы раздела (один на все разделы).
+  function updatePage() {
     const page = state.page.section ? 'skeleton' : 'main';
-    const set = state.align === 'stretch' ? SHOTS : SHOTS.fixed;
-    const src = (isNarrow() && set.narrow[page]) || set[page];
-    if (!shot.src.endsWith(src)) shot.src = shotSide.src = src;
-    shotLayer.style.width = midWidth() + 'px';
+    pageMain.hidden = page !== 'main';
+    pageSkeleton.hidden = page !== 'skeleton';
+    if (!shotSide.src.endsWith(SIDE_SHOTS[page])) shotSide.src = SIDE_SHOTS[page];
   }
+  // Строки-заглушки реестра в скелетоне
+  $('#skList').innerHTML = '<div class="sk-row"><div class="sk-row__pic"></div><div class="sk-row__body"><div class="sk-row__lines"></div><div class="sk-row__tag"></div></div></div>'.repeat(SKELETON_ROWS);
 
   function navigate(section, item) {
     state.page = { section, item };
-    updateShot();
+    updatePage();
     closeSubmenu();
     setPanelOpen(false);
   }
