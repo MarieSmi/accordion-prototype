@@ -628,6 +628,23 @@
     ed = null;
   }
 
+  // Плавающий тулбар выделенного виджета (Figma rHabzni5OI5D4fxBLQdj2m 131:17364): ⚙, удалить, ⋯.
+  // Удаление работает, ⚙ и ⋯ — пока только наведение.
+  function toolbar() {
+    const tb = el('div', 'sme-tb');
+    const btn = (cls, ch, label) => {
+      const b = el('button', 'sme-tb__btn' + (cls ? ' ' + cls : ''), `<span class="ico24">${ch}</span>`);
+      b.type = 'button';
+      b.setAttribute('aria-label', label);
+      tb.append(b);
+      return b;
+    };
+    btn('', '', 'Настройки');
+    btn('sme-tb__btn--del', '', 'Удалить').addEventListener('click', deleteSelected);
+    btn('', '', 'Ещё');
+    return tb;
+  }
+
   function renderEditor() {
     const { draft, selected } = ed;
     if (!smeTitle.classList.contains('is-editing')) smeTitle.textContent = draft.title;
@@ -639,6 +656,7 @@
       const w = el('div', 'sme-w' + (sub ? ' sme-w--sub' : '') + (key === selected ? ' is-selected' : ''));
       w.dataset.key = key;
       w.append(document.createTextNode(title), mk('top'), mk('bottom'));
+      if (key === selected) w.append(toolbar());
       return w;
     };
     draft.cols.forEach((col, ci) => {
