@@ -369,6 +369,13 @@ ul { list-style: none; margin: 0; padding: 0; }
 .rp-cat.is-selected .rp-cat__name { font-weight: 600; }
 .rp-cat__count { flex: none; font-size: 14px; letter-spacing: -.1974px; color: #8991a9; }
 /* превью в макете обрезано на 726px, а список категорий длиннее — растворяем нижний край в фоне */
+.rp-shop__pv { flex: none; position: relative; align-self: flex-start; }
+/* зоны ховера поверх карточек превью — как «Виджет магазина» в Builder-components (1517:29714):
+   рамка #7b62f8 40%, у больших превью ещё «+» по центру */
+.rp-wz { position: absolute; border: 1px solid transparent; border-radius: 8px; cursor: default; }
+.rp-wz:hover { border-color: rgba(123, 98, 248, .4); }
+.rp-wz__plus { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 36px; height: 36px; padding-bottom: 1px; border-radius: 18px; background: #eeebff; color: #5a49ab; display: none; }
+.rp-wz:hover .rp-wz__plus { display: flex; }
 .rp-shop__preview { flex: none; display: block; align-self: flex-start; -webkit-mask-image: linear-gradient(#000 calc(100% - 48px), transparent); mask-image: linear-gradient(#000 calc(100% - 48px), transparent); }
 
 /* поле «Найти» в шапке «Данных» (статика) */
