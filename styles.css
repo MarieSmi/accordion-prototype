@@ -412,7 +412,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 .rp-switch:hover::before { background-color: #b8bdc3; }
 .rp-switch.is-on::before { background: var(--accent) radial-gradient(circle 6px at 16px 8px, #fff 5.5px, transparent 6px); }
 .rp-switch.is-on:hover::before { background-color: #e5622b; }
-.rp-menu { width: 160px; } /* Figma 18452:13240 */
+.mw-menu.rp-menu { width: 160px; } /* Figma 18452:13240 */
 
 /* ---------- Подменю ---------- */
 .submenu-layer { position: absolute; inset: 0; pointer-events: none; z-index: 10; }
