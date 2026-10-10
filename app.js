@@ -372,8 +372,12 @@
   // ---------- Позиционирование контента (переключатель в шапке) ----------
   // «Растянуть» — контент на всю рабочую область; «По центру» / «Слева» — блок 1238
   // (аккордеон + контент + информеры + ЦУ) по центру области 1538 или у её левого края.
+  // Блок съезжает плавно (CSS), скриншот в это время гаснет и проявляется уже новым.
+  const SHOT_FADE = 180; // мс, как transition у .content__shot
   const alignBtns = [...document.querySelectorAll('#alignGroup .tb-btn')];
+  let alignTimer = null;
   function setAlign(align) {
+    if (align === state.align) return;
     state.align = align;
     stage.classList.toggle('is-aligned', align !== 'stretch');
     stage.classList.toggle('is-align-center', align === 'center');
@@ -383,7 +387,14 @@
       b.setAttribute('aria-checked', on);
     }
     closeSubmenu();
-    updateShot();
+    shot.classList.add('is-fading');
+    clearTimeout(alignTimer);
+    alignTimer = setTimeout(() => {
+      updateShot();
+      const src = shot.src;
+      const ready = Promise.race([shot.decode().catch(() => {}), new Promise((r) => setTimeout(r, 300))]);
+      ready.then(() => { if (shot.src === src) shot.classList.remove('is-fading'); });
+    }, SHOT_FADE);
   }
   for (const b of alignBtns) b.addEventListener('click', () => setAlign(b.dataset.align));
 

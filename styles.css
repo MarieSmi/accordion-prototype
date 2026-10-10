@@ -278,19 +278,21 @@ ul { list-style: none; margin: 0; padding: 0; }
 .accordion.is-panel-open .acc-cmds { display: none; }
 
 /* ---------- Контент ---------- */
-.content { position: absolute; left: 229px; top: 45px; width: 1318px; height: 855px; overflow: hidden; background: #f8f8f8; display: flex; justify-content: flex-end; }
-/* высота фиксирована, ширина — по пропорциям скриншота (обычные — 1318, под узкий аккордеон — 1482) */
-.content__shot { display: block; flex: none; width: auto; height: 855px; }
-/* при узком аккордеоне контент шире; скриншот без узкой версии прижат вправо, слева — фон страницы */
-.stage.is-narrow .content { left: 65px; width: 1482px; }
-/* «По центру» / «Слева»: блок 1238 сдвигается внутри рабочей области 1538 (x 8…1546), по бокам — фон страницы */
-.stage { --align-shift: 0px; }
+/* Область контента — вся рабочая область 1538 (x 8…1546); скриншот стоит сразу за аккордеоном.
+   --acc-gap — от края области до контента (аккордеон 220 / узкий 56 + 1px),
+   --align-shift — сдвиг блока 1238 (аккордеон + контент + информеры + ЦУ): «По центру» — 150, иначе 0.
+   Сдвиг анимируется (@property), поэтому аккордеон и скриншот съезжают вместе. */
+@property --align-shift { syntax: '<length>'; inherits: true; initial-value: 0px; }
+.stage { --acc-gap: 221px; --align-shift: 0px; transition: --align-shift .35s cubic-bezier(.4, 0, .2, 1); }
+.stage.is-narrow { --acc-gap: 57px; }
 .stage.is-align-center { --align-shift: 150px; }
-.accordion { left: calc(9px + var(--align-shift)); z-index: 1; } /* поверх контента, который теперь с x 8 */
-.stage.is-aligned .content,
-.stage.is-aligned.is-narrow .content { left: 8px; width: 1539px; justify-content: flex-start; }
-.stage.is-aligned .content__shot { margin-left: calc(221px + var(--align-shift)); }
-.stage.is-aligned.is-narrow .content__shot { margin-left: calc(57px + var(--align-shift)); }
+.accordion { left: calc(9px + var(--align-shift)); z-index: 1; } /* поверх области контента */
+.content { position: absolute; left: 8px; top: 45px; width: 1539px; height: 855px; overflow: hidden; background: #f8f8f8; display: flex; }
+/* «Растянуть»: под аккордеоном, как раньше, фон конструктора; «По центру» / «Слева» — по бокам фон страницы */
+.stage:not(.is-aligned) .content { background: linear-gradient(var(--ctor-bg), var(--ctor-bg)) 0 0 / var(--acc-gap) 100% no-repeat, #f8f8f8; }
+/* высота фиксирована, ширина — по пропорциям скриншота (1318 / 1482 — «Растянуть», 1018 / 1182 — блок 1238) */
+.content__shot { display: block; flex: none; width: auto; height: 855px; margin-left: calc(var(--acc-gap) + var(--align-shift)); transition: opacity .18s ease; }
+.content__shot.is-fading { opacity: 0; }
 
 /* ---------- Правая панель ---------- */
 .right-panel {
