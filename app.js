@@ -275,6 +275,7 @@
     const sec = SECTIONS.find((s) => s.id === id);
     closeSubmenu();
     if (!sec || !sec.submenu) return;
+    closeRp();
     state.openSection = id;
 
     // Вид подменю: по клику у раскрытого аккордеона — поверх пункта, с иконкой раздела;
@@ -407,6 +408,7 @@
   // встаёт углом на угол шапки аккордеона (отступы 12 и 7 от птички), кнопка в шапке не подсвечена.
   let openFrom = null;
   function setWindow(name, from = null) {
+    if (name) closeRp();
     if (openWin) {
       const w = windows[openWin];
       w.win.hidden = true;
@@ -567,6 +569,43 @@
     closeIconMenu();
   });
 
+  // ---------- Окна правой панели ----------
+  // Клик по иконке открывает её окно слева от колонки, повторный — закрывает; открыто одно окно.
+  // Закрывают также клик мимо окна, Esc, открытие окна настроек, подменю или редактора.
+  // Верх окна — по верху иконки; data-fit="full" — на всю высоту панели, "bottom" — от иконки до низа.
+  let rpOpen = null;
+  const rpBtn = (name) => $(`.rp-btn[data-rp="${name}"]`);
+
+  function openRp(name) {
+    const win = $('#rp-' + name);
+    closeRp();
+    if (!win) return;
+    setWindow(null);
+    closeSubmenu();
+    rpOpen = name;
+    const btn = rpBtn(name);
+    btn.classList.add('is-active');
+    win.hidden = false;
+    const fit = win.dataset.fit;
+    win.style.top = (fit === 'full' ? 45 : Math.round(stageRect(btn).top)) + 'px';
+    win.style.bottom = fit ? '8px' : '';
+  }
+
+  function closeRp() {
+    if (!rpOpen) return;
+    $('#rp-' + rpOpen).hidden = true;
+    rpBtn(rpOpen).classList.remove('is-active');
+    rpOpen = null;
+  }
+
+  for (const b of document.querySelectorAll('.rp-btn[data-rp]')) {
+    b.addEventListener('click', () => (rpOpen === b.dataset.rp ? closeRp() : openRp(b.dataset.rp)));
+  }
+  stage.addEventListener('mousedown', (e) => {
+    if (rpOpen && !e.target.closest('.rp-win, .rp-btn[data-rp]')) closeRp();
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeRp(); });
+
   // ---------- Редактор подменю ----------
   // ✎ (команда пункта или плавающая кнопка подменю) закрывает подменю и открывает окно редактора:
   // пункты подменю — виджеты, заголовок подменю — первый виджет. Иконка в шапке окна встаёт на иконку пункта.
@@ -597,6 +636,7 @@
     const sec = SECTIONS.find((s) => s.id === id);
     closeSubmenu();
     setWindow(null);
+    closeRp();
     cancelLeave();
     setPanelOpen(false);
     const draft = {

@@ -303,6 +303,29 @@ ul { list-style: none; margin: 0; padding: 0; }
 .right-panel__spacer { flex: 1; }
 .rp-help { width: 32px; height: 32px; border-radius: 16px; background: #eeebff; border: 1px solid #d4ccff; display: flex; align-items: center; justify-content: center; transition: background-color .12s; }
 .rp-help:hover { background: #e1dbff; }
+/* активная иконка: фон navigation_active, оранжевый маркер справа (Figma 16086:209177) */
+.rp-btn { position: relative; }
+.rp-btn.is-active, .rp-btn.is-active:hover { background: #f2f2f2; }
+.rp-btn.is-active::after { content: ""; position: absolute; right: -4px; top: 8px; width: 4px; height: 32px; border-radius: 3px; background: #cc3d00; }
+
+/* ---------- Окна правой панели (Figma 16041:47515) ---------- */
+.rp-win {
+  position: absolute; z-index: 15; right: 53px; width: 350px; overflow: hidden;
+  display: flex; flex-direction: column;
+  background: #f8f8f8; border-radius: 8px; box-shadow: var(--win-shadow);
+}
+.rp-win[hidden] { display: none; }
+.rp-win__head { flex: none; height: 44px; display: flex; align-items: center; gap: 12px; padding: 12px 12px 8px; }
+.rp-win__title { font-size: 18px; font-weight: 600; letter-spacing: -.2538px; line-height: 1; white-space: nowrap; }
+
+/* список (пункт 28px, слот маркера 3px + 5px, слот стрелки 20px) */
+.rp-list { padding: 0 4px 4px; }
+.rp-row { height: 28px; display: flex; align-items: center; padding: 0 8px 0 8px; border-radius: 4px; cursor: default; transition: background-color .12s; }
+.rp-row:hover { background: rgba(51, 51, 51, .05); }
+.rp-row__lead { flex: none; width: 20px; display: flex; align-items: center; padding-left: 2px; }
+.rp-arrow { font-size: 12px; width: 12px; height: 12px; color: #8991a9; }
+.rp-wico { color: #5a49ab; margin-right: 4px; }
+.rp-row__name { flex: 1; min-width: 0; font-size: 15px; letter-spacing: -.2115px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* ---------- Подменю ---------- */
 .submenu-layer { position: absolute; inset: 0; pointer-events: none; z-index: 10; }

@@ -87,17 +87,28 @@
       <!-- Правая панель -->
       <aside class="right-panel">
         <div class="right-panel__cmds">
-          <button class="rp-btn rp-btn--accent" type="button" aria-label="Магазин"><span class="ico24">&#xEADD;</span></button>
-          <button class="rp-btn" type="button" aria-label="Данные"><span class="ico rp-ico21">&#xEBBC;</span></button>
-          <button class="rp-btn" type="button" aria-label="Слои"><span class="ico rp-ico21">&#xEBF9;</span></button>
-          <button class="rp-btn" type="button" aria-label="Фильтр"><span class="ico24">&#xE94C;</span></button>
-          <button class="rp-btn" type="button" aria-label="Поиск"><span class="ico24">&#xEAA7;</span></button>
-          <button class="rp-btn" type="button" aria-label="Настройки"><span class="ico24">&#xEAA9;</span></button>
+          <button class="rp-btn rp-btn--accent" type="button" aria-label="Магазин" data-rp="shop"><span class="ico24">&#xEADD;</span></button>
+          <button class="rp-btn" type="button" aria-label="Данные" data-rp="data"><span class="ico rp-ico21">&#xEBBC;</span></button>
+          <button class="rp-btn" type="button" aria-label="Слои" data-rp="layers"><span class="ico rp-ico21">&#xEBF9;</span></button>
+          <button class="rp-btn" type="button" aria-label="Фильтр" data-rp="filter"><span class="ico24">&#xE94C;</span></button>
+          <button class="rp-btn" type="button" aria-label="Поиск" data-rp="search"><span class="ico24">&#xEAA7;</span></button>
+          <button class="rp-btn" type="button" aria-label="Настройки" data-rp="settings"><span class="ico24">&#xEAA9;</span></button>
         </div>
         <button class="rp-more" type="button" aria-label="Ещё"><span class="ico ico--20">&#xE9D9;</span></button>
         <div class="right-panel__spacer"></div>
         <button class="rp-help" type="button" aria-label="Помощь"><img src="assets/img/help.svg" width="12" height="16" alt=""></button>
       </aside>
+
+      <!-- Окна правой панели: открываются слева от колонки, верх — по своей иконке (data-fit: full — на всю высоту, bottom — до низа) -->
+      <section class="rp-win" id="rp-layers" hidden aria-label="Слои">
+        <div class="rp-win__head"><span class="rp-win__title">Слои</span></div>
+        <div class="rp-list rp-layers">
+          <div class="rp-row"><span class="rp-row__lead"></span><span class="ico rp-wico">&#xEBB9;</span><span class="rp-row__name">Вкладки</span></div>
+          <div class="rp-row"><span class="rp-row__lead"><span class="ico rp-arrow">&#xEB89;</span></span><span class="ico rp-wico">&#xEBB9;</span><span class="rp-row__name">Виджет 2</span></div>
+          <div class="rp-row"><span class="rp-row__lead"><span class="ico rp-arrow">&#xEB89;</span></span><span class="ico rp-wico">&#xEBB9;</span><span class="rp-row__name">Виджет 3</span></div>
+          <div class="rp-row"><span class="rp-row__lead"></span><span class="ico rp-wico">&#xEBB9;</span><span class="rp-row__name">Виджет 4</span></div>
+        </div>
+      </section>
 
       <!-- Слой для подменю -->
       <div class="submenu-layer" id="submenuLayer"></div>
