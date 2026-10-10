@@ -1,7 +1,6 @@
 /* ---------- Шрифты ---------- */
 @font-face { font-family: "Inter"; font-weight: 100 900; font-display: block; src: url("assets/fonts/inter-var-cyrillic.woff2") format("woff2"); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
 @font-face { font-family: "Inter"; font-weight: 100 900; font-display: block; src: url("assets/fonts/inter-var-latin.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
-@font-face { font-family: "Maison Neue Extended"; font-weight: 400; font-display: block; src: url("assets/fonts/maison-neue-extended-book.woff2") format("woff2"); }
 @font-face { font-family: "Accordion-Font"; src: url("assets/fonts/Accordion-Font.ttf") format("truetype"); font-display: block; }
 @font-face { font-family: "cbuc-icons"; src: url("assets/fonts/cbuc-icons.ttf") format("truetype"); font-display: block; }
 @font-face { font-family: "cbuc-icons24"; src: url("assets/fonts/cbuc-icons24.ttf") format("truetype"); font-display: block; }
@@ -30,6 +29,8 @@
   --acc-cmd-dots: #668199;
   --acc-plus: #98b2ca;
   --acc-label: #8991a9;
+  --acc-burger-hover: #314454;
+  --acc-bird-hover: #405468;
 
   /* подменю */
   --submenu-bg: #3e5266;
@@ -52,7 +53,7 @@
   --menu-item-hover: #f5f5f5;  /* нет в макете — подобран */
 
   /* правая панель */
-  --rp-hover: rgba(90, 73, 171, .08);
+  --rp-hover: #f9f9f9;          /* background/navigation_hover_background-color */
   --rp-accent: #db4200;
 }
 
@@ -131,14 +132,17 @@ ul { list-style: none; margin: 0; padding: 0; }
   display: flex; align-items: center; gap: 8px; border-radius: 8px;
   transition: background-color .12s;
 }
+.acc-header__row { cursor: pointer; }
 .acc-header__row:hover { background: var(--acc-item-hover); }
 .acc-bird { width: 32px; height: 32px; border-radius: 16px; display: flex; align-items: center; justify-content: center; padding-bottom: 2px; flex: none; }
 .acc-bird .ico24 { color: var(--acc-marker); }
 .acc-header__row:hover .acc-bird { background: var(--acc-bg); }
-.acc-logo {
-  height: 32px; display: flex; align-items: center; padding-top: 2px;
-  font-family: "Maison Neue Extended", var(--font); font-weight: 400; font-size: 20px; color: var(--acc-text);
-}
+/* птичка — кнопка окна «Логотип»: своя подсветка поверх подсветки строки (Figma 16315:62242) */
+.acc-bird { transition: background-color .12s; }
+.accordion:not(.is-narrow) .acc-header__row .acc-bird:hover { background: var(--acc-bird-hover); }
+/* Надпись saby — контуры Maison Neue Extended Book (SVG): в браузере шрифт рисуется мягче, чем в Figma */
+.acc-logo { height: 32px; display: flex; align-items: flex-start; padding-top: 5.3px; color: var(--acc-text); }
+.acc-logo__svg { display: block; flex: none; }
 /* У логотипного шрифта одно начертание — утоньшаем светлые буквы обводкой цвета фона */
 .acc-logo, .lw-preview__text { -webkit-text-stroke: .5px var(--acc-bg); }
 .acc-header__row:hover .acc-logo { -webkit-text-stroke-color: var(--acc-item-hover); }
@@ -148,7 +152,11 @@ ul { list-style: none; margin: 0; padding: 0; }
 .acc-plus:hover .ico { color: #fff; }
 
 .acc-group { display: flex; align-items: center; gap: 10px; padding: 0 12px 0 14px; }
-.acc-burger { padding: 6px; display: flex; }
+.acc-burger { padding: 6px; display: flex; border-radius: 50%; background: no-repeat center; }
+/* ховер: круг 28px со стрелками — «свернуть» у раскрытого, «развернуть» у узкого (как в макете) */
+.acc-burger:hover { background-color: var(--acc-burger-hover); background-image: url("assets/img/burger-collapse.svg"); }
+.accordion.is-narrow .acc-burger:hover { background-image: url("assets/img/burger-expand.svg"); }
+.acc-burger:hover .acc-icon16 { visibility: hidden; }
 .acc-group__title { font-size: 10px; letter-spacing: 1.3px; text-transform: uppercase; color: var(--acc-label); padding: 7px 0 5px; line-height: 12px; }
 
 .acc-list { display: flex; flex-direction: column; }
@@ -172,9 +180,21 @@ ul { list-style: none; margin: 0; padding: 0; }
 .acc-item.is-selected .acc-item__btn { background: var(--acc-item-selected); }
 .acc-item.is-selected.is-hover .acc-item__btn, .acc-item.is-selected.is-open .acc-item__btn { background: var(--acc-item-hover); }
 .acc-item.is-selected::before {
-  content: ""; position: absolute; left: 0; top: 0; width: 4px; height: 40px;
-  background: var(--acc-marker); border-radius: 0 2px 2px 0;
+  content: ""; position: absolute; left: 0; top: 5px; width: 4px; height: 30px; /* маркер по макету: 4×30, отступы 5 */
+  background: var(--acc-marker); border-radius: 4px;
 }
+
+/* выбран пункт подменю: раздел и под ним пункт одним блоком, маркер — у пункта */
+.acc-item__sub {
+  display: none; width: 100%; height: 40px; align-items: center; padding: 0 8px 0 48px;
+  border-radius: 0 0 8px 8px; text-align: left; background: var(--acc-item-selected);
+  transition: background-color .12s;
+}
+.acc-item__sub-title { font-size: 16px; letter-spacing: -.2256px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--acc-text); padding-top: 1px; }
+.accordion:not(.is-narrow) .acc-item.has-sub .acc-item__sub { display: flex; }
+.accordion:not(.is-narrow) .acc-item.has-sub .acc-item__btn { border-radius: 8px 8px 0 0; }
+.accordion:not(.is-narrow) .acc-item.has-sub::before { top: 46px; height: 29px; }
+.acc-item.has-sub.is-hover .acc-item__sub, .acc-item.has-sub.is-open .acc-item__sub { background: var(--acc-item-hover); }
 
 /* команды по ховеру (✎ ⋮) — появляются после задержки */
 .acc-cmds {
@@ -187,8 +207,7 @@ ul { list-style: none; margin: 0; padding: 0; }
   width: 12px; height: 38px; background: linear-gradient(to right, rgba(62, 82, 102, 0), var(--acc-item-hover));
 }
 .acc-cmd { width: 24px; height: 24px; padding: 4px; display: flex; align-items: center; justify-content: center; border-radius: 6px; }
-.acc-cmd .ico { color: var(--acc-icon); }
-.acc-cmd--dots .ico { color: var(--acc-cmd-dots); }
+.acc-cmd .ico { color: var(--acc-cmd-dots); } /* обе команды одного цвета #668199 (Figma 16016:180711) */
 .acc-cmd:hover .ico { color: #fff; }
 .acc-item.is-delay .acc-cmds,
 .acc-item.is-selected.is-hover .acc-cmds { opacity: 1; pointer-events: auto; }
@@ -246,7 +265,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 .accordion.is-panel.is-compact .acc-cal__day { top: 12px; font-size: 15px; letter-spacing: -.2115px; }
 .accordion.is-panel.is-compact .acc-item.is-selected::before { height: 28px; }
 .accordion.is-panel-open .acc-item { height: 44px; display: flex; align-items: center; }
-.accordion.is-panel-open .acc-item.is-selected::before { top: 2px; }
+.accordion.is-panel-open .acc-item.is-selected::before { top: 7px; }
 .accordion.is-panel-open .acc-cmds { display: none; }
 
 /* ---------- Контент ---------- */
@@ -265,8 +284,13 @@ ul { list-style: none; margin: 0; padding: 0; }
 .rp-btn { width: 44px; height: 48px; padding: 12px 10px; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: background-color .12s; }
 .rp-btn:hover { background: var(--rp-hover); }
 .rp-btn--accent .ico24 { color: var(--rp-accent); }
-.rp-more { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-top: 2px; transition: background-color .12s; }
-.rp-more:hover { background: var(--rp-hover); }
+/* «Данные» и «Слои» есть только в шрифте cbuc-icons (в cbuc-icons24 глифы пустые); размер подобран, чтобы выглядели как 24px-иконки */
+.rp-ico21 { font-size: 21px; width: 24px; height: 24px; }
+.rp-more { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background-color .12s; }
+/* «⋮» — кнопка Ghost: при наведении фон pale_color rgba(51,51,51,.05), иконка #575757 (Figma 17890:9932) */
+.rp-more:hover { background: rgba(51, 51, 51, .05); }
+.rp-more .ico { transition: color .12s; }
+.rp-more:hover .ico { color: #575757; }
 .right-panel__spacer { flex: 1; }
 .rp-help { width: 32px; height: 32px; border-radius: 16px; background: #eeebff; border: 1px solid #d4ccff; display: flex; align-items: center; justify-content: center; transition: background-color .12s; }
 .rp-help:hover { background: #e1dbff; }
@@ -282,7 +306,8 @@ ul { list-style: none; margin: 0; padding: 0; }
 .submenu__head { padding: 5px 6px 2px 4px; }
 .submenu__cols { display: flex; align-items: flex-start; gap: 12px; padding: 0 6px 0 36px; }
 .submenu__col { display: flex; flex-direction: column; gap: 2px; flex: 1 0 0; min-width: 0; }
-.submenu--multi .submenu__col { flex: none; width: 188px; }
+/* колонки — по самому длинному пункту, не уже 188px; заголовок — по ширине первой колонки (задаётся в app.js) */
+.submenu--multi .submenu__col { flex: none; width: max-content; min-width: 188px; }
 
 .sm-item {
   height: 30px; width: 100%; display: flex; align-items: center; border-radius: 15px;
@@ -292,16 +317,23 @@ ul { list-style: none; margin: 0; padding: 0; }
 .sm-item--sub { padding-left: 22px; }
 .sm-item:hover { background: var(--submenu-item-hover); }
 .sm-item.is-current { background: var(--submenu-item-hover); }
-.sm-head { height: 30px; width: 100%; display: flex; align-items: center; border-radius: 15px; text-align: left; transition: background-color .12s; }
-.sm-head:hover { background: var(--submenu-item-hover); }
-.sm-head__icon { padding: 0 2px 0 10px; display: flex; align-items: center; height: 20px; }
-.sm-head__title { padding: 0 16px 0 12px; font-size: 16px; letter-spacing: -.2256px; color: var(--acc-text); white-space: nowrap; }
+.sm-head { height: 30px; width: 100%; display: flex; align-items: center; text-align: left; }
+.sm-head__icon { padding: 0 2px 0 10px; display: flex; align-items: center; height: 20px; flex: none; }
+/* фото 26px стоит там же, где в пункте аккордеона; название — по колонке пунктов */
+.sm-head__icon--photo { width: 32px; padding: 0 0 0 7px; }
+.sm-head__photo { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; flex: none; }
+/* ховер подсвечивает только название — иконка раздела вне подсветки (как в макете) */
+.sm-head__title {
+  flex: 1 0 auto; height: 30px; display: flex; align-items: center; border-radius: 15px;
+  padding: 0 10px 0 12px; font-size: 16px; letter-spacing: -.2256px; color: var(--acc-text); white-space: nowrap;
+  transition: background-color .12s;
+}
+.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 
 /* подменю узкого аккордеона и панели: без иконки, без отступа под неё */
 .submenu--narrow .submenu__panel, .submenu--panel .submenu__panel { min-width: 212px; }
 .submenu--narrow .submenu__head { padding: 5px 6px 2px; }
-.submenu--narrow .sm-head { padding-left: 10px; }
-.submenu--narrow .sm-head__title { padding: 0 10px 0 0; font-size: 20px; font-weight: 600; letter-spacing: -.282px; }
+.submenu--narrow .sm-head__title { padding: 0 10px; font-size: 20px; font-weight: 600; letter-spacing: -.282px; }
 .submenu--narrow .submenu__cols, .submenu--panel .submenu__cols { padding: 0 6px; }
 .submenu--panel .submenu__cols { padding-top: 6px; }
 .submenu--narrow .sm-item, .submenu--panel .submenu__cols .sm-item { padding: 0 10px; }
@@ -427,7 +459,9 @@ ul { list-style: none; margin: 0; padding: 0; }
 .lw-bird:hover { background-image: linear-gradient(rgba(0, 0, 0, .07), rgba(0, 0, 0, .07)); }
 .lw-bird:hover .lw-bird__logo { opacity: .3; }
 .lw-bird:hover .lw-bird__clip { opacity: 1; }
-.lw-preview__text { padding-top: 1px; font-family: "Maison Neue Extended", var(--font); font-size: 20px; color: var(--acc-text); }
+/* надпись saby — тот же SVG, что в шапке аккордеона; положение как в шапке */
+.lw-preview__text { align-self: flex-start; padding-top: 8.3px; color: var(--acc-text); }
+.lw-preview__svg { display: block; }
 .logo-img { display: block; }
 
 /* действия по плюсу */
