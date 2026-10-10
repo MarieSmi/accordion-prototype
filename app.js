@@ -593,6 +593,7 @@
 
   function closeRp() {
     if (!rpOpen) return;
+    closeRpMenu();
     $('#rp-' + rpOpen).hidden = true;
     rpBtn(rpOpen).classList.remove('is-active');
     rpOpen = null;
@@ -602,9 +603,52 @@
     b.addEventListener('click', () => (rpOpen === b.dataset.rp ? closeRp() : openRp(b.dataset.rp)));
   }
   stage.addEventListener('mousedown', (e) => {
-    if (rpOpen && !e.target.closest('.rp-win, .rp-btn[data-rp]')) closeRp();
+    if (!rpMenu.hidden && !e.target.closest('#rpMenu, .rp-link')) closeRpMenu();
+    if (rpOpen && !e.target.closest('.rp-win, .rp-btn[data-rp], #rpMenu')) closeRp();
   });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeRp(); });
+  // Esc сначала закрывает выпадающий список, потом окно.
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (!rpMenu.hidden) closeRpMenu();
+    else closeRp();
+  });
+
+  // «Настройки»: переключатель «Информеры» и выпадающие списки «На странице / В окне».
+  const informers = $('#rpInformers');
+  informers.addEventListener('click', () => {
+    const on = !informers.classList.contains('is-on');
+    informers.classList.toggle('is-on', on);
+    informers.setAttribute('aria-checked', on);
+  });
+
+  const rpMenu = $('#rpMenu');
+  const rpMenuList = $('#rpMenuList');
+  const NOTICE_MODES = ['На странице', 'В окне'];
+  let rpMenuLink = null;
+
+  // Как «Вид панели» в окне «Меню»: выбранный пункт встаёт на место ссылки.
+  function openRpMenu(link) {
+    rpMenuLink = link;
+    rpMenuList.innerHTML = '';
+    NOTICE_MODES.forEach((title, i) => {
+      const b = el('button', 'mw-menu__item' + (title === link.textContent ? ' is-on' : ''),
+        `<span class="mw-menu__dot"></span><span class="mw-menu__text">${title}</span>`);
+      b.type = 'button';
+      b.addEventListener('click', () => { link.textContent = title; closeRpMenu(); });
+      rpMenuList.append(b);
+    });
+    rpMenu.hidden = false;
+    const r = stageRect(link);
+    const at = Math.max(0, NOTICE_MODES.indexOf(link.textContent));
+    rpMenu.style.left = (r.left - 30) + 'px';
+    rpMenu.style.top = (r.top + r.height / 2 - 12 - 16 - at * 38) + 'px';
+  }
+  function closeRpMenu() { rpMenu.hidden = true; rpMenuLink = null; }
+
+  for (const link of document.querySelectorAll('#rp-settings .rp-link')) {
+    link.addEventListener('click', () => (rpMenuLink === link ? closeRpMenu() : openRpMenu(link)));
+  }
+  $('#rpMenuClose').addEventListener('click', closeRpMenu);
 
   // ---------- Редактор подменю ----------
   // ✎ (команда пункта или плавающая кнопка подменю) закрывает подменю и открывает окно редактора:

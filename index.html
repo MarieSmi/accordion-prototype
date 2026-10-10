@@ -110,6 +110,52 @@
         </div>
       </section>
 
+      <section class="rp-win" id="rp-search" hidden aria-label="Поиск">
+        <div class="rp-win__head"><span class="rp-win__title">Поиск</span></div>
+        <div class="rp-chips">
+          <div class="rp-chip"><span class="rp-chip__name">Компании</span><button class="rp-chip__x" type="button" aria-label="Убрать"><img src="assets/img/close-popup.svg" width="28" height="28" alt=""></button></div>
+          <div class="rp-chip"><span class="rp-chip__name">Новости</span><button class="rp-chip__x" type="button" aria-label="Убрать"><img src="assets/img/close-popup.svg" width="28" height="28" alt=""></button></div>
+          <div class="rp-chip"><span class="rp-chip__name">Сотрудники</span><button class="rp-chip__x" type="button" aria-label="Убрать"><img src="assets/img/close-popup.svg" width="28" height="28" alt=""></button></div>
+          <div class="rp-add">
+            <div class="rp-add__label">Можно добавить</div>
+            <div class="rp-add__list">
+              <button class="rp-add__item" type="button">Вакансии</button>
+              <button class="rp-add__item" type="button">Мои курсы</button>
+              <button class="rp-add__item" type="button">Доступные курсы</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="rp-win" id="rp-settings" hidden aria-label="Настройки">
+        <div class="rp-win__head"><span class="rp-win__title">Настройки</span></div>
+        <div class="rp-cards">
+          <div class="rp-card">
+            <div class="rp-prop"><span class="rp-prop__label rp-prop__label--82">Информеры</span><button class="rp-switch is-on" type="button" id="rpInformers" role="switch" aria-checked="true" aria-label="Информеры"></button></div>
+          </div>
+          <div class="rp-card">
+            <div class="rp-card__title">Центр уведомлений</div>
+            <div class="rp-props">
+              <div class="rp-prop"><span class="rp-prop__label">Монитор</span><button class="rp-link" type="button">На странице</button></div>
+              <div class="rp-prop"><span class="rp-prop__label">Ноутбук</span><button class="rp-link" type="button">На странице</button></div>
+              <div class="rp-prop"><span class="rp-prop__label">Планшет</span><button class="rp-link" type="button">В окне</button></div>
+            </div>
+          </div>
+          <div class="rp-card">
+            <div class="rp-card__title">Отступы</div>
+            <div class="rp-props">
+              <div class="rp-prop"><span class="rp-prop__label rp-prop__label--soft">Между виджетами</span><span class="rp-gap"><img src="assets/img/gap-between.svg" width="12" height="12" alt=""><span class="rp-gap__num">8</span></span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Выпадающий список «На странице / В окне» (окно «Настройки») -->
+      <div class="mw-menu rp-menu" id="rpMenu" hidden>
+        <div class="mw-menu__list" id="rpMenuList"></div>
+        <button class="mw-menu__close" type="button" id="rpMenuClose" aria-label="Закрыть"><img src="assets/img/close-menu.svg" width="12" height="12" alt=""></button>
+      </div>
+
       <!-- Слой для подменю -->
       <div class="submenu-layer" id="submenuLayer"></div>
 
