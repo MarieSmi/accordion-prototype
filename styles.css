@@ -52,6 +52,15 @@
   --accent-active-bg: #ffe6db; /* background/primary_active_background-color */
   --menu-item-hover: #f5f5f5;  /* нет в макете — подобран */
 
+  /* редактор подменю */
+  --editor-bg: #eceaf5;          /* components/constructor/simplifiedconstructor_background-color */
+  --editor-card: #f9f9f9;        /* background/navigation_menu_fill */
+  --editor-icon-bg: #f8f8f8;     /* background/unaccented_background-color */
+  --pale-border: #e5e7eb;        /* border/pale_border-color */
+  --info-border: #7b62f8;        /* border/info_border-color */
+  --info-border-soft: rgba(123, 98, 248, .6);
+  --info-hover-border: #3a14f5;  /* border/info_hover_border-color */
+
   /* правая панель */
   --rp-hover: #f9f9f9;          /* background/navigation_hover_background-color */
   --rp-accent: #db4200;
@@ -322,13 +331,13 @@ ul { list-style: none; margin: 0; padding: 0; }
 /* фото 26px стоит там же, где в пункте аккордеона; название — по колонке пунктов */
 .sm-head__icon--photo { width: 32px; padding: 0 0 0 7px; }
 .sm-head__photo { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; flex: none; }
-/* ховер подсвечивает только название — иконка раздела вне подсветки (как в макете) */
+/* ховер подсвечивает только название — иконка раздела вне подсветки (как в макете); заголовок-подпись (div) без ховера */
 .sm-head__title {
   flex: 1 0 auto; height: 30px; display: flex; align-items: center; border-radius: 15px;
   padding: 0 10px 0 12px; font-size: 16px; letter-spacing: -.2256px; color: var(--acc-text); white-space: nowrap;
   transition: background-color .12s;
 }
-.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
+button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 
 /* подменю узкого аккордеона и панели: без иконки, без отступа под неё */
 .submenu--narrow .submenu__panel, .submenu--panel .submenu__panel { min-width: 212px; }
@@ -500,3 +509,159 @@ ul { list-style: none; margin: 0; padding: 0; }
 .icon-menu__item:hover { background: var(--menu-item-hover); }
 .icon-menu__item .ico24 { color: var(--label); margin-right: 8px; }
 .icon-menu__text { padding-top: 1px; font-size: 16px; letter-spacing: -.2256px; color: var(--text); }
+
+/* ---------- Редактор подменю (Figma xMQ3ZEN4AUINgwjVoxR8hS 19234:30493, ховеры 19237:33075) ---------- */
+.sme-shield { position: absolute; inset: 0; z-index: 24; }
+.sme-shield[hidden], .sm-editor[hidden] { display: none; }
+.sm-editor {
+  position: absolute; z-index: 25; display: flex; flex-direction: column; align-items: center; padding: 0 10px 10px;
+  background: var(--editor-bg); border-radius: 8px; box-shadow: var(--win-shadow);
+}
+.sm-editor.is-dragging, .sm-editor.is-dragging .sme-head { cursor: grabbing; }
+
+/* шапка: иконка раздела, название, «+» | отмена, повтор, сброс | ✓ ✕ */
+.sme-head { width: 100%; min-width: 220px; display: flex; align-items: center; gap: 12px; padding: 7px 0; cursor: grab; user-select: none; }
+.sme-head__left { flex: 1 0 auto; display: flex; align-items: center; gap: 6px; }
+.sme-icon { width: 28px; height: 28px; flex: none; border-radius: 6px; overflow: hidden; background: var(--editor-icon-bg); display: flex; align-items: center; justify-content: center; }
+.sme-icon .acc-glyph { font-size: 16px; letter-spacing: 0; color: var(--acc-label); }
+.sme-icon .acc-cal { width: 16px; height: 16px; color: var(--acc-label); }
+.sme-icon .acc-cal__day { top: 9.6px; font-size: 12px; letter-spacing: 0; }
+.sme-icon img { width: 28px; height: 28px; object-fit: cover; display: block; }
+.sme-title {
+  max-width: 320px; height: 28px; display: flex; align-items: center; margin-right: 2px; /* до «+» 8px */
+  font-size: 16px; font-weight: 600; letter-spacing: -.2256px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  cursor: text; outline: none; transition: color .12s;
+}
+.sme-title:hover { color: #575757; }
+/* правка названия (Figma butxp53vLxrXFluHM61BfU 17493:35508): текст hover_text-color, под ним линия unaccented_hover_border-color */
+.sme-title.is-editing { color: #575757; background: linear-gradient(#8f99a3, #8f99a3) bottom / 100% 1px no-repeat; text-overflow: clip; user-select: text; caret-color: var(--text); }
+.sme-plus {
+  width: 40px; height: 26px; flex: none; display: flex; align-items: center; justify-content: center; padding-bottom: 2px;
+  background: #fff; border: 1px solid var(--pale-border); border-radius: 100px; transition: background-color .12s;
+}
+.sme-plus:hover { background: var(--pill-bg); }
+.sme-head__right { flex: none; width: 184px; height: 32px; display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+.sme-cmds { display: flex; align-items: center; gap: 8px; }
+/* глифы ↶ ↷ ↺ в шрифте стоят на одной линии (центры 11.9 / 11.9 / 12.1 при высоте 24) — без смещений */
+/* кнопки Ghost secondary (Figma nuC4KFMiS36uDWDUp9wKGl 17890:9846): при наведении — круг pale_color, иконка secondary_hover */
+.sme-cmd { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background-color .12s; }
+.sme-cmd:not(:disabled):hover { background: rgba(51, 51, 51, .05); }
+.sme-cmd .ico24 { color: var(--label); transition: color .12s; }
+.sme-cmd:not(:disabled):hover .ico24 { color: #1e5391; }
+.sme-cmd:disabled { cursor: default; }
+.sme-cmd:disabled .ico24 { color: var(--readonly); }
+.sme-final { display: flex; align-items: center; gap: 12px; padding-left: 6px; }
+.sme-close { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.sme-close img { display: block; transition: filter .12s; }
+.sme-close:hover img { filter: brightness(.4); }
+
+/* карточка подменю: колонки — списки виджетов */
+.sme-card { display: flex; align-items: stretch; gap: 12px; min-width: 210px; background: var(--editor-card); border-radius: 8px; }
+.sme-list {
+  position: relative; display: flex; flex-direction: column; flex: 1 0 auto; min-width: 210px; min-height: 53px; padding: 6px;
+  border: 1px dashed transparent; border-radius: 8px;
+}
+.sme-card.is-multi .sme-list { flex: none; }
+.sme-w {
+  position: relative; height: 39px; display: flex; align-items: center; padding: 0 9px 0 10px;
+  border: 1px solid transparent; border-radius: 2px; cursor: default;
+  font-size: 16px; line-height: 24px; letter-spacing: -.2256px; color: var(--text); white-space: nowrap;
+}
+.sme-w--sub { padding-left: 20px; }
+
+/* ховер списка — рамка и плюсы по сторонам; при наведении на виджет подсвечен и список */
+.sme-list:hover:not(.has-selected) { border: 1px solid var(--info-border-soft); border-radius: 2px; }
+.sme-w:hover { border-color: var(--info-border-soft); }
+/* выделенный виджет — рамка и плюсы сверху и снизу; его список — пунктиром */
+.sme-w.is-selected { border-color: var(--info-border); }
+/* пунктир рисуем SVG: у border: dashed браузер делает штрихи 1–3px, и в уменьшенной сцене их почти не видно (в Figma штрих 4, зазор 4) */
+.sme-list.has-selected { border-color: transparent; border-radius: 2px; }
+.sme-list.has-selected::before {
+  content: ""; position: absolute; inset: -1px; pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Crect x='.5' y='.5' width='calc(100%25 - 1px)' height='calc(100%25 - 1px)' rx='2' fill='none' stroke='%237b62f8' stroke-opacity='.6' stroke-dasharray='4 4'/%3E%3C/svg%3E");
+}
+
+/* плюсы (Figma rHabzni5OI5D4fxBLQdj2m 399:49380): кружок 8px → при наведении 16px с «+», при нажатии темнее */
+.sme-mk { position: absolute; z-index: 2; width: 20px; height: 20px; display: none; align-items: center; justify-content: center; cursor: pointer; }
+.sme-mk::before { content: ""; width: 8px; height: 8px; box-sizing: border-box; border: 1px solid var(--info-border); border-radius: 7px; background: #fff; }
+.sme-mk:hover::before { width: 16px; height: 16px; border: 0; border-radius: 24px; background: var(--info-border); }
+.sme-mk:active::before { background: var(--info-hover-border); }
+.sme-mk::after { content: "\E95D"; position: absolute; font-family: "cbuc-icons"; font-size: 12px; line-height: 1; color: #fff; display: none; }
+.sme-mk:hover::after { display: block; }
+.sme-mk--top { left: 50%; top: -11px; transform: translateX(-50%); }
+.sme-mk--bottom { left: 50%; bottom: -11px; transform: translateX(-50%); }
+.sme-mk--left { left: -11px; top: 50%; transform: translateY(-50%); }
+.sme-mk--right { right: -11px; top: 50%; transform: translateY(-50%); }
+.sme-list:hover:not(.has-selected) > .sme-mk,
+.sme-w.is-selected > .sme-mk { display: flex; }
+
+/* подтверждение «Сохранить изменения?» (Figma nuC4KFMiS36uDWDUp9wKGl 4064:21938) */
+.confirm-layer { position: absolute; inset: 0; z-index: 40; display: flex; align-items: center; justify-content: center; }
+.confirm-layer[hidden] { display: none; }
+.confirm {
+  width: 350px; display: flex; flex-direction: column; align-items: center; overflow: hidden; border-radius: 8px; box-shadow: var(--win-shadow);
+  background: url("data:image/svg+xml;utf8,<svg viewBox='0 0 350 164' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><rect x='0' y='0' height='100%25' width='100%25' fill='url(%23grad)' opacity='0.08'/><defs><radialGradient id='grad' gradientUnits='userSpaceOnUse' cx='0' cy='0' r='10' gradientTransform='matrix(30.15 40.234 44.907 -27.324 87.5 -24.78)'><stop stop-color='rgba(12,148,255,0)' offset='0'/><stop stop-color='rgba(12,148,255,1)' offset='1'/></radialGradient></defs></svg>") 0 0 / 100% 100%, #fff;
+}
+.confirm__head { width: 100%; display: flex; justify-content: center; padding: 20px 0; }
+.confirm__marker { width: 40px; height: 3px; border-radius: 100px; background: var(--acc-marker); } /* components/popuptemplate/secondary_marker_color */
+.confirm__content { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 0 24px 24px; text-align: center; }
+.confirm__message { margin: 0; padding-top: 1px; font-size: 18px; letter-spacing: -.2538px; color: var(--text); }
+.confirm__details { margin: 0; font-size: 15px; letter-spacing: -.2115px; color: var(--label); } /* text/label_contrast_text-color */
+.confirm__footer { display: flex; justify-content: center; gap: 12px; padding-bottom: 24px; }
+.confirm__btn {
+  width: 80px; height: 24px; display: flex; align-items: center; justify-content: center; padding: 0 12px 1px;
+  background: #fff; border: 1px solid #529edc; border-radius: 100px; /* border/secondary_border-color */
+  font-size: 14px; letter-spacing: -.1974px; color: var(--text); transition: border-color .12s;
+}
+.confirm__btn--primary { border-color: #f88f62; } /* border/primary_border-color */
+/* наведение — только рамка темнее (Figma 17890:1124, 17890:184) */
+.confirm__btn:hover { border-color: #0065b8; }                 /* border/secondary_hover_border-color */
+.confirm__btn--primary:hover { border-color: #f55714; }        /* border/primary_hover_border-color */
+
+/* ---------- Выбор иконки раздела (Figma 44fX18O5Huk4hmoaANMNIC 10506:57779, без выбора цвета) ---------- */
+.sme-icon { cursor: pointer; transition: background-color .12s; }
+.sme-icon:hover, .sme-icon.is-active { background: #eee; } /* наведения в макете нет — подобрано */
+.acc-glyph--cbuc24 { font-family: "cbuc-icons24"; letter-spacing: 0; }
+.acc-glyph--cbuc { font-family: "cbuc-icons"; letter-spacing: 0; }
+
+.icon-pick {
+  position: absolute; z-index: 30; width: 376px; height: 340px; display: flex; flex-direction: column; overflow: hidden;
+  background: #f8f8f8; border-radius: 8px; box-shadow: 0 0 18px rgba(0, 0, 0, .12);
+}
+.icon-pick[hidden] { display: none; }
+.icon-pick__head { height: 48px; flex: none; display: flex; align-items: center; padding: 0 6px 0 16px; }
+.icon-pick__search {
+  flex: 1 0 0; min-width: 0; height: 24px; display: flex; align-items: center; padding: 0 4px 0 12px;
+  background: #fff; border: 1px solid #eaeaea; border-radius: 12px; cursor: text;
+}
+.icon-pick__search input {
+  flex: 1 0 0; min-width: 0; border: 0; outline: none; padding: 0; background: none;
+  font: inherit; font-size: 14px; letter-spacing: -.1974px; color: var(--text);
+}
+.icon-pick__search input::placeholder { color: rgba(137, 145, 169, .6); }
+.icon-pick__search .ico { width: 24px; height: 24px; color: var(--label); }
+.icon-pick__close { width: 24px; height: 24px; margin-left: 6px; display: flex; align-items: center; justify-content: center; }
+.icon-pick__close .ico24 { color: var(--acc-label); transition: color .12s; }
+.icon-pick__close:hover .ico24 { color: var(--text); }
+
+.icon-pick__body { flex: 1 0 0; min-height: 0; display: flex; padding: 0 0 4px 4px; }
+.icon-pick__list { position: relative; flex: 1 0 0; min-width: 0; overflow-y: auto; padding: 0 8px; background: #fff; border-radius: 8px; scrollbar-width: none; }
+.icon-pick__list::-webkit-scrollbar { display: none; }
+.icon-pick__group { padding: 6px 0 4px; }
+.icon-pick__title { padding: 0 0 4px 2px; font-size: 14px; letter-spacing: -.1974px; color: #999; } /* text/unaccented_text-color */
+.icon-pick__grid { display: flex; flex-wrap: wrap; }
+.icon-pick__btn { width: 32px; height: 32px; border-radius: 4px; display: flex; align-items: center; justify-content: center; padding-bottom: 1px; }
+.icon-pick__btn .ico24 { color: var(--label); }
+.icon-pick__btn .ico { font-size: 20px; width: 20px; height: 20px; color: var(--label); }
+/* наведения и выбранной иконки в макете нет — подобраны */
+.icon-pick__btn:not(:disabled):hover { background: rgba(51, 51, 51, .05); }
+.icon-pick__btn.is-current { background: var(--pill-active); }
+.icon-pick__btn:disabled { cursor: default; }
+.icon-pick__btn:disabled .ico24 { color: var(--readonly); }
+
+.icon-pick__tabs { width: 36px; flex: none; display: flex; flex-direction: column; gap: 4px; padding: 4px; }
+.icon-pick__tab { width: 28px; height: 28px; border-radius: 100px; display: flex; align-items: center; justify-content: center; padding-bottom: 1px; transition: background-color .12s; }
+.icon-pick__tab .ico { color: var(--label); }
+.icon-pick__tab:hover { background: rgba(51, 51, 51, .05); }
+.icon-pick__tab.is-active { background: rgba(51, 51, 51, .05); }
+.icon-pick__tab.is-active .ico { color: #cc3d00; } /* text/primary_text-color */

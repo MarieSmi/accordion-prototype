@@ -18,6 +18,7 @@
 
   // Разделы аккордеона. icon — символ шрифта Accordion-Font.
   // submenu.cols — колонки подменю; submenu.head — своя подпись заголовка подменю (по умолчанию — название раздела).
+  // submenu.headLabel — заголовок подменю только подпись (не пункт: не кликается, без ховера, в редакторе его нет).
   // Заголовок подменю ведёт на страницу раздела.
   const SECTIONS = [
     { id: 'contacts', title: 'Контакты', short: 'Контакты', icon: '',
@@ -51,7 +52,7 @@
         [sub('Исходящие'), sub('Акты сверки'), sub('Инструкции'), sub('База знаний'), sub('База знаний'), sub('Заметки')],
       ] } },
     { id: 'accounting', title: 'Учет', short: 'Учет', icon: '',
-      submenu: { cols: [
+      submenu: { headLabel: true, cols: [
         [sub('Операции и проводки'), sub('Закрытие месяца'), sub('План счетов'), sub('Баланс'), sub('Имущество/НМА'),
          sub('Комиссия'), sub('Распределение затрат')],
         [sub('Налоги'), sub('ЕНС', 2), sub('НДС', 2), sub('Прибыль', 2), sub('УСН', 2), sub('АУСН', 2), sub('ЕСХН', 2),
@@ -62,7 +63,7 @@
     { id: 'companies', title: 'Компании', short: 'Комп-и', icon: '',
       submenu: { cols: [[sub('Наши контрагенты')]] } },
     { id: 'marketing', title: 'Маркетинг', short: 'Марке-нг', icon: '',
-      submenu: { cols: [
+      submenu: { headLabel: true, cols: [
         [sub('Реклама'), sub('Реклама партнёров'), sub('Наши площадки'), sub('Реестр гостевого Wi-Fi'), sub('Сайты'),
          sub('Короткие ссылки'), sub('Посты'), sub('Отзывы'), sub('Аудитории')],
         [sub('Источники продаж'), sub('Коллтрекинг'), sub('Рассылки'), sub('Автообзвоны'), sub('Опросы')],
@@ -81,6 +82,11 @@
       submenu: { cols: [[sub('Наши компании'), sub('Начальные остатки'), sub('Параметры учета'), sub('Кастомизация'),
         sub('Интеграции'), sub('Видеонаблюдение'), sub('KPI')]] } },
   ];
+
+  // Исходный вид разделов — к нему возвращает ↺ в редакторе подменю.
+  const PRISTINE = Object.fromEntries(SECTIONS.map((s) => [s.id, {
+    title: s.title, short: s.short, icon: null, head: s.submenu.headLabel ? null : s.submenu.head ?? s.title, showHead: true, cols: s.submenu.cols.map((c) => c.slice()),
+  }]));
 
   // Виды узкого аккордеона (окно «Меню» → «Вид панели»).
   const NARROW_VIEWS = [
@@ -147,7 +153,11 @@
   const calendarHTML = () =>
     `<span class="acc-cal"><span class="acc-glyph acc-cal__frame"></span><span class="acc-cal__day">${new Date().getDate()}</span></span>`;
 
+  // Своя иконка раздела, выбранная в редакторе: { font: 'cbuc24' | 'cbuc', ch }.
+  const customGlyph = (ic) => `<span class="acc-glyph acc-glyph--${ic.font}">${ic.ch}</span>`;
+
   function iconHTML(sec) {
+    if (sec.customIcon) return `<span class="acc-item__icon">${customGlyph(sec.customIcon)}</span>`;
     if (sec.photo) return `<img class="acc-item__photo" src="${sec.photo}" alt="">`;
     if (sec.calendar) return calendarHTML();
     return `<span class="acc-item__icon"><span class="acc-glyph">${sec.icon}</span></span>`;
@@ -155,6 +165,7 @@
 
   // Иконка в заголовке подменю — как у пункта аккордеона: фото, календарь или символ шрифта.
   function headIconHTML(sec) {
+    if (sec.customIcon) return `<span class="sm-head__icon"><span class="acc-item__icon">${customGlyph(sec.customIcon)}</span></span>`;
     if (sec.photo) return `<span class="sm-head__icon sm-head__icon--photo"><img class="sm-head__photo" src="${sec.photo}" alt=""></span>`;
     // Символ — в той же рамке, что в пункте аккордеона, чтобы иконка не сдвигалась при открытии подменю.
     return `<span class="sm-head__icon">${sec.calendar ? calendarHTML() : `<span class="acc-item__icon"><span class="acc-glyph">${sec.icon}</span></span>`}</span>`;
@@ -174,7 +185,6 @@
            <span class="acc-cmd acc-cmd--dots" role="button" aria-label="Ещё"><span class="ico"></span></span>
          </span>`);
       btn.type = 'button';
-      btn.title = sec.title;
       // Вторая строка — выбранный пункт подменю (видна только в раскрытом аккордеоне).
       const subRow = el('button', 'acc-item__sub', '<span class="acc-item__sub-title"></span>');
       subRow.type = 'button';
@@ -196,8 +206,9 @@
         li.classList.remove('is-hover', 'is-delay');
       });
       btn.addEventListener('click', (e) => {
-        // Команды ✎ ⋮ — поведение по клику пока не задано.
-        if (e.target.closest('.acc-cmd')) return;
+        // ✎ открывает редактор подменю; ⋮ — поведение по клику пока не задано.
+        const cmd = e.target.closest('.acc-cmd');
+        if (cmd) { if (!cmd.classList.contains('acc-cmd--dots')) openEditor(sec.id); return; }
         // Подменю для раздела ещё не нарисовано — переходим сразу на страницу раздела.
         if (!sec.submenu) { navigate(sec.id, null); return; }
         if (state.openSection === sec.id) { if (trigger() === 'click') closeSubmenu(); }
@@ -207,11 +218,12 @@
     syncAccordion();
   }
 
-  // Заголовок пункта подменю по ключу «колонка:строка».
-  function subTitle(sec, key) {
+  // Пункт подменю по ключу «колонка:строка».
+  function subItem(sec, key) {
     const [ci, ii] = key.split(':').map(Number);
-    return sec.submenu.cols[ci][ii].title;
+    return sec.submenu.cols[ci][ii];
   }
+  const subTitle = (sec, key) => subItem(sec, key).title;
 
   function syncAccordion() {
     const { section, item } = state.page;
@@ -272,14 +284,18 @@
     const box = el('div', `submenu submenu--${kind}` + (multi ? ' submenu--multi' : ''));
     const panel = el('div', 'submenu__panel');
 
-    if (kind !== 'panel') {
+    // Заголовок подменю ведёт на страницу раздела; у headLabel — только подпись. Удалённого в редакторе (noHead) нет.
+    if (kind !== 'panel' && !sec.submenu.noHead) {
       const head = el('div', 'submenu__head');
       const headTitle = sec.submenu.head || sec.title;
-      const headBtn = el('button', 'sm-head', kind === 'wide'
+      const label = sec.submenu.headLabel;
+      const headBtn = el(label ? 'div' : 'button', 'sm-head', kind === 'wide'
         ? `${headIconHTML(sec)}<span class="sm-head__title">${headTitle}</span>`
         : `<span class="sm-head__title">${headTitle}</span>`);
-      headBtn.type = 'button';
-      headBtn.addEventListener('click', () => navigate(sec.id, null));
+      if (!label) {
+        headBtn.type = 'button';
+        headBtn.addEventListener('click', () => navigate(sec.id, null));
+      }
       head.append(headBtn);
       panel.append(head);
     }
@@ -312,7 +328,7 @@
     const edit = el('button', 'float-btn', '<span class="ico"></span>');
     edit.type = 'button';
     edit.setAttribute('aria-label', 'Редактировать подменю');
-    // Окно редактирования подменю — отдельный этап.
+    edit.addEventListener('click', () => openEditor(sec.id));
     float.append(edit);
     box.append(float);
 
@@ -383,7 +399,7 @@
     btn.addEventListener('click', () => setWindow(openWin === name && !openFrom ? null : name));
     win.querySelector('.sw-done').addEventListener('click', () => setWindow(null));
     win.querySelector('.sw-close').addEventListener('click', () => setWindow(null));
-    win.querySelector('.set-win__head').addEventListener('mousedown', (e) => startDrag(e, name));
+    win.querySelector('.set-win__head').addEventListener('mousedown', (e) => startDrag(e, win));
   }
 
   // from — элемент, из которого открыто окно (по умолчанию его кнопка в шапке конструктора).
@@ -415,10 +431,9 @@
     w.onOpen();
   }
 
-  function startDrag(e, name) {
-    if (e.button !== 0 || e.target.closest('button')) return;
+  function startDrag(e, win) {
+    if (e.button !== 0 || e.target.closest('button, .sme-title, .sme-icon')) return;
     e.preventDefault();
-    const { win } = windows[name];
     closePopups();
     const startX = e.clientX, startY = e.clientY;
     const left0 = win.offsetLeft, top0 = win.offsetTop;
@@ -550,6 +565,323 @@
   stage.addEventListener('mousedown', (e) => {
     if (iconMenu.hidden || e.target.closest('#iconMenu') || e.target.closest('#lwBird')) return;
     closeIconMenu();
+  });
+
+  // ---------- Редактор подменю ----------
+  // ✎ (команда пункта или плавающая кнопка подменю) закрывает подменю и открывает окно редактора:
+  // пункты подменю — виджеты, заголовок подменю — первый виджет. Иконка в шапке окна встаёт на иконку пункта.
+  // Изменения копятся в черновике (с отменой / повтором) и применяются по ✓; ✕ при изменениях спрашивает.
+  const editor = $('#smEditor');
+  const shield = $('#smeShield');
+  const smeTitle = $('#smeTitle');
+  const smeCard = $('#smeCard');
+  const smeConfirm = $('#smeConfirm');
+  const smeIcon = $('#smeIcon');
+  const smeUndo = $('#smeUndo'), smeRedo = $('#smeRedo'), smeReset = $('#smeReset');
+
+  // ed: { sec, draft, hist, at, selected: 'head' | 'ci:ii' | null }
+  // draft: { title — название раздела, icon — своя иконка (null — исходная), head — заголовок подменю (отдельная сущность; null у headLabel), showHead, cols }
+  let ed = null;
+
+  const cloneDraft = (d) => ({ ...d, cols: d.cols.map((c) => c.slice()) });
+  const draftKey = (d) => JSON.stringify([d.title, d.icon, d.head, d.showHead, d.cols]);
+
+  function editorIconHTML(sec, icon) {
+    if (icon) return customGlyph(icon);
+    if (sec.photo) return `<img src="${sec.photo}" alt="">`;
+    if (sec.calendar) return calendarHTML();
+    return `<span class="acc-glyph">${sec.icon}</span>`;
+  }
+
+  function openEditor(id) {
+    const sec = SECTIONS.find((s) => s.id === id);
+    closeSubmenu();
+    setWindow(null);
+    cancelLeave();
+    setPanelOpen(false);
+    const draft = {
+      title: sec.title, icon: sec.customIcon ?? null, head: sec.submenu.headLabel ? null : sec.submenu.head ?? sec.title, showHead: !sec.submenu.noHead,
+      cols: sec.submenu.cols.map((c) => c.slice()),
+    };
+    ed = { sec, draft, hist: [cloneDraft(draft)], at: 0, selected: null };
+    smeConfirm.hidden = true;
+    renderEditor();
+    shield.hidden = false;
+    editor.hidden = false;
+
+    // Иконка шапки окна (центр: 10 + 14 слева, 7 + 16 сверху) — ровно на иконку пункта аккордеона.
+    const li = list.querySelector(`[data-id="${id}"]`);
+    const r = stageRect($('.acc-item__icon, .acc-cal, .acc-item__photo', li));
+    const left = r.left + r.width / 2 - 24;
+    const top = r.top + r.height / 2 - 23;
+    editor.style.left = Math.round(left) + 'px';
+    // Не помещается до низа сцены — поднимаем (иконка сдвигается, как у нижних подменю).
+    editor.style.top = Math.round(Math.max(0, Math.min(top, 900 - editor.offsetHeight))) + 'px';
+  }
+
+  function closeEditor() {
+    stopTitleEdit(false);
+    closeIconPick();
+    smeConfirm.hidden = true;
+    editor.hidden = true;
+    shield.hidden = true;
+    ed = null;
+  }
+
+  function renderEditor() {
+    const { draft, selected } = ed;
+    if (!smeTitle.classList.contains('is-editing')) smeTitle.textContent = draft.title;
+    smeIcon.innerHTML = editorIconHTML(ed.sec, draft.icon);
+    smeCard.innerHTML = '';
+    smeCard.classList.toggle('is-multi', draft.cols.length > 1);
+    const mk = (side) => el('span', `sme-mk sme-mk--${side}`);
+    const widget = (key, title, sub) => {
+      const w = el('div', 'sme-w' + (sub ? ' sme-w--sub' : '') + (key === selected ? ' is-selected' : ''));
+      w.dataset.key = key;
+      w.append(document.createTextNode(title), mk('top'), mk('bottom'));
+      return w;
+    };
+    draft.cols.forEach((col, ci) => {
+      const l = el('div', 'sme-list');
+      if (ci === 0 && draft.head != null && draft.showHead) l.append(widget('head', draft.head, false));
+      col.forEach((it, ii) => l.append(widget(`${ci}:${ii}`, it.title, it.level === 2)));
+      l.append(mk('top'), mk('bottom'), mk('left'), mk('right'));
+      l.classList.toggle('has-selected', !!l.querySelector('.sme-w.is-selected'));
+      smeCard.append(l);
+    });
+    smeUndo.disabled = ed.at === 0;
+    smeRedo.disabled = ed.at === ed.hist.length - 1;
+    smeReset.disabled = draftKey(draft) === draftKey(PRISTINE[ed.sec.id]);
+  }
+
+  // Изменение черновика — новый шаг истории (шаги «вперёд» отбрасываются).
+  function commit(draft) {
+    if (draftKey(draft) === draftKey(ed.draft)) return;
+    ed.hist = ed.hist.slice(0, ed.at + 1);
+    ed.hist.push(cloneDraft(draft));
+    ed.at = ed.hist.length - 1;
+    ed.draft = draft;
+    ed.selected = null;
+    renderEditor();
+  }
+
+  function goHistory(step) {
+    const at = ed.at + step;
+    if (at < 0 || at >= ed.hist.length) return;
+    ed.at = at;
+    ed.draft = cloneDraft(ed.hist[at]);
+    ed.selected = null;
+    renderEditor();
+  }
+
+  function select(key) {
+    if (!ed || ed.selected === key) return;
+    ed.selected = key;
+    renderEditor();
+  }
+
+  function deleteSelected() {
+    const key = ed.selected;
+    if (!key) return;
+    const draft = cloneDraft(ed.draft);
+    if (key === 'head') draft.showHead = false;
+    else {
+      const [ci, ii] = key.split(':').map(Number);
+      draft.cols[ci].splice(ii, 1);
+    }
+    commit(draft);
+  }
+
+  // Применение черновика: аккордеон и подменю раздела перерисовываются с новым названием и списком.
+  function saveEditor() {
+    const { sec, draft } = ed;
+    const pristine = PRISTINE[sec.id];
+    // Открытый пункт подменю ищем по самому пункту — после удалений ключ «колонка:строка» мог сдвинуться.
+    const current = state.page.section === sec.id && state.page.item != null ? subItem(sec, state.page.item) : null;
+    sec.title = draft.title;
+    sec.customIcon = draft.icon;
+    sec.short = draft.title === pristine.title ? pristine.short : draft.title;
+    if (draft.head != null) { sec.submenu.head = draft.head; sec.submenu.noHead = !draft.showHead; }
+    sec.submenu.cols = draft.cols.map((c) => c.slice());
+    if (current) {
+      let key = null;
+      sec.submenu.cols.forEach((c, ci) => { const ii = c.indexOf(current); if (ii >= 0 && key == null) key = `${ci}:${ii}`; });
+      state.page.item = key;
+    }
+    closeEditor();
+    renderAccordion();
+  }
+
+  // Название раздела: клик — правка на месте; Enter или уход фокуса — применить, Esc — отменить.
+  // Каретка встаёт туда, куда кликнули (мимо текста — в конец), текст не выделяется.
+  function startTitleEdit(e) {
+    if (smeTitle.classList.contains('is-editing')) return;
+    ed.selected = null;
+    renderEditor();
+    smeTitle.classList.add('is-editing');
+    smeTitle.contentEditable = 'plaintext-only';
+    smeTitle.focus();
+    let range = document.caretRangeFromPoint?.(e.clientX, e.clientY);
+    if (!range || !smeTitle.contains(range.startContainer)) {
+      range = document.createRange();
+      range.selectNodeContents(smeTitle);
+      range.collapse(false);
+    }
+    const s = getSelection();
+    s.removeAllRanges();
+    s.addRange(range);
+  }
+
+  function stopTitleEdit(apply) {
+    if (!smeTitle.classList.contains('is-editing')) return;
+    smeTitle.classList.remove('is-editing');
+    smeTitle.contentEditable = 'false';
+    smeTitle.scrollLeft = 0;
+    const value = smeTitle.textContent.replace(/\s+/g, ' ').trim();
+    if (ed && apply && value) commit({ ...cloneDraft(ed.draft), title: value });
+    if (ed) smeTitle.textContent = ed.draft.title;
+  }
+
+  smeTitle.addEventListener('click', startTitleEdit);
+  smeTitle.addEventListener('blur', () => stopTitleEdit(true));
+  smeTitle.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); smeTitle.blur(); }
+    else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); stopTitleEdit(false); }
+  });
+
+  // Клик по виджету выделяет его, клик мимо (в окне или за ним) — снимает выделение.
+  editor.addEventListener('mousedown', (e) => {
+    if (!ed || e.target.closest('.sme-mk')) return;
+    const w = e.target.closest('.sme-w');
+    if (w) select(w.dataset.key);
+    else select(null);
+  });
+  shield.addEventListener('mousedown', () => ed && select(null));
+  $('.sme-head', editor).addEventListener('mousedown', (e) => startDrag(e, editor));
+
+  smeUndo.addEventListener('click', () => goHistory(-1));
+  smeRedo.addEventListener('click', () => goHistory(1));
+  smeReset.addEventListener('click', () => commit(cloneDraft(PRISTINE[ed.sec.id])));
+  $('#smeDone').addEventListener('click', saveEditor);
+  $('#smeClose').addEventListener('click', () => {
+    if (draftKey(ed.draft) === draftKey(ed.hist[0])) closeEditor();
+    else smeConfirm.hidden = false;
+  });
+  smeConfirm.addEventListener('click', (e) => {
+    const answer = e.target.closest('[data-answer]')?.dataset.answer;
+    if (answer === 'yes') saveEditor();
+    else if (answer === 'no') closeEditor();
+    else if (answer === 'cancel') smeConfirm.hidden = true;
+  });
+
+  // ---------- Выбор иконки раздела (Figma 44fX18O5Huk4hmoaANMNIC 10506:57779, без выбора цвета) ----------
+  // Открывается по клику на иконку в шапке редактора, встаёт под ней. Выбранная иконка — в черновик (с отменой),
+  // в аккордеон — по ✓. Вкладки справа прокручивают к группе; у последних вкладок групп в макете нет.
+  const ICON_GROUPS = [
+    { tab: '\uE68D', title: null, icons: [null, 'E758', 'E90F', 'E61F', 'EAF8', ['cbuc', 'EA38'], 'E95B', 'EAA0', 'E9B1'] },
+    { tab: '\uE931', title: 'Люди', icons: ['E9A7', 'E92D', 'E92E', 'E92F', 'E926', 'E6A9', 'E6AA', 'E6AB', 'E6AC', 'E6AD', 'E6AE', 'E6AF',
+      'E6B0', 'E6B1', 'E6B2', 'E6B3', 'E6B4', 'E6B5', 'E6B6', 'E6B7', 'E6B8', 'E6B9', 'E6BA', 'E6BB', 'E6BC', 'E6BD', 'E6BE', 'EB6F'] },
+    { tab: '\uE940', title: 'Статусы пользователя', icons: ['EB3E', 'EAAA', 'EA1C', 'EA1F', 'E96A', 'E949', 'E94A', 'E94B', 'E931', 'E932',
+      'E933', 'E934', 'E935', 'E936', 'E937', 'E938', 'E939', 'E93A', 'E93B', 'E93C', 'E93D', 'E93E', 'E93F', 'E940', 'E941', 'E942',
+      'E943', 'E944', 'E945', 'E67E', 'E618', 'E620'] },
+    { tab: '\uE641', title: 'Финансы', icons: ['EAF2', 'EAD9', 'EA9E', 'EA9F', 'EAA0', 'EAA1', 'EAA2', 'EAA3', 'EAA4', 'EAA5', 'EAA6', 'EAB2',
+      'EA93', 'EA38', 'EA35', 'EA06', 'EA0D', 'E9CD', 'E9BB', 'E98E', 'E981', 'E95B', 'E6D6', 'E6D7', 'E6A3', 'E695', 'E696', 'E641', 'E66F'] },
+  ].map((g) => ({
+    ...g,
+    // строка — символ cbuc-icons24; [шрифт, код] — символ другого шрифта; null — пустая иконка
+    icons: g.icons.map((i) => (i == null ? null : Array.isArray(i)
+      ? { font: i[0], ch: String.fromCharCode(parseInt(i[1], 16)) }
+      : { font: 'cbuc24', ch: String.fromCharCode(parseInt(i, 16)) })),
+  }));
+  const ICON_TABS_REST = ['\uE637', '\uE735', '\uE9E2', '\uE91B', '\uE9D9'];
+
+  const iconPick = $('#iconPick');
+  const iconPickList = $('#iconPickList');
+  const iconPickTabs = $('#iconPickTabs');
+
+  function renderIconPick() {
+    const cur = ed.draft.icon;
+    iconPickList.innerHTML = '';
+    iconPickTabs.innerHTML = '';
+    ICON_GROUPS.forEach((g, gi) => {
+      const group = el('div', 'icon-pick__group');
+      group.dataset.group = gi;
+      if (g.title) group.append(el('div', 'icon-pick__title', g.title));
+      const grid = el('div', 'icon-pick__grid');
+      for (const ic of g.icons) {
+        const b = el('button', 'icon-pick__btn',
+          ic ? `<span class="${ic.font === 'cbuc' ? 'ico' : 'ico24'}">${ic.ch}</span>` : '<span class="ico24">&#xE66C;</span>');
+        b.type = 'button';
+        // Пустая иконка (✕) в «недавних» — как в макете, неактивна.
+        if (!ic) b.disabled = true;
+        else {
+          if (cur && cur.font === ic.font && cur.ch === ic.ch) b.classList.add('is-current');
+          b.addEventListener('click', () => { closeIconPick(); commit({ ...cloneDraft(ed.draft), icon: ic }); });
+        }
+        grid.append(b);
+      }
+      group.append(grid);
+      iconPickList.append(group);
+    });
+    [...ICON_GROUPS.map((g) => g.tab), ...ICON_TABS_REST].forEach((ch, i) => {
+      const t = el('button', 'icon-pick__tab' + (i === 0 ? ' is-active' : ''), `<span class="ico">${ch}</span>`);
+      t.type = 'button';
+      if (i < ICON_GROUPS.length) t.addEventListener('click', () => {
+        iconPickList.scrollTop = iconPickList.querySelector(`[data-group="${i}"]`).offsetTop;
+      });
+      iconPickTabs.append(t);
+    });
+  }
+
+  // Активная вкладка — группа, которая сейчас вверху списка (в конце прокрутки — последняя).
+  iconPickList.addEventListener('scroll', () => {
+    const top = iconPickList.scrollTop + 1;
+    let active = 0;
+    for (const g of iconPickList.children) if (g.offsetTop <= top) active = +g.dataset.group;
+    if (iconPickList.scrollTop + iconPickList.clientHeight >= iconPickList.scrollHeight - 1) active = ICON_GROUPS.length - 1;
+    [...iconPickTabs.children].forEach((t, i) => t.classList.toggle('is-active', i === active));
+  });
+
+  function openIconPick() {
+    stopTitleEdit(true);
+    ed.selected = null;
+    renderEditor();
+    renderIconPick();
+    $('#iconPickSearch').value = '';
+    iconPick.hidden = false;
+    iconPickList.scrollTop = 0;
+    smeIcon.classList.add('is-active');
+    // Панель — поверх иконки шапки редактора: левый верхний угол панели в левом верхнем углу иконки (как окна «Меню» и «Логотип»).
+    const r = stageRect(smeIcon);
+    iconPick.style.left = Math.round(Math.max(0, Math.min(r.left, 1600 - iconPick.offsetWidth))) + 'px';
+    iconPick.style.top = Math.round(Math.max(0, Math.min(r.top, 900 - iconPick.offsetHeight))) + 'px';
+  }
+  function closeIconPick() {
+    iconPick.hidden = true;
+    smeIcon.classList.remove('is-active');
+  }
+
+  smeIcon.addEventListener('click', () => (iconPick.hidden ? openIconPick() : closeIconPick()));
+  $('#iconPickClose').addEventListener('click', closeIconPick);
+  // Клик мимо панели закрывает её (клик по самой иконке переключает панель).
+  stage.addEventListener('mousedown', (e) => {
+    if (iconPick.hidden || e.target.closest('#iconPick') || e.target.closest('#smeIcon')) return;
+    closeIconPick();
+  }, true);
+
+  document.addEventListener('keydown', (e) => {
+    if (!ed || smeTitle.classList.contains('is-editing')) return;
+    if (!iconPick.hidden) {
+      if (e.key === 'Escape') { e.stopImmediatePropagation(); closeIconPick(); }
+      return;
+    }
+    // Пока открыто подтверждение — только Esc (= «Отмена»).
+    if (!smeConfirm.hidden) { if (e.key === 'Escape') { e.stopImmediatePropagation(); smeConfirm.hidden = true; } return; }
+    if (e.key === 'Delete') { e.preventDefault(); deleteSelected(); }
+    else if (e.key === 'Escape') {
+      e.stopImmediatePropagation();
+      select(null);
+    }
   });
 
   document.addEventListener('keydown', (e) => {

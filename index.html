@@ -200,6 +200,58 @@
         </div>
       </section>
 
+      <!-- Редактор подменю: пока открыт, конструктор недоступен (щит ловит клики, фон не затеняется) -->
+      <div class="sme-shield" id="smeShield" hidden></div>
+      <section class="sm-editor" id="smEditor" hidden aria-label="Редактор подменю">
+        <div class="sme-head">
+          <div class="sme-head__left">
+            <span class="sme-icon" id="smeIcon"></span>
+            <span class="sme-title" id="smeTitle" spellcheck="false"></span>
+            <button class="sme-plus" type="button" aria-label="Добавить виджет"><span class="ico24">&#xEADD;</span></button>
+          </div>
+          <div class="sme-head__right">
+            <div class="sme-cmds">
+              <button class="sme-cmd" type="button" id="smeUndo" aria-label="Отменить" disabled><span class="ico24">&#xE6CF;</span></button>
+              <button class="sme-cmd" type="button" id="smeRedo" aria-label="Повторить" disabled><span class="ico24">&#xE6CA;</span></button>
+              <button class="sme-cmd" type="button" id="smeReset" aria-label="Вернуть исходное" disabled><span class="ico24">&#xE629;</span></button>
+            </div>
+            <div class="sme-final">
+              <button class="sw-done" type="button" id="smeDone" aria-label="Сохранить и закрыть"><span class="ico">&#xE75E;</span></button>
+              <button class="sme-close" type="button" id="smeClose" aria-label="Закрыть"><img src="assets/img/close-editor.svg" width="12" height="12" alt=""></button>
+            </div>
+          </div>
+        </div>
+        <div class="sme-card" id="smeCard"></div>
+      </section>
+
+      <!-- Выбор иконки раздела (Figma 44fX18O5Huk4hmoaANMNIC 10506:57779, без выбора цвета) -->
+      <div class="icon-pick" id="iconPick" hidden>
+        <div class="icon-pick__head">
+          <label class="icon-pick__search"><input type="text" placeholder="Найти" id="iconPickSearch" spellcheck="false"><span class="ico">&#xE662;</span></label>
+          <button class="icon-pick__close" type="button" id="iconPickClose" aria-label="Закрыть"><span class="ico24">&#xE66C;</span></button>
+        </div>
+        <div class="icon-pick__body">
+          <div class="icon-pick__list" id="iconPickList"></div>
+          <div class="icon-pick__tabs" id="iconPickTabs"></div>
+        </div>
+      </div>
+
+      <!-- Подтверждение «Сохранить изменения?» (Figma nuC4KFMiS36uDWDUp9wKGl 4064:21938) — по центру сцены, поверх всего -->
+      <div class="confirm-layer" id="smeConfirm" hidden>
+        <div class="confirm" role="dialog" aria-modal="true" aria-labelledby="smeConfirmMsg">
+          <div class="confirm__head"><span class="confirm__marker"></span></div>
+          <div class="confirm__content">
+            <p class="confirm__message" id="smeConfirmMsg">Сохранить изменения?</p>
+            <p class="confirm__details">Чтобы продолжить редактирование, нажмите «Отмена»</p>
+          </div>
+          <div class="confirm__footer">
+            <button class="confirm__btn confirm__btn--primary" type="button" data-answer="yes">Да</button>
+            <button class="confirm__btn" type="button" data-answer="no">Нет</button>
+            <button class="confirm__btn" type="button" data-answer="cancel">Отмена</button>
+          </div>
+        </div>
+      </div>
+
       <!-- Меню «Иконка» (загрузка логотипа) -->
       <div class="icon-menu" id="iconMenu" hidden>
         <div class="icon-menu__head">
