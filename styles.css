@@ -321,7 +321,14 @@ ul { list-style: none; margin: 0; padding: 0; }
 /* список (пункт 28px, слот маркера 3px + 5px, слот стрелки 20px) */
 .rp-list { padding: 0 4px 4px; }
 .rp-row { height: 28px; display: flex; align-items: center; padding: 0 8px 0 8px; border-radius: 4px; cursor: default; transition: background-color .12s; }
-.rp-row:hover { background: rgba(51, 51, 51, .05); }
+/* ховер — как пункт слоёв в Builder-components (rHabzni5OI5D4fxBLQdj2m 5:28133): фон и команды «глазик», «удалить» */
+.rp-row { position: relative; }
+.rp-row:hover { background: #ebf4ff; }
+.rp-row__cmds { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); display: none; gap: 6px; padding-left: 4px; background: #ebf4ff; }
+.rp-row:hover .rp-row__cmds { display: flex; }
+.rp-row__eye { padding-bottom: 2px; color: #8991a9; }
+.rp-row__del { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; }
+.rp-row__del .ico { color: #c2140a; }
 .rp-row__lead { flex: none; width: 20px; display: flex; align-items: center; padding-left: 2px; }
 .rp-arrow { font-size: 12px; width: 12px; height: 12px; color: #8991a9; }
 .rp-wico { color: #5a49ab; margin-right: 4px; }
@@ -405,7 +412,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 .rp-switch:hover::before { background-color: #b8bdc3; }
 .rp-switch.is-on::before { background: var(--accent) radial-gradient(circle 6px at 16px 8px, #fff 5.5px, transparent 6px); }
 .rp-switch.is-on:hover::before { background-color: #e5622b; }
-.rp-menu { width: 180px; }
+.rp-menu { width: 160px; } /* Figma 18452:13240 */
 
 /* ---------- Подменю ---------- */
 .submenu-layer { position: absolute; inset: 0; pointer-events: none; z-index: 10; }
