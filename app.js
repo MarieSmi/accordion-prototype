@@ -11,6 +11,15 @@
       main: 'assets/img/page-main-narrow.png',
       skeleton: 'assets/img/page-contacts-skeleton-narrow.png',
     },
+    // «По центру» / «Слева»: контент 696 (под узкий аккордеон — 860), блок шириной 1238.
+    fixed: {
+      main: 'assets/img/page-main-center.png',
+      skeleton: 'assets/img/page-contacts-skeleton-center.png',
+      narrow: {
+        main: 'assets/img/page-main-center-narrow.png',
+        skeleton: 'assets/img/page-contacts-skeleton-center-narrow.png',
+      },
+    },
   };
 
   // Пункт подменю: [заголовок, уровень (1|2)]
@@ -115,6 +124,7 @@
     page: { section: null, item: null }, // section=null → Главная
     openSection: null,
     panelOpen: false, // панель раскрыта по ховеру
+    align: 'stretch', // позиционирование контента: 'stretch' | 'center' | 'left'
   };
 
   // ---------- DOM ----------
@@ -359,11 +369,30 @@
     syncAccordion();
   }
 
+  // ---------- Позиционирование контента (переключатель в шапке) ----------
+  // «Растянуть» — контент на всю рабочую область; «По центру» / «Слева» — блок 1238
+  // (аккордеон + контент + информеры + ЦУ) по центру области 1538 или у её левого края.
+  const alignBtns = [...document.querySelectorAll('#alignGroup .tb-btn')];
+  function setAlign(align) {
+    state.align = align;
+    stage.classList.toggle('is-aligned', align !== 'stretch');
+    stage.classList.toggle('is-align-center', align === 'center');
+    for (const b of alignBtns) {
+      const on = b.dataset.align === align;
+      b.classList.toggle('is-active', on);
+      b.setAttribute('aria-checked', on);
+    }
+    closeSubmenu();
+    updateShot();
+  }
+  for (const b of alignBtns) b.addEventListener('click', () => setAlign(b.dataset.align));
+
   // ---------- Навигация ----------
   // Скриншот зависит от страницы и вида аккордеона; если под узкий вид скриншота нет — берём обычный.
   function updateShot() {
     const page = state.page.section ? 'skeleton' : 'main';
-    const src = (isNarrow() && SHOTS.narrow[page]) || SHOTS[page];
+    const set = state.align === 'stretch' ? SHOTS : SHOTS.fixed;
+    const src = (isNarrow() && set.narrow[page]) || set[page];
     if (!shot.src.endsWith(src)) shot.src = src;
   }
 
