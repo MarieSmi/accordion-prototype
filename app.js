@@ -141,6 +141,7 @@
   const list = $('#accList');
   const layer = $('#submenuLayer');
   const shot = $('#contentShot');
+  const shotSide = $('#contentShotSide'); // тот же скриншот, справа — только информеры и ЦУ
 
   // Сцена 1600×900 вписывается в окно браузера с сохранением пропорций.
   let scale = 1;
@@ -372,29 +373,33 @@
   // ---------- Позиционирование контента (переключатель в шапке) ----------
   // «Растянуть» — контент на всю рабочую область; «По центру» / «Слева» — блок 1238
   // (аккордеон + контент + информеры + ЦУ) по центру области 1538 или у её левого края.
-  // Блок съезжает плавно (CSS), скриншот в это время гаснет и проявляется уже новым.
-  const SHOT_FADE = 180; // мс, как transition у .content__shot
+  // Плавно меняется только ширина середины (CSS, --mid), аккордеон и ЦУ идут за её краями.
+  // Пока середина меняется, в ней показан более широкий из двух скриншотов (обрезан по ширине):
+  // при расширении новый ставим сразу, при сужении — в конце.
+  const ALIGN_MS = 300; // как transition у .stage.is-aligning
   const alignBtns = [...document.querySelectorAll('#alignGroup .tb-btn')];
+  const midWidth = () => (state.align === 'stretch' ? 996 : 696) + (isNarrow() ? 164 : 0);
   let alignTimer = null;
   function setAlign(align) {
     if (align === state.align) return;
+    const from = midWidth();
     state.align = align;
+    clearTimeout(alignTimer);
+    stage.classList.add('is-aligning');
     stage.classList.toggle('is-aligned', align !== 'stretch');
-    stage.classList.toggle('is-align-center', align === 'center');
+    // Центровку не снимаем при «Растянуть»: сдвиг сам уходит в 0, пока середина расширяется.
+    if (align !== 'stretch') stage.classList.toggle('is-align-center', align === 'center');
     for (const b of alignBtns) {
       const on = b.dataset.align === align;
       b.classList.toggle('is-active', on);
       b.setAttribute('aria-checked', on);
     }
     closeSubmenu();
-    shot.classList.add('is-fading');
-    clearTimeout(alignTimer);
+    if (midWidth() > from) updateShot();
     alignTimer = setTimeout(() => {
+      stage.classList.remove('is-aligning');
       updateShot();
-      const src = shot.src;
-      const ready = Promise.race([shot.decode().catch(() => {}), new Promise((r) => setTimeout(r, 300))]);
-      ready.then(() => { if (shot.src === src) shot.classList.remove('is-fading'); });
-    }, SHOT_FADE);
+    }, ALIGN_MS);
   }
   for (const b of alignBtns) b.addEventListener('click', () => setAlign(b.dataset.align));
 
@@ -404,7 +409,7 @@
     const page = state.page.section ? 'skeleton' : 'main';
     const set = state.align === 'stretch' ? SHOTS : SHOTS.fixed;
     const src = (isNarrow() && set.narrow[page]) || set[page];
-    if (!shot.src.endsWith(src)) shot.src = src;
+    if (!shot.src.endsWith(src)) shot.src = shotSide.src = src;
   }
 
   function navigate(section, item) {
