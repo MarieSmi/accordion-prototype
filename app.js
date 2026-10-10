@@ -622,6 +622,7 @@
   function closeEditor() {
     stopTitleEdit(false);
     closeIconPick();
+    closePlusMenu();
     smeConfirm.hidden = true;
     editor.hidden = true;
     shield.hidden = true;
@@ -888,8 +889,87 @@
     closeIconPick();
   }, true);
 
+  // ---------- Меню «+» редактора (Figma 9eLwMJLQCwT0xHKviN2j1P 16090:257796) ----------
+  // Строка шапки (поиск) — вровень с «+», левый край по «+». Клик по странице добавляет её виджетом в конец первой колонки.
+  // Раскрывается только «Отчетность» (остальные группы — пока без содержимого), «Добавить виджет» — только наведение.
+  const PLUS_TREE = [
+    { title: 'Моей компании', kind: 'folder' },
+    { sep: true },
+    { title: 'Отчетность', kind: 'group', open: true, items: ['Отчетность', 'Письма', 'Требования'] },
+    { title: 'Документооборот', kind: 'folder' },
+    { title: 'Управление персоналом', kind: 'folder' },
+    { title: 'Бухгалтерия и зарплата', kind: 'folder' },
+    { title: 'Госсистемы', kind: 'folder' },
+    { title: 'Деньги', kind: 'group', items: [] },
+    { title: 'Торги', kind: 'group', items: [] },
+    { title: 'Маркетинг', kind: 'folder' },
+    { title: 'Прочее', kind: 'folder' },
+  ];
+  const plusMenu = $('#plusMenu');
+  const plusList = $('#plusMenuList');
+  const plusSearch = $('#plusMenuSearch');
+  const smePlus = $('.sme-plus', editor);
+
+  function renderPlusMenu() {
+    const q = plusSearch.value.trim().toLowerCase();
+    const match = (t) => !q || t.toLowerCase().includes(q);
+    plusList.innerHTML = '';
+    const row = (cls, html, onClick) => {
+      const r = el('button', 'pm-row' + (cls ? ' ' + cls : ''), html);
+      r.type = 'button';
+      if (onClick) r.addEventListener('click', onClick);
+      plusList.append(r);
+    };
+    if (!q) row('', '<span class="ico pm-ico">&#xEADD;</span><span>Добавить виджет</span>');
+    for (const n of PLUS_TREE) {
+      if (n.sep) { if (!q) plusList.append(el('div', 'pm-sep')); continue; }
+      const kids = (n.items || []).filter(match);
+      if (q && !match(n.title) && !kids.length) continue;
+      const arrow = n.kind === 'folder' ? '' : (n.open || (q && kids.length)) ? '' : '';
+      row('', `<span class="ico pm-ico">${arrow}</span><span>${n.title}</span>`,
+        n.kind === 'group' ? () => { n.open = !n.open; renderPlusMenu(); } : null);
+      if (n.open || (q && kids.length)) for (const t of (q ? kids : n.items)) row('pm-row--page', `<span>${t}</span>`, () => addPage(t));
+    }
+  }
+
+  function addPage(title) {
+    const draft = cloneDraft(ed.draft);
+    draft.cols[0].push(sub(title));
+    closePlusMenu();
+    commit(draft);
+  }
+
+  function openPlusMenu() {
+    stopTitleEdit(true);
+    plusSearch.value = '';
+    renderPlusMenu();
+    plusMenu.hidden = false;
+    smePlus.classList.add('is-active');
+    const r = stageRect(smePlus);
+    // 9 — верхний отступ меню, 14 — половина строки поиска.
+    plusMenu.style.left = Math.round(Math.min(r.left, 1600 - plusMenu.offsetWidth)) + 'px';
+    plusMenu.style.top = Math.round(Math.max(0, Math.min(r.top + r.height / 2 - 9 - 14, 900 - plusMenu.offsetHeight))) + 'px';
+    plusSearch.focus();
+  }
+  function closePlusMenu() {
+    plusMenu.hidden = true;
+    smePlus.classList.remove('is-active');
+  }
+
+  smePlus.addEventListener('click', () => (plusMenu.hidden ? openPlusMenu() : closePlusMenu()));
+  $('#plusMenuClose').addEventListener('click', closePlusMenu);
+  plusSearch.addEventListener('input', renderPlusMenu);
+  stage.addEventListener('mousedown', (e) => {
+    if (plusMenu.hidden || e.target.closest('#plusMenu') || e.target.closest('.sme-plus')) return;
+    closePlusMenu();
+  }, true);
+
   document.addEventListener('keydown', (e) => {
-    if (!ed || smeTitle.classList.contains('is-editing')) return;
+    if (!plusMenu.hidden && e.key === 'Escape') { e.stopImmediatePropagation(); closePlusMenu(); }
+  }, true);
+
+  document.addEventListener('keydown', (e) => {
+    if (!ed || smeTitle.classList.contains('is-editing') || e.target === plusSearch) return;
     if (!iconPick.hidden) {
       if (e.key === 'Escape') { e.stopImmediatePropagation(); closeIconPick(); }
       return;
