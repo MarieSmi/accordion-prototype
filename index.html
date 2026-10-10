@@ -100,6 +100,46 @@
       </aside>
 
       <!-- Окна правой панели: открываются слева от колонки, верх — по своей иконке (data-fit: full — на всю высоту, bottom — до низа) -->
+      <section class="rp-win" id="rp-data" data-fit="bottom" hidden aria-label="Данные">
+        <div class="rp-win__head"><span class="rp-win__title">Данные</span><span class="rp-find">Найти</span></div>
+        <div class="rp-fields">
+          <div class="rp-group rp-group--open">
+            <div class="rp-field rp-field--obj"><span class="rp-field__name">Аккаунт<span class="ico rp-field__arrow">&#xEB8A;</span></span><span class="rp-field__type">Аккаунт</span></div>
+            <div class="rp-field rp-field--child"><span class="rp-field__name">Тип<span class="ico rp-field__arrow">&#xEB89;</span></span><span class="rp-field__type">Строка</span></div>
+            <div class="rp-field rp-field--child rp-field--leaf"><span class="rp-field__name">Номер лицевого счета</span><span class="rp-field__type">Число</span></div>
+            <div class="rp-field rp-field--child rp-field--leaf"><span class="rp-field__name">Название аккаунта</span><span class="rp-field__type">Строка</span></div>
+            <div class="rp-field rp-field--child"><span class="rp-field__name">Операторы поддержки<span class="ico rp-field__arrow">&#xEB89;</span></span><span class="rp-field__type">Операторы</span></div>
+            <div class="rp-field rp-field--child"><span class="rp-field__name">Чаты<span class="ico rp-field__arrow">&#xEB89;</span></span><span class="rp-field__type">Чаты</span></div>
+            <div class="rp-field rp-field--child"><span class="rp-field__name">Звонки<span class="ico rp-field__arrow">&#xEB89;</span></span><span class="rp-field__type">Звонки</span></div>
+          </div>
+          <div class="rp-group"><div class="rp-field rp-field--obj"><span class="rp-field__name">Пользователь<span class="ico rp-field__arrow">&#xEB89;</span></span><span class="rp-field__type">Пользователь</span></div></div>
+          <div class="rp-group"><div class="rp-field rp-field--obj"><span class="rp-field__name">Контрагент<span class="ico rp-field__arrow">&#xEB89;</span></span><span class="rp-field__type">Контрагент</span></div></div>
+          <div class="rp-group"><div class="rp-field rp-field--obj"><span class="rp-field__name">Сотрудник<span class="ico rp-field__arrow">&#xEB89;</span></span><span class="rp-field__type">Сотрудник</span></div></div>
+        </div>
+      </section>
+
+      <section class="rp-win" id="rp-filter" data-fit="bottom" hidden aria-label="Фильтр">
+        <div class="rp-win__head"><span class="rp-win__title">Глобальный фильтр</span></div>
+        <div class="rp-chips">
+          <div class="rp-add rp-add--filter">
+            <div class="rp-add__label">Можно добавить</div>
+            <div class="rp-add__list">
+              <button class="rp-add__item" type="button">Организации</button>
+              <button class="rp-add__item" type="button">Сотрудники и подразделения</button>
+              <button class="rp-add__item" type="button">Период</button>
+              <button class="rp-add__item" type="button">Линии</button>
+              <button class="rp-add__item" type="button">Тип отклика</button>
+              <button class="rp-add__item" type="button">Тип продаж</button>
+              <button class="rp-add__item" type="button">Обороты</button>
+              <button class="rp-add__item" type="button">Обороты</button>
+              <button class="rp-add__item" type="button">Партнеры</button>
+              <button class="rp-add__item" type="button">Источники</button>
+              <button class="rp-add__item" type="button">Сервисы</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section class="rp-win" id="rp-layers" hidden aria-label="Слои">
         <div class="rp-win__head"><span class="rp-win__title">Слои</span></div>
         <div class="rp-list rp-layers">

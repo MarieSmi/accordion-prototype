@@ -342,6 +342,30 @@ ul { list-style: none; margin: 0; padding: 0; }
 .rp-add__item { height: 24px; padding: 0 10px; border-radius: 23px; font-size: 14px; letter-spacing: -.1974px; color: var(--label); cursor: default; transition: background-color .12s, color .12s; }
 .rp-add__item:hover { background: rgba(51, 51, 51, .05); color: var(--text); }
 
+.rp-add--filter { padding-bottom: 8px; }
+.rp-add--filter .rp-add__list { gap: 4px; }
+
+/* поле «Найти» в шапке «Данных» (статика) */
+.rp-find {
+  flex: none; margin-left: auto; width: 180px; height: 26px; display: flex; align-items: center; padding: 0 4px 0 12px;
+  background: #fff; border: 1px solid #eaeaea; border-radius: 12px;
+  font-size: 14px; letter-spacing: -.1974px; color: rgba(137, 145, 169, .6);
+}
+
+/* дерево полей «Данных» (Figma 16086:210659) */
+.rp-fields { display: flex; flex-direction: column; padding-bottom: 4px; }
+.rp-group { display: flex; flex-direction: column; gap: 2px; padding: 0 4px; }
+/* высоты строк — как в макете: 16px-строка 30.75, 14px-строка 30 */
+.rp-field { height: 30.75px; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; border-radius: 6px; cursor: default; transition: background-color .12s; }
+.rp-field:hover { background: rgba(51, 51, 51, .05); }
+.rp-field--child { padding-left: 28px; }
+.rp-field--leaf { height: 30px; }
+.rp-field__name { display: flex; align-items: center; gap: 2px; min-width: 0; font-size: 16px; letter-spacing: -.2256px; white-space: nowrap; }
+.rp-field--obj .rp-field__name { font-weight: 600; }
+.rp-field--leaf .rp-field__name { font-size: 14px; letter-spacing: -.1974px; }
+.rp-field__arrow { box-sizing: content-box; padding: 2px; font-size: 12px; width: 12px; height: 12px; color: #8991a9; }
+.rp-field__type { flex: none; padding-left: 12px; font-size: 12px; letter-spacing: -.1692px; color: #8991a9; }
+
 /* карточки «Настроек» (Figma 16086:213006) */
 .rp-cards { display: flex; flex-direction: column; gap: 4px; padding: 0 4px 4px; }
 .rp-card { display: flex; flex-direction: column; gap: 4px; padding: 8px 12px; background: #fff; border-radius: 8px; }
