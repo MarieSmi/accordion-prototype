@@ -575,7 +575,7 @@
   // ---------- Окна правой панели ----------
   // Клик по иконке открывает её окно слева от колонки, повторный — закрывает; открыто одно окно.
   // Закрывают также клик мимо окна, Esc, открытие окна настроек, подменю или редактора.
-  // Верх окна — по верху иконки; data-fit="full" — на всю высоту панели, "bottom" — от иконки до низа.
+  // Верх окна — по верху иконки, высота — по содержимому.
   let rpOpen = null;
   const rpBtn = (name) => $(`.rp-btn[data-rp="${name}"]`);
 
@@ -589,9 +589,7 @@
     const btn = rpBtn(name);
     btn.classList.add('is-active');
     win.hidden = false;
-    const fit = win.dataset.fit;
-    win.style.top = (fit === 'full' ? 45 : Math.round(stageRect(btn).top)) + 'px';
-    win.style.bottom = fit ? '8px' : '';
+    win.style.top = Math.round(stageRect(btn).top) + 'px';
   }
 
   function closeRp() {

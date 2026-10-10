@@ -361,7 +361,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 .rp-cat__name { flex: 1; min-width: 0; font-size: 15px; letter-spacing: -.2115px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .rp-cat.is-selected .rp-cat__name { font-weight: 600; }
 .rp-cat__count { flex: none; font-size: 14px; letter-spacing: -.1974px; color: #8991a9; }
-/* превью в макете обрезано на 726px; ниже окно выше макета — растворяем край в фоне */
+/* превью в макете обрезано на 726px, а список категорий длиннее — растворяем нижний край в фоне */
 .rp-shop__preview { flex: none; display: block; align-self: flex-start; -webkit-mask-image: linear-gradient(#000 calc(100% - 48px), transparent); mask-image: linear-gradient(#000 calc(100% - 48px), transparent); }
 
 /* поле «Найти» в шапке «Данных» (статика) */
