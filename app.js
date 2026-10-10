@@ -238,11 +238,30 @@
   }
 
   // Вид аккордеона по настройкам: раскрытый, узкий (с названиями / без), панель (свёрнута / раскрыта).
+  // Сворачивание / разворачивание: ширина аккордеона и середины контента меняется плавно (CSS, .stage.is-resizing).
+  // При сворачивании аккордеон до конца анимации остаётся раскрытым (обрезается по ширине), затем становится узким.
+  const RESIZE_MS = 300;
+  let resizeTimer = null;
+  let shownNarrow = null; // вид аккордеона, применённый к сцене
   function applyView() {
+    const narrow = isNarrow();
+    if (shownNarrow !== null && narrow !== shownNarrow) {
+      clearTimeout(resizeTimer);
+      stage.classList.add('is-resizing');
+      stage.classList.toggle('is-narrow', narrow);
+      shownNarrow = narrow;
+      resizeTimer = setTimeout(() => { stage.classList.remove('is-resizing'); applyAccView(); }, RESIZE_MS);
+      if (narrow) return; // узкий вид — в конце анимации
+    }
+    shownNarrow = narrow;
+    stage.classList.toggle('is-narrow', narrow);
+    applyAccView();
+  }
+
+  function applyAccView() {
     const narrow = isNarrow();
     const panel = isPanel();
     if (!panel) state.panelOpen = false;
-    stage.classList.toggle('is-narrow', narrow);
     acc.classList.toggle('is-narrow', narrow);
     acc.classList.toggle('is-panel', panel);
     acc.classList.toggle('is-panel-open', panel && state.panelOpen);
