@@ -282,20 +282,25 @@ ul { list-style: none; margin: 0; padding: 0; }
    Скриншот показан дважды: в середине — прижат влево и обрезан по её ширине, справа — только последние 322px.
    --acc-gap — от края области до середины (аккордеон 220 / узкий 56 + 1px);
    --mid — ширина середины: «Растянуть» 996 / 1160 (узкий аккордеон), «По центру» / «Слева» 696 / 860;
-   --align-shift — сдвиг блока при «По центру»: половина разницы с полной шириной (150 / 150).
-   При переключении плавно меняется только --mid (@property), аккордеон и ЦУ идут за краями середины. */
+   --center — 1 при «По центру», 0 при «Слева»; --align-shift — сдвиг блока: половина разницы с полной шириной × --center.
+   При переключении плавно меняются --mid и --center (@property), аккордеон и ЦУ идут за краями середины. */
 @property --mid { syntax: '<length>'; inherits: true; initial-value: 996px; }
-.stage { --acc-gap: 221px; --mid-full: 996px; --mid: 996px; --align-shift: 0px; }
+@property --center { syntax: '<number>'; inherits: true; initial-value: 0; }
+.stage { --acc-gap: 221px; --mid-full: 996px; --mid: 996px; --center: 0; --align-shift: calc((var(--mid-full) - var(--mid)) / 2 * var(--center)); }
 .stage.is-narrow { --acc-gap: 57px; --mid-full: 1160px; --mid: 1160px; }
 .stage.is-aligned { --mid: 696px; }
 .stage.is-aligned.is-narrow { --mid: 860px; }
-.stage.is-align-center { --align-shift: calc((var(--mid-full) - var(--mid)) / 2); }
-.stage.is-aligning { transition: --mid .3s cubic-bezier(.4, 0, .2, 1); }
+.stage.is-align-center { --center: 1; }
+.stage.is-aligning { transition: --mid .3s cubic-bezier(.4, 0, .2, 1), --center .3s cubic-bezier(.4, 0, .2, 1); }
 .accordion { left: calc(9px + var(--align-shift)); z-index: 1; } /* поверх области контента */
 .content { position: absolute; left: 8px; top: 45px; width: 1539px; height: 855px; overflow: hidden; background: #f8f8f8; display: flex; }
 /* «Растянуть»: под аккордеоном, как раньше, фон конструктора; «По центру» / «Слева» — по бокам фон страницы */
 .stage:not(.is-aligned) .content { background: linear-gradient(var(--ctor-bg), var(--ctor-bg)) 0 0 / var(--acc-gap) 100% no-repeat, #f8f8f8; }
-.content__mid { flex: none; width: var(--mid); margin-left: calc(var(--acc-gap) + var(--align-shift)); overflow: hidden; }
+.content__mid { position: relative; flex: none; width: var(--mid); margin-left: calc(var(--acc-gap) + var(--align-shift)); overflow: hidden; }
+/* слой середины обрезан по ширине своего скриншота (без информеров и ЦУ); прежний слой при смене гаснет поверх нового */
+.content__layer { position: absolute; left: 0; top: 0; height: 855px; overflow: hidden; }
+.content__layer--prev { transition: opacity .3s cubic-bezier(.4, 0, .2, 1); }
+.content__layer--prev.is-out { opacity: 0; }
 .content__side { flex: none; width: 322px; overflow: hidden; display: flex; justify-content: flex-end; }
 /* высота фиксирована, ширина — по пропорциям скриншота (1318 / 1482 — «Растянуть», 1018 / 1182 — блок 1238) */
 .content__shot { display: block; flex: none; width: auto; height: 855px; }

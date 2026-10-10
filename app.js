@@ -116,6 +116,8 @@
 
   const isNarrow = () => settings.view === 'narrow';
   const isPanel = () => isNarrow() && settings.narrowView === 'panel';
+  // Ширина середины контента: «Растянуть» 996, «По центру» / «Слева» 696; узкий аккордеон +164.
+  const midWidth = () => (state.align === 'stretch' ? 996 : 696) + (isNarrow() ? 164 : 0);
   // Без названий и в панели подменю открывается только по наведению.
   const triggerForced = () => isNarrow() && settings.narrowView !== 'labels';
   const trigger = () => (triggerForced() ? 'hover' : settings.submenuTrigger);
@@ -142,6 +144,9 @@
   const layer = $('#submenuLayer');
   const shot = $('#contentShot');
   const shotSide = $('#contentShotSide'); // тот же скриншот, справа — только информеры и ЦУ
+  const shotLayer = $('#shotLayer');
+  const prevLayer = $('#prevLayer'); // прежняя середина: гаснет поверх новой при переключении позиционирования
+  const prevShot = $('#prevShot');
 
   // Сцена 1600×900 вписывается в окно браузера с сохранением пропорций.
   let scale = 1;
@@ -373,16 +378,15 @@
   // ---------- Позиционирование контента (переключатель в шапке) ----------
   // «Растянуть» — контент на всю рабочую область; «По центру» / «Слева» — блок 1238
   // (аккордеон + контент + информеры + ЦУ) по центру области 1538 или у её левого края.
-  // Плавно меняется только ширина середины (CSS, --mid), аккордеон и ЦУ идут за её краями.
-  // Пока середина меняется, в ней показан более широкий из двух скриншотов (обрезан по ширине):
-  // при расширении новый ставим сразу, при сужении — в конце.
+  // Плавно меняются ширина середины и центровка (CSS, --mid / --center), аккордеон и ЦУ идут за краями середины.
+  // Прежний скриншот середины в это время плавно гаснет поверх нового.
   const ALIGN_MS = 300; // как transition у .stage.is-aligning
   const alignBtns = [...document.querySelectorAll('#alignGroup .tb-btn')];
-  const midWidth = () => (state.align === 'stretch' ? 996 : 696) + (isNarrow() ? 164 : 0);
   let alignTimer = null;
   function setAlign(align) {
     if (align === state.align) return;
     const from = midWidth();
+    const fromSrc = shot.src;
     state.align = align;
     clearTimeout(alignTimer);
     stage.classList.add('is-aligning');
@@ -395,10 +399,18 @@
       b.setAttribute('aria-checked', on);
     }
     closeSubmenu();
-    if (midWidth() > from) updateShot();
+    updateShot();
+    if (shot.src !== fromSrc) {
+      prevShot.src = fromSrc;
+      prevLayer.style.width = from + 'px';
+      prevLayer.classList.remove('is-out');
+      prevLayer.hidden = false;
+      void prevLayer.offsetWidth; // зафиксировать opacity 1 перед переходом
+      prevLayer.classList.add('is-out');
+    }
     alignTimer = setTimeout(() => {
       stage.classList.remove('is-aligning');
-      updateShot();
+      prevLayer.hidden = true;
     }, ALIGN_MS);
   }
   for (const b of alignBtns) b.addEventListener('click', () => setAlign(b.dataset.align));
@@ -410,6 +422,7 @@
     const set = state.align === 'stretch' ? SHOTS : SHOTS.fixed;
     const src = (isNarrow() && set.narrow[page]) || set[page];
     if (!shot.src.endsWith(src)) shot.src = shotSide.src = src;
+    shotLayer.style.width = midWidth() + 'px';
   }
 
   function navigate(section, item) {
