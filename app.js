@@ -115,6 +115,7 @@
     page: { section: null, item: null }, // section=null → Главная
     openSection: null,
     panelOpen: false, // панель раскрыта по ховеру
+    informers: true, // «Информеры» в настройках правой панели: выкл — на скриншоте нет кнопок телефона и чата
   };
 
   // ---------- DOM ----------
@@ -362,9 +363,11 @@
 
   // ---------- Навигация ----------
   // Скриншот зависит от страницы и вида аккордеона; если под узкий вид скриншота нет — берём обычный.
+  // Без информеров — копия скриншота с убранными кнопками телефона и чата (*-noinf.png).
   function updateShot() {
     const page = state.page.section ? 'skeleton' : 'main';
-    const src = (isNarrow() && SHOTS.narrow[page]) || SHOTS[page];
+    let src = (isNarrow() && SHOTS.narrow[page]) || SHOTS[page];
+    if (!state.informers) src = src.replace(/\.png$/, '-noinf.png');
     if (!shot.src.endsWith(src)) shot.src = src;
   }
 
@@ -629,10 +632,16 @@
 
   // «Настройки»: переключатель «Информеры» и выпадающие списки «На странице / В окне».
   const informers = $('#rpInformers');
+  // Скриншоты без информеров грузим при наведении на переключатель, иначе при клике контент на миг пропадает.
+  informers.addEventListener('pointerenter', () => {
+    for (const src of [SHOTS.main, SHOTS.skeleton, ...Object.values(SHOTS.narrow)]) new Image().src = src.replace(/\.png$/, '-noinf.png');
+  }, { once: true });
   informers.addEventListener('click', () => {
     const on = !informers.classList.contains('is-on');
     informers.classList.toggle('is-on', on);
     informers.setAttribute('aria-checked', on);
+    state.informers = on;
+    updateShot();
   });
 
   const rpMenu = $('#rpMenu');
