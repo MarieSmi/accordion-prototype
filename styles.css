@@ -345,6 +345,25 @@ ul { list-style: none; margin: 0; padding: 0; }
 .rp-add--filter { padding-bottom: 8px; }
 .rp-add--filter .rp-add__list { gap: 4px; }
 
+/* «Магазин» (Figma 16041:47582): список категорий 220 + превью виджетов 350 (картинка из макета) */
+.rp-win--shop { width: 574px; }
+.rp-plus { flex: none; height: 24px; padding: 0 10px; margin-left: -6px; display: flex; align-items: center; border-radius: 100px; background: rgba(51, 51, 51, .05); }
+.rp-filter-ico { flex: none; margin-left: auto; width: 32px; height: 32px; padding-top: 1px; margin-right: -8px; color: var(--label); }
+.rp-find.rp-find--shop { margin-left: 0; }
+.rp-shop { flex: 1; min-height: 0; display: flex; gap: 4px; }
+.rp-cats { flex: none; width: 220px; padding: 4px 0 0 4px; display: flex; flex-direction: column; }
+.rp-cat { flex: none; position: relative; height: 31px; display: flex; align-items: center; gap: 8px; padding: 0 12px 0 6px; border-radius: 6px; cursor: default; transition: background-color .12s; }
+.rp-cat:hover { background: rgba(51, 51, 51, .05); }
+.rp-cat--child { padding-left: 24px; }
+.rp-cat.is-selected, .rp-cat.is-selected:hover { background: #ebf4ff; }
+.rp-cat.is-selected::before { content: ""; position: absolute; left: 0; top: 7.5px; width: 3px; height: 16px; border-radius: 4px; background: #cc3d00; }
+.rp-cat__arrow { flex: none; width: 16px; margin-right: -4px; color: #8991a9; }
+.rp-cat__name { flex: 1; min-width: 0; font-size: 15px; letter-spacing: -.2115px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rp-cat.is-selected .rp-cat__name { font-weight: 600; }
+.rp-cat__count { flex: none; font-size: 14px; letter-spacing: -.1974px; color: #8991a9; }
+/* превью в макете обрезано на 726px; ниже окно выше макета — растворяем край в фоне */
+.rp-shop__preview { flex: none; display: block; align-self: flex-start; -webkit-mask-image: linear-gradient(#000 calc(100% - 48px), transparent); mask-image: linear-gradient(#000 calc(100% - 48px), transparent); }
+
 /* поле «Найти» в шапке «Данных» (статика) */
 .rp-find {
   flex: none; margin-left: auto; width: 180px; height: 26px; display: flex; align-items: center; padding: 0 4px 0 12px;

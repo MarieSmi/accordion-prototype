@@ -613,6 +613,20 @@
     else closeRp();
   });
 
+  // «Магазин»: список категорий (статика с ховером). open — раскрытый раздел, closed — свёрнутый, child — подраздел.
+  const SHOP_CATS = [
+    ['Все', 240, 'selected'], ['Секции', 4], ['Навигация', 1], ['Продажи', 32, 'open'],
+    ['Каталог и цены', 7, 'child'], ['Розница', 10, 'child'], ['Presto', 2, 'child'], ['Saby Clients', 1, 'child'], ['Документы продаж', 6, 'child'],
+    ['Отчетность', 7, 'closed'], ['Базовые возможности', 9, 'closed'], ['Документооборот', 5, 'closed'], ['Управление персоналом', 26, 'closed'],
+    ['Бухгалтерия и зарплата', 40, 'closed'], ['Деньги', 5], ['Торги', 13], ['Компании', 9], ['Маркетинг', 6],
+    ['CRM и контакт центр', 32, 'closed'], ['Задачи и проекты', 6], ['Корпоративная соцсеть', 21, 'closed'], ['Видеонаблюдение', 1],
+    ['Управление транспортом', 6], ['Сайт', 21, 'closed'],
+  ];
+  const ARROWS = { open: '&#xE9AA;', closed: '&#xE9C2;' };
+  $('#rpCats').innerHTML = SHOP_CATS.map(([name, count, kind]) =>
+    `<div class="rp-cat${kind === 'child' ? ' rp-cat--child' : ''}${kind === 'selected' ? ' is-selected' : ''}">` +
+    `<span class="ico rp-cat__arrow">${ARROWS[kind] ?? ''}</span><span class="rp-cat__name">${name}</span><span class="rp-cat__count">${count}</span></div>`).join('');
+
   // «Настройки»: переключатель «Информеры» и выпадающие списки «На странице / В окне».
   const informers = $('#rpInformers');
   informers.addEventListener('click', () => {
