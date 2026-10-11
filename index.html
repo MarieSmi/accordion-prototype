@@ -726,10 +726,29 @@
             <div class="tp-grid" id="tpGrid"></div>
           </div>
         </div>
+        <!-- Расширенные настройки темы (Figma 18846:22607): провал по «Настроить», пока только ховеры; «‹» — назад к списку тем -->
+        <div class="tp-edit">
+          <div class="tp-edit__head">
+            <button class="tp-back" type="button" id="tpBack" aria-label="Назад"><img src="assets/img/theme-back.svg" width="40" height="26" alt=""></button>
+            <span class="tp-edit__title">Моя новая тема 2</span>
+            <button class="done-btn" type="button" id="tpEditDone" aria-label="Сохранить и закрыть"><span class="ico ico--20">&#xE75E;</span></button>
+          </div>
+          <div class="tp-colors" id="tpColors"></div>
+        </div>
         <div class="tp-side">
-          <button class="close-btn" type="button" id="tpClose" aria-label="Закрыть"><img src="assets/img/close-header.svg" width="28" height="28" alt=""></button>
+          <div class="tp-side__top">
+            <button class="close-btn" type="button" id="tpClose" aria-label="Закрыть"><img src="assets/img/close-header.svg" width="28" height="28" alt=""></button>
+            <div class="tp-tools">
+              <span class="tp-tool" title="Языки"><span class="ico24">&#xEBA0;</span></span>
+              <span class="tp-tool tp-tool--danger" title="Удалить тему"><span class="ico24">&#xE65C;</span></span>
+              <span class="tp-tools__sep"></span>
+              <span class="tp-tool" title="Отменить"><span class="ico24">&#xE6CF;</span></span>
+              <span class="tp-tool" title="Повторить"><span class="ico24">&#xE6CA;</span></span>
+              <span class="tp-tool" title="Сбросить"><span class="ico24">&#xE629;</span></span>
+            </div>
+          </div>
           <div class="tp-informers">
-            <span class="tp-round tp-today"><b>16</b><small>чт</small></span>
+            <span class="tp-round tp-today" id="tpToday"><b></b><small></small></span>
             <span class="tp-round"><span class="ico">&#xE636;</span></span>
             <span class="tp-round"><span class="ico">&#xE65D;</span></span>
             <span class="tp-help"><img src="assets/img/help.svg" width="12" height="16" alt=""></span>

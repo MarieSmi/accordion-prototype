@@ -1587,7 +1587,7 @@
     for (const [p, v] of Object.entries(themeVars(t))) stage.style.setProperty(p, v);
     $('#themeSwatches').innerHTML = swatchList(t).map((c) => (c ? `<span class="swatch" style="--c:${c}"></span>` : '<span class="swatch is-none"></span>')).join('');
     $('#bgSwatch').style.setProperty('--c', t.bg ?? DEFAULT_BG);
-    // по наведению — кнопка «Настроить» (Figma 16360:50515); переход в расширенные настройки пока не сделан
+    // по наведению — кнопка «Настроить» (Figma 16360:50515); клик — расширенные настройки
     $('#tpBig').innerHTML = pvHTML(t) + '<span class="tp-setup"><span class="ico24">&#xE660;</span>Настроить</span>';
     for (const b of tpGrid.children) b.classList.toggle('is-active', b.dataset.theme === id);
   }
@@ -1600,12 +1600,29 @@
   }
   function closeThemePanel() {
     themePanel.hidden = true;
+    themePanel.classList.remove('is-edit');
     themeBtn.classList.remove('is-active');
   }
 
   themeBtn.addEventListener('click', () => (themePanel.hidden ? openThemePanel() : closeThemePanel()));
   $('#tpDone').addEventListener('click', closeThemePanel);
   $('#tpClose').addEventListener('click', closeThemePanel);
+
+  // Расширенные настройки темы (Figma 18846:22607): «Настроить» на большом превью → список цветов темы.
+  // Пока ничего не кликается, только ховеры; «‹» возвращает к списку тем, ✓ закрывает панель. Кружки — картинки из макета.
+  const THEME_COLORS = ['Акцентный', 'Акцентный 2', 'Дополнительный', 'Опасность', 'Успех', 'Предупреждение', 'Информирование', 'Текст',
+    'Поверхности', 'Ссылки', 'Метки', 'Заголовки', 'Системные', 'Меню навигации', 'Расширенный набор цветов'];
+  $('#tpColors').innerHTML = THEME_COLORS.map((name, i) =>
+    `<div class="tp-color"><span class="tp-color__pv" style="background-image:url(assets/img/theme-colors/c${String(i + 1).padStart(2, '0')}.png)"></span>` +
+    `<span class="tp-color__name">${name}</span><span class="tp-color__arrow"><span class="ico">&#xE9C2;</span></span></div>`).join('');
+  $('#tpBig').addEventListener('click', (e) => { if (e.target.closest('.tp-setup')) themePanel.classList.add('is-edit'); });
+  $('#tpBack').addEventListener('click', () => themePanel.classList.remove('is-edit'));
+
+  // Информер «сегодня» в колонке панели: число и день недели.
+  const today = new Date();
+  $('#tpToday b').textContent = today.getDate();
+  $('#tpToday small').textContent = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'][today.getDay()];
+  $('#tpEditDone').addEventListener('click', closeThemePanel);
   tpGrid.addEventListener('click', (e) => {
     const tile = e.target.closest('.tp-tile');
     if (tile && tile.dataset.theme !== themeId) applyTheme(tile.dataset.theme);
