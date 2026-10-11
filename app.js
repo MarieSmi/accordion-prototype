@@ -1486,12 +1486,14 @@
   // Готовые палитры: красят фон за контентом, аккордеон, подменю и акценты. Тема применяется сразу по клику на плашку,
   // ✓ и ✕ просто закрывают панель. Цвета — с миниатюр макета (16090:237338), «Голубая» — с экрана 19270:30531 (gradient 1).
   // acc — фон аккордеона (null — прозрачный, в кружке шахматка), marker — акцент 1, accent2 — акцент 2, pv — цвета превью.
-  const LIGHT = { // аккордеон прозрачный, лежит на фоне страницы
-    '--acc-under': 'transparent', '--acc-item-hover': '#ebebeb', '--acc-item-selected': '#f2f2f2',
+  // Аккордеон прозрачный, лежит на фоне страницы. Наведение и выбранный пункт — лёгкий оттенок акцента темы, не серый.
+  // Цвета непрозрачные: под командами ✎ ⋮ текст пункта должен закрываться.
+  const light = (hover, selected) => ({
+    '--acc-under': 'transparent', '--acc-item-hover': hover, '--acc-item-selected': selected,
     '--acc-text': '#000', '--acc-icon': '#8991a9', '--acc-weight': '400', '--acc-cmd-dots': '#8991a9', '--acc-cmd-hover': '#333',
     '--acc-plus': '#8991a9', '--acc-plus-hover': '#333', '--acc-plus-hover-bg': 'rgba(0, 0, 0, .05)',
-    '--acc-burger-hover': '#ebebeb', '--acc-bird-hover': '#ebebeb', '--submenu-bg': '#fff', '--submenu-item-hover': '#f2f2f2',
-  };
+    '--acc-burger-hover': hover, '--acc-bird-hover': hover, '--submenu-bg': '#fff', '--submenu-item-hover': selected,
+  });
   const GRAY = { // светло-серый аккордеон, тёмный текст
     '--acc-text': '#333', '--acc-icon': '#7b797a', '--acc-label': '#8c8c8c', '--acc-weight': '400', '--acc-cmd-dots': '#7b797a', '--acc-cmd-hover': '#000',
     '--acc-plus': '#7b797a', '--acc-plus-hover': '#000', '--acc-plus-hover-bg': 'rgba(0, 0, 0, .06)', '--submenu-bg': '#fff', '--submenu-item-hover': '#f0f0f0',
@@ -1505,8 +1507,8 @@
     '--c-sk': '#34465a', '--c-sk-row': '#2b3a4a', '--c-sk-pic': '#2b3a4a',
   };
   const THEMES = [
-    { id: 'blue', acc: null, marker: '#0c94ff', accent2: '#cc3d00', bg: 'linear-gradient(#f2f9ff, #f8f8f8 27.546%)', vars: LIGHT, pv: PV_LIGHT },
-    { id: 'pink', acc: null, marker: '#ff4567', accent2: '#f6733c', bg: 'linear-gradient(#fff2f4, #f8f8f8 27.546%)', vars: LIGHT, pv: PV_LIGHT },
+    { id: 'blue', acc: null, marker: '#0c94ff', accent2: '#cc3d00', bg: 'linear-gradient(#f2f9ff, #f8f8f8 27.546%)', vars: light('#e8f1fb', '#eef5fd'), pv: { ...PV_LIGHT, sel: '#eef5fd' } },
+    { id: 'pink', acc: null, marker: '#ff4567', accent2: '#f6733c', bg: 'linear-gradient(#fff2f4, #f8f8f8 27.546%)', vars: light('#fbe9ed', '#fdf1f3'), pv: { ...PV_LIGHT, sel: '#fdf1f3' } },
     { id: 'dark', acc: '#2c3e50', marker: '#0c94ff', accent2: '#cc3d00', vars: {}, pv: PV_DARK },
     { id: 'gray-blue', acc: '#e9e9e9', marker: '#357ed0', accent2: '#cc3d00', vars: { ...GRAY, '--acc-item-hover': '#f2f2f2', '--acc-item-selected': '#dedede', '--acc-burger-hover': '#dedede', '--acc-bird-hover': '#dedede' }, pv: PV_GRAY },
     { id: 'night', acc: '#050620', marker: '#71d186', accent2: '#f6733c',
