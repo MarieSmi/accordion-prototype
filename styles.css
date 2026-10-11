@@ -149,9 +149,11 @@ ul { list-style: none; margin: 0; padding: 0; }
 .swatch { position: relative; width: 28px; height: 28px; border-radius: 50%; background: var(--c); border: 1px solid var(--swatch-border); margin-right: -4px; transition: transform .12s; }
 .swatch:hover { z-index: 1; transform: scale(1.142857); }
 .swatch:last-child { margin-right: 0; }
-/* прозрачный аккордеон — шахматка */
-.swatch.is-none, .tp-tile__sw i.is-none { background: repeating-conic-gradient(#d2d6da 0 25%, #fff 0 50%) 50% 50% / 8px 8px; }
-.tp-tile__sw i.is-none { background-size: 6px 6px; }
+/* без цвета (прозрачный аккордеон) — белый круг, перечёркнутый справа сверху влево вниз (Figma «нет фона»);
+   шахматка — только для полупрозрачного цвета (.is-alpha, пока ни в одной теме) */
+.swatch.is-none, .tp-tile__sw i.is-none { background: linear-gradient(to bottom right, transparent calc(50% - .5px), #d2d6da calc(50% - .5px), #d2d6da calc(50% + .5px), transparent calc(50% + .5px)), #fff; }
+.swatch.is-alpha, .tp-tile__sw i.is-alpha { background: linear-gradient(var(--c), var(--c)), repeating-conic-gradient(#d2d6da 0 25%, #fff 0 50%) 50% 50% / 8px 8px; }
+.tp-tile__sw i.is-alpha { background-size: auto, 6px 6px; }
 
 .lang-btn { height: 30px; padding: 0 10px; align-items: center; transition: background-color .12s; }
 .lang-btn:hover { background: var(--pill-hover); }
