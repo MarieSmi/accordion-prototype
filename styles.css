@@ -278,7 +278,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 .accordion.is-panel-open .acc-cmds { display: none; }
 
 /* ---------- Контент ---------- */
-.content { position: absolute; left: 229px; top: 45px; width: 1318px; height: 855px; overflow: hidden; background: #f8f8f8; display: flex; justify-content: flex-end; }
+.content { position: absolute; left: 229px; top: 45px; width: 1318px; height: 855px; overflow: hidden; background: #f8f8f8; border-top-right-radius: 8px; display: flex; justify-content: flex-end; }
 /* высота фиксирована, ширина — по пропорциям скриншота (обычные — 1318, под узкий аккордеон — 1482) */
 .content__shot { display: block; flex: none; width: auto; height: 855px; }
 /* при узком аккордеоне контент шире; скриншот без узкой версии прижат вправо, слева — фон страницы */
