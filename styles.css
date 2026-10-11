@@ -123,14 +123,16 @@ ul { list-style: none; margin: 0; padding: 0; }
 .tb-btn:hover { background: var(--pill-hover); }
 .tb-btn.is-active { background: var(--pill-active); }
 
-.theme-btn { align-items: center; gap: 0; padding: 1px 1px 1px 0; }
-.theme-btn__label { display: flex; align-items: center; height: 28px; padding: 0 6px 0 10px; border-radius: 10px; }
-/* «Тема» — кнопка панели тем; кружки потом будут открывать свои окна */
-button.theme-btn__label { transition: background-color .12s; }
-button.theme-btn__label:hover { background: var(--pill-hover); }
-button.theme-btn__label.is-active { background: var(--pill-active); }
+/* бабл «Тема» / «Фон» (Figma 16219:71534): ховер и активное состояние — у всего бабла; клик по «Тема» открывает панель тем,
+   кружки потом будут открывать свои окна */
+.theme-btn { align-items: center; gap: 0; padding: 1px 1px 1px 0; transition: background-color .12s; }
+.theme-btn:hover { background: var(--pill-hover); }
+.theme-btn:has(.is-active) { background: var(--pill-active); }
+.theme-btn__label { display: flex; align-items: center; height: 28px; padding: 0 6px 0 10px; }
 .swatches { display: flex; align-items: center; }
-.swatch { width: 28px; height: 28px; border-radius: 50%; background: var(--c); border: 1px solid var(--swatch-border); margin-right: -4px; }
+/* кружок: при наведении растёт до 32px на месте, поверх соседей (Figma 16369:59560) */
+.swatch { position: relative; width: 28px; height: 28px; border-radius: 50%; background: var(--c); border: 1px solid var(--swatch-border); margin-right: -4px; transition: transform .12s; }
+.swatch:hover { z-index: 1; transform: scale(1.142857); }
 .swatch:last-child { margin-right: 0; }
 /* прозрачный аккордеон — шахматка */
 .swatch.is-none, .tp-tile__sw i.is-none { background: repeating-conic-gradient(#d2d6da 0 25%, #fff 0 50%) 50% 50% / 8px 8px; }
