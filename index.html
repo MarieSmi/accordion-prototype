@@ -27,8 +27,9 @@
               <button class="theme-btn__label" type="button" id="themeBtn">Тема</button>
               <span class="swatches" id="themeSwatches"></span>
             </div>
-            <div class="pill-group theme-btn">
-              <span class="theme-btn__label">Фон</span>
+            <!-- «Фон»: подпись и кружок открывают окно фона; наведение на подпись подсвечивает и кружок -->
+            <div class="pill-group theme-btn theme-btn--bg" id="bgBtn">
+              <button class="theme-btn__label" type="button">Фон</button>
               <span class="swatches"><span class="swatch" id="bgSwatch" style="--c:#f8f8f8"></span></span>
             </div>
           </div>
@@ -783,6 +784,47 @@
             <div class="cw-presets" id="cwPresets"></div>
             <div class="cw-more"><span>Другой цвет</span></div>
           </div>
+        </div>
+      </div>
+
+      <!-- Окно «Фон» (Figma 16385:63244, верхняя строка 16385:63266): цвет из палитры — как светлая тема, картинка — с забелением;
+           клик по картинке открывает «Картинку» (настройки картинки) в том же окне -->
+      <div class="color-win bg-win" id="bgWin" hidden role="dialog" aria-labelledby="bgTitle">
+        <div class="cw-head">
+          <button class="bg-back" type="button" id="bgBack" aria-label="Назад"><img src="assets/img/back-arrow.svg" width="7.5" height="13" alt=""></button>
+          <span class="cw-title" id="bgTitle">Фон</span>
+          <div class="cw-cmds">
+            <span class="cw-btn" title="Загрузить"><span class="ico bg-clip">&#xE671;</span></span>
+            <span class="cw-btn" title="Пипетка"><img src="assets/img/eyedropper.svg" width="16" height="16" alt=""></span>
+          </div>
+          <button class="cw-done" type="button" id="bgDone" aria-label="Готово"><span class="ico">&#xE75E;</span></button>
+          <button class="cw-close" type="button" id="bgClose" aria-label="Закрыть"><img src="assets/img/close-color.svg" width="24" height="24" alt=""></button>
+        </div>
+        <div class="cw-body bg-main">
+          <div class="cw-card cw-value">
+            <span class="cw-pill" id="bgPill"></span>
+            <span class="cw-fields bg-fields--color">
+              <span class="cw-mode">HEX<span class="ico">&#xE9AA;</span></span>
+              <span class="cw-hex">#<input id="bgHex" type="text" spellcheck="false" autocomplete="off" maxlength="6" placeholder="FFFFFF" aria-label="HEX"></span>
+              <span class="cw-alpha"><input id="bgAlpha" type="text" inputmode="numeric" autocomplete="off" maxlength="3" aria-label="Прозрачность"><span>%</span></span>
+            </span>
+            <span class="cw-fields bg-fields--grad"><span class="bg-grad"><span class="bg-grad__hash">#</span><span id="bgGradFrom"></span><span class="bg-grad__arrow">&rarr;</span><span>F8F8F8</span></span><span class="bg-grad__alpha">100%</span></span>
+          </div>
+          <div class="cw-card">
+            <div class="cw-presets" id="bgPresets"></div>
+            <div class="cw-more bg-more"><span>Другой цвет</span><span>Градиент</span><span>Текстура</span></div>
+          </div>
+          <div class="cw-card bg-cat" id="bgCat"></div>
+        </div>
+        <div class="cw-body bg-pic">
+          <div class="cw-card bg-pic__card">
+            <div class="bg-pic__pv" id="bgPicPv">
+              <span class="bg-tool"><span class="ico">&#xE660;</span></span><span class="bg-tool"><span class="ico">&#xE95F;</span></span>
+            </div>
+            <div class="bg-row"><span class="bg-row__label">Отображение</span><span class="bg-link">Кадрировать</span><span class="bg-link-ico ico">&#xE660;</span></div>
+            <div class="bg-row"><span class="bg-row__label">Стиль</span><span class="bg-link">Оригинал картинки</span></div>
+          </div>
+          <div class="cw-card bg-pic__card bg-fx" id="bgFx"></div>
         </div>
       </div>
 

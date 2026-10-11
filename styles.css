@@ -1319,7 +1319,7 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .cw-pill.is-alpha { background: linear-gradient(var(--c), var(--c)), repeating-conic-gradient(#d2d6da 0 25%, #fff 0 50%) 50% 50% / 8px 8px; }
 .cw-fields { display: flex; align-items: center; gap: 8px; }
 /* HEX ▾ 46 · 8 · код 66 · 4 · прозрачность 35; подчёркивания #d2d6da, текст с отступом 3 сверху */
-.cw-mode { position: relative; display: flex; align-items: flex-end; width: 46px; height: 24px; padding-bottom: 3px; border-bottom: 1px solid #d2d6da; font-size: 14px; letter-spacing: -.1974px; color: #000; box-sizing: border-box; }
+.cw-mode { position: relative; display: flex; align-items: flex-end; width: 46px; height: 24px; padding-bottom: 2px; border-bottom: 1px solid #d2d6da; font-size: 14px; letter-spacing: -.1974px; color: #000; box-sizing: border-box; }
 .cw-mode .ico { position: absolute; left: 30px; top: 3.5px; color: #ccc; }
 .cw-hex, .cw-alpha { display: flex; align-items: flex-end; height: 24px; padding-bottom: 1px; box-sizing: border-box; font-size: 14px; line-height: 20px; letter-spacing: -.1974px; color: #000; }
 .cw-hex { width: 66px; margin-right: -4px; padding-bottom: 0; border-bottom: 1px solid #d2d6da; }
@@ -1338,3 +1338,67 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .cw-more::before { content: ''; position: absolute; left: 12px; right: 12px; top: -1px; height: 1px; background: #eaeaea; }
 .cw-more span { cursor: default; }
 #themeSwatches .swatch { cursor: pointer; }
+
+/* ---------- Окно «Фон» (Figma 16385:63244) и «Картинка» (16385:62903) ---------- */
+/* «Фон»: подпись и кружок — одна кнопка, наведение на подпись увеличивает и кружок */
+.theme-btn--bg { cursor: pointer; }
+.theme-btn--bg:hover .swatch, .theme-btn--bg.is-active .swatch { z-index: 1; transform: scale(1.142857); }
+.theme-btn--bg.is-active { background: var(--pill-active); }
+.swatch.is-img, .cw-pill.is-img { background: var(--c) center / cover; }
+.bg-win { width: 362px; }
+.bg-win .cw-title { padding-left: 16px; }
+.bg-back { display: none; flex: none; width: 28px; height: 28px; margin: 0 -10px 0 8px; align-self: center; border-radius: 50%; align-items: center; justify-content: center; background: #fff; filter: drop-shadow(0 0 3px rgba(0, 0, 0, .1)); transition: filter .12s; }
+.bg-back img { display: block; margin-right: 1px; }
+.bg-back:hover { filter: drop-shadow(0 0 3px rgba(0, 0, 0, .1)) brightness(.97); }
+.bg-win.is-pic .bg-back { display: flex; }
+.bg-clip { color: #ccc; }
+.bg-pic, .bg-win.is-pic .bg-main { display: none; }
+.bg-win.is-pic .bg-pic { display: flex; }
+/* верхняя строка: цвет — HEX и прозрачность, градиент — «# начало → F8F8F8», картинка — только превью */
+.bg-fields--grad, .bg-win[data-kind="grad"] .bg-fields--color, .bg-win[data-kind="img"] .cw-fields { display: none; }
+.bg-win[data-kind="grad"] .bg-fields--grad { display: flex; }
+.bg-grad { display: flex; align-items: center; gap: 4px; height: 24px; font-size: 14px; letter-spacing: -.1974px; color: #000; }
+.bg-grad__hash { color: #8991a9; margin-right: -3px; }
+.bg-grad__arrow { font-size: 10px; color: #8991a9; }
+.bg-grad__alpha { width: 35px; margin-left: 4px; font-size: 14px; letter-spacing: -.1974px; color: #000; text-align: right; }
+.bg-win .cw-value { min-height: 48px; }
+.bg-win .cw-presets { padding-top: 10px; }
+.bg-more { display: flex; gap: 21px; margin-top: 20px; padding-left: 0; }
+.bg-more span { color: #313e78; }
+.bg-win .cw-sw.is-grad { background: linear-gradient(var(--c), rgba(248, 248, 248, 0)), #fff; }
+/* каталог картинок 2 × 4 по 163 × 91, без прокрутки; по наведению — карандаш (открывает «Картинку») */
+.bg-cat { display: grid; grid-template-columns: repeat(2, 163px); grid-auto-rows: 91px; gap: 8px; padding: 12px; }
+.bg-tile { position: relative; border: 1px solid #eaeaea; border-radius: 8px; overflow: hidden; background: #fff var(--img) center / cover; transition: border-color .12s; }
+.bg-tile:hover { border-color: #d2d6da; }
+.bg-tile .bg-tool { position: absolute; right: 5px; top: 5px; opacity: 0; transition: opacity .12s; }
+.bg-tile:hover .bg-tool { opacity: 1; }
+.bg-tool { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 4px; background: rgba(255, 255, 255, .75); box-shadow: inset 0 0 0 1px rgba(210, 214, 218, .75); }
+.bg-tool .ico { color: #333; }
+/* «Картинка»: превью 330 × 130, строки «Отображение» / «Стиль», ползунки */
+.bg-pic__card { padding: 8px 12px; }
+.bg-pic__pv { position: relative; height: 130px; margin-bottom: 8px; border-radius: 8px; overflow: hidden; background: var(--img) center / cover; display: flex; justify-content: flex-end; gap: 6px; padding: 6px; }
+.bg-row { display: flex; align-items: center; height: 24px; margin-top: 8px; font-size: 14px; letter-spacing: -.1974px; }
+.bg-pic__card .bg-row:first-of-type { margin-top: 0; }
+.bg-row__label { flex: none; width: 111px; color: #8991a9; white-space: nowrap; }
+.bg-link { color: #2562aa; cursor: default; }
+.bg-link-ico { margin-left: 10px; width: 24px; height: 24px; font-size: 16px; color: #333; }
+.bg-fx { display: flex; flex-direction: column; gap: 8px; }
+.bg-fx .bg-row { margin-top: 0; }
+.bg-slider { position: relative; flex: none; width: 174px; height: 12px; margin-right: 8px; cursor: pointer; }
+.bg-slider::before, .bg-slider__fill { content: ''; position: absolute; left: 0; right: 0; top: 5px; height: 2px; border-radius: 8px; background: #dbdbdb; }
+.bg-slider__fill { right: auto; width: calc(var(--k) * 100%); background: #265fa1; }
+.bg-slider__thumb { position: absolute; top: 0; left: calc(var(--k) * (100% - 12px)); width: 12px; height: 12px; border-radius: 50%; background: #fff; box-shadow: 0 0 3px rgba(0, 0, 0, .25); }
+.bg-num { display: flex; align-items: flex-end; justify-content: flex-end; width: 37px; height: 24px; margin-left: auto; font-size: 14px; letter-spacing: -.1974px; color: #000; }
+.bg-num input { width: 28px; height: 21px; padding: 0; border: 0; border-bottom: 1px solid #d2d6da; border-radius: 0; background: none; font: inherit; letter-spacing: inherit; color: inherit; text-align: right; outline: none; }
+.bg-num input:focus { border-bottom-color: #8c8c8c; }
+.bg-num span { width: 9px; }
+.bg-num.no-unit input { width: 37px; }
+.bg-num.no-unit span { display: none; }
+
+/* Фон-картинка: лежит под контентом отдельным слоем (на нём фильтры «Картинки»); контент, ЦУ и информеры — под забелением 70% */
+.stage.is-bg-img .content { isolation: isolate; }
+.stage.is-bg-img .content::before {
+  content: ''; position: absolute; inset: -40px; z-index: -1; pointer-events: none;
+  background: var(--bg-tint, linear-gradient(transparent, transparent)), var(--bg-img) center / cover; background-blend-mode: soft-light, normal; opacity: var(--bg-op, 1); filter: var(--bg-filter, none);
+}
+.stage.is-bg-img .content__mid, .stage.is-bg-img .content__side { background: rgba(255, 255, 255, .7); }
