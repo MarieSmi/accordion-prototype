@@ -892,11 +892,11 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 /* превью шапки аккордеона */
 .lw-preview {
   position: relative; width: 200px; height: 40px; display: flex; align-items: center; gap: 8px; padding: 0 4px 0 12px;
-  background: var(--acc-bg); border: 1px solid var(--acc-bg); border-radius: 8px;
+  background: var(--acc-bg); border: 1px solid #eaeaea; border-radius: 8px; /* border/border-color (Figma 18609:15173) */
 }
-.lw-bird { position: relative; width: 32px; height: 32px; flex: none; border-radius: 16px; background: var(--acc-item-selected); }
+.lw-bird { position: relative; width: 32px; height: 32px; flex: none; border-radius: 16px; background: var(--lw-bird-bg, var(--acc-item-selected)); } /* у прозрачного аккордеона кружка нет */
 .lw-bird__logo { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding-bottom: 2px; transition: opacity .12s; }
-.lw-bird__logo .ico24 { color: var(--acc-bird, var(--acc-marker)); }
+.lw-bird__logo .ico24 { color: var(--acc-bird, var(--acc-marker)); background: var(--acc-bird-bg); border-radius: 50%; }
 .lw-bird__clip { position: absolute; left: 8px; top: 8px; color: var(--acc-text); opacity: 0; transition: opacity .12s; }
 .lw-bird:hover { background-image: linear-gradient(rgba(0, 0, 0, .07), rgba(0, 0, 0, .07)); }
 .lw-bird:hover .lw-bird__logo { opacity: .3; }

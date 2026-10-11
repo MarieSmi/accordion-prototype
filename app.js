@@ -1489,7 +1489,7 @@
   // Аккордеон прозрачный, лежит на фоне страницы. Наведение и выбранный пункт — лёгкий оттенок акцента темы, не серый.
   // Цвета непрозрачные: под командами ✎ ⋮ текст пункта должен закрываться.
   const light = (hover, selected) => ({
-    '--acc-under': 'transparent', '--acc-item-hover': hover, '--acc-item-selected': selected,
+    '--acc-under': 'transparent', '--acc-item-hover': hover, '--acc-item-selected': selected, '--lw-bird-bg': 'transparent',
     '--acc-text': '#000', '--acc-icon': '#8991a9', '--acc-weight': '400', '--acc-cmd-dots': '#8991a9', '--acc-cmd-hover': '#333',
     '--acc-plus': '#8991a9', '--acc-plus-hover': '#333', '--acc-plus-hover-bg': 'rgba(0, 0, 0, .05)',
     '--acc-burger-hover': hover, '--acc-bird-hover': hover, '--submenu-bg': '#fff', '--submenu-item-hover': selected,
