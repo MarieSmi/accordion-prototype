@@ -450,7 +450,7 @@
   // встаёт углом на угол шапки аккордеона (отступы 12 и 7 от птички), кнопка в шапке не подсвечена.
   let openFrom = null;
   function setWindow(name, from = null) {
-    if (name) { closeRp(); closeThemePanel(); }
+    if (name) { closeRp(); closeThemePanel(); closeColorWin(); }
     if (openWin) {
       const w = windows[openWin];
       w.win.hidden = true;
@@ -1532,29 +1532,74 @@
   const THEME_PROPS = [...new Set(THEMES.flatMap((t) => Object.keys(themeVars(t))))];
   let themeId = 'dark';
 
-  function themeVars(t) {
+  // Свои цвета из окна выбора цвета (клик на кружок в шапке): {hex, a} поверх выбранной темы; смена темы их сбрасывает.
+  // Не заданный цвет аккордеона (hex: null) — прозрачный. Для плашек тем custom пуст — они рисуются как есть.
+  let custom = {};
+  const toCss = (c) => {
+    if (!c || !c.hex) return null;
+    if (c.a >= 100) return c.hex;
+    const [r, g, b] = hexRgb(c.hex);
+    return `rgba(${r}, ${g}, ${b}, ${+(c.a / 100).toFixed(2)})`;
+  };
+  function hexRgb(h) {
+    h = h.replace('#', '');
+    if (h.length === 3) h = [...h].map((x) => x + x).join('');
+    return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16));
+  }
+  function mixHex(a, b, k) {
+    const rb = hexRgb(b);
+    return '#' + hexRgb(a).map((x, i) => Math.round(x + (rb[i] - x) * k).toString(16).padStart(2, '0')).join('');
+  }
+  // Токены аккордеона под свой цвет: светлый — тёмный текст и серые оттенки, тёмный — белый текст по умолчанию, прозрачный — как «светлые» темы.
+  function accVars(c, marker) {
+    const { hex, a } = c;
+    if (!hex || a < 50) return light(mixHex(marker, '#ffffff', .9), mixHex(marker, '#ffffff', .94));
+    const [r, g, b] = hexRgb(hex);
+    if ((.299 * r + .587 * g + .114 * b) / 255 > .6) {
+      const h = mixHex(hex, '#000000', .04), sel = mixHex(hex, '#000000', .1);
+      return { ...GRAY, '--acc-item-hover': h, '--acc-item-selected': sel, '--acc-burger-hover': sel, '--acc-bird-hover': sel, '--submenu-item-hover': sel };
+    }
+    const hov = mixHex(hex, '#ffffff', .12), sel = mixHex(hex, '#000000', .2);
+    return { '--acc-item-hover': hov, '--acc-item-selected': sel, '--acc-burger-hover': sel, '--acc-bird-hover': hov, '--submenu-bg': mixHex(hex, '#ffffff', .1), '--submenu-item-hover': hov };
+  }
+  const baseColor = (c) => (c ? { hex: c, a: 100 } : { hex: null, a: 0 });
+  function effColors(t, own = custom) {
+    const e = { acc: t.acc, marker: t.marker, accent2: t.accent2, vars: t.vars };
+    if (own.marker) e.marker = toCss(own.marker);
+    if (own.accent2) e.accent2 = toCss(own.accent2);
+    if (own.acc) {
+      e.acc = toCss(own.acc);
+      const page = Object.fromEntries(Object.entries(t.vars).filter(([k]) => k.startsWith('--c-')));
+      e.vars = { ...page, ...accVars(own.acc, own.marker ? own.marker.hex : t.marker) };
+      // превью: цвета текста и иконок аккордеона под его новый фон
+      e.pv = !e.vars['--acc-text'] ? PV_DARK : e.vars['--acc-text'] === '#000' ? { ...PV_LIGHT, sel: e.vars['--acc-item-selected'] } : PV_GRAY;
+    }
+    return e;
+  }
+
+  function themeVars(t, e = effColors(t, {})) {
     return {
-      ...t.vars,
-      '--acc-bg': t.acc ?? 'transparent', '--acc-marker': t.marker, '--accent2': t.accent2, '--content-bg': t.bg ?? DEFAULT_BG,
+      ...e.vars,
+      '--acc-bg': e.acc ?? 'transparent', '--acc-marker': e.marker, '--accent2': e.accent2, '--content-bg': t.bg ?? DEFAULT_BG,
     };
   }
 
   // Переменные превью: фон, аккордеон, текст и иконки аккордеона, маркер, акцент 2, карточка страницы.
-  function pvStyle(t) {
-    const v = { ...themeVars(t) };
-    const p = t.pv;
+  function pvStyle(t, e = effColors(t, {})) {
+    const v = { ...themeVars(t, e) };
+    const p = e.pv ?? t.pv;
     const pv = {
       bg: v['--content-bg'], acc: v['--acc-bg'], sel: p.sel ?? v['--acc-item-selected'] ?? '#273748',
-      bird: v['--acc-bird'] ?? t.marker, 'bird-bg': v['--acc-bird-bg'] ?? 'transparent',
-      title: p.title, line: p.line, icon: p.icon, 'icon-sel': p.iconSel, marker: t.marker, accent2: t.accent2,
+      bird: v['--acc-bird'] ?? e.marker, 'bird-bg': v['--acc-bird-bg'] ?? 'transparent',
+      title: p.title, line: p.line, icon: p.icon, 'icon-sel': p.iconSel, marker: e.marker, accent2: e.accent2,
       card: p.card ?? '#fff', box: p.box ?? '#f4f4f4', top: p.top ?? '#fff',
     };
     return Object.entries(pv).map(([k, c]) => `--pv-${k}:${c}`).join(';');
   }
 
   // Превью 306×181: аккордеон (птичка, название, пункт, выбранный пункт с маркером) и страница (вкладка, карточка).
-  function pvHTML(t) {
-    return `<span class="tpv" style="${pvStyle(t)}">` +
+  function pvHTML(t, e) {
+    return `<span class="tpv" style="${pvStyle(t, e)}">` +
       '<i class="tpv__acc"></i><i class="tpv__bird">&#xE9E2;</i><i class="tpv__title"></i>' +
       '<i class="tpv__dot" style="top:46px"></i><i class="tpv__line" style="top:54px;width:60px"></i>' +
       '<i class="tpv__sel"></i><i class="tpv__mark"></i><i class="tpv__dot" style="top:79px;background:var(--pv-icon-sel)"></i>' +
@@ -1569,31 +1614,74 @@
 
   // Кружки темы: цвет аккордеона (прозрачный — шахматка), акцент 1, акцент 2.
   const swatchList = (t) => [t.acc, t.marker, t.accent2];
+  const COLOR_KEYS = ['acc', 'marker', 'accent2'];
+  // Кружок в шапке: «нет цвета» — перечёркнутый, полупрозрачный — шахматка; клик открывает окно выбора цвета.
+  const headSwatch = (c, key) => {
+    const alpha = c && /^rgba/.test(c);
+    return `<span class="swatch${c ? (alpha ? ' is-alpha' : '') : ' is-none'}" data-key="${key}"${c ? ` style="--c:${c}"` : ''}></span>`;
+  };
 
   const themePanel = $('#themePanel');
   const themeBtn = $('#themeBtn');
   const tpGrid = $('#tpGrid');
 
-  tpGrid.innerHTML = THEMES.map((t) =>
-    `<button class="tp-tile" type="button" data-theme="${t.id}"><span class="tp-tile__wrap">` +
-    `<span class="tp-tile__sw">${swatchList(t).map((c) => (c ? `<i style="--c:${c}"></i>` : '<i class="is-none"></i>')).join('')}</span>` +
-    `<span class="tp-tile__pv">${pvHTML(t)}</span>` +
-    '<span class="tp-tile__check"><span class="ico24">&#xE616;</span></span></span></button>').join('');
+  const tpUserGrid = $('#tpUserGrid');
+  const tileHTML = (id, t, e = effColors(t, {})) =>
+    `<button class="tp-tile" type="button" data-theme="${id}"><span class="tp-tile__wrap">` +
+    `<span class="tp-tile__sw">${[e.acc, e.marker, e.accent2].map((c) => (c ? `<i${/^rgba/.test(c) ? ' class="is-alpha"' : ''} style="--c:${c}"></i>` : '<i class="is-none"></i>')).join('')}</span>` +
+    `<span class="tp-tile__pv">${pvHTML(t, e)}</span>` +
+    '<span class="tp-tile__check"><span class="ico24">&#xE616;</span></span></span></button>';
+  tpGrid.innerHTML = THEMES.map((t) => tileHTML(t.id, t)).join('');
+
+  // Пользовательская тема (Figma 18321:16888): одна; появляется, как только цвета перенастроены в окне выбора цвета,
+  // и дальше обновляется при каждой перенастройке. Группа «Пользовательские» — над «Системными», плитка без подписи.
+  // base — системная тема, поверх которой заданы свои цвета own. Выбор системной темы её не удаляет.
+  let userTheme = null;
+  const USER = 'user';
+  const baseTheme = () => THEMES.find((x) => x.id === (themeId === USER ? userTheme.base : themeId));
+
+  function renderUserTheme() {
+    $('#tpUserGroup').hidden = tpUserGrid.hidden = !userTheme;
+    if (!userTheme) { tpUserGrid.innerHTML = ''; return; }
+    const t = THEMES.find((x) => x.id === userTheme.base);
+    tpUserGrid.innerHTML = tileHTML(USER, t, effColors(t, userTheme.own));
+    tpUserGrid.firstChild.classList.toggle('is-active', themeId === USER);
+  }
 
   function applyTheme(id) {
-    const t = THEMES.find((x) => x.id === id);
     themeId = id;
+    custom = id === USER ? { ...userTheme.own } : {};
+    paintTheme();
+    for (const b of tpGrid.children) b.classList.toggle('is-active', b.dataset.theme === id);
+    renderUserTheme();
+  }
+
+  // Свои цвета изменены в окне выбора цвета: активной становится пользовательская тема.
+  function saveUserTheme() {
+    if (themeId !== USER) {
+      userTheme = { base: themeId, own: {} };
+      themeId = USER;
+      for (const b of tpGrid.children) b.classList.remove('is-active');
+    }
+    userTheme.own = { ...custom };
+    renderUserTheme();
+  }
+
+  // Красит страницу выбранной темой с учётом своих цветов (custom).
+  function paintTheme() {
+    const t = baseTheme();
+    const e = effColors(t);
     for (const p of THEME_PROPS) stage.style.removeProperty(p);
-    for (const [p, v] of Object.entries(themeVars(t))) stage.style.setProperty(p, v);
-    $('#themeSwatches').innerHTML = swatchList(t).map((c) => (c ? `<span class="swatch" style="--c:${c}"></span>` : '<span class="swatch is-none"></span>')).join('');
+    for (const [p, v] of Object.entries(themeVars(t, e))) stage.style.setProperty(p, v);
+    $('#themeSwatches').innerHTML = [e.acc, e.marker, e.accent2].map((c, i) => headSwatch(c, COLOR_KEYS[i])).join('');
     $('#bgSwatch').style.setProperty('--c', t.bg ?? DEFAULT_BG);
     // по наведению — кнопка «Настроить» (Figma 16360:50515); клик — расширенные настройки
-    $('#tpBig').innerHTML = pvHTML(t) + '<span class="tp-setup"><span class="ico24">&#xE660;</span>Настроить</span>';
-    for (const b of tpGrid.children) b.classList.toggle('is-active', b.dataset.theme === id);
+    $('#tpBig').innerHTML = pvHTML(t, e) + '<span class="tp-setup"><span class="ico24">&#xE660;</span>Настроить</span>';
   }
 
   function openThemePanel() {
     setWindow(null);
+    closeColorWin();
     closeRp();
     themePanel.hidden = false;
     themeBtn.classList.add('is-active');
@@ -1623,13 +1711,109 @@
   $('#tpToday b').textContent = today.getDate();
   $('#tpToday small').textContent = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'][today.getDay()];
   $('#tpEditDone').addEventListener('click', closeThemePanel);
-  tpGrid.addEventListener('click', (e) => {
+  $('#themePanel .tp-card').addEventListener('click', (e) => {
     const tile = e.target.closest('.tp-tile');
-    if (tile && tile.dataset.theme !== themeId) applyTheme(tile.dataset.theme);
+    if (tile) applyTheme(tile.dataset.theme);
   });
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !themePanel.hidden) closeThemePanel();
+    if (e.key === 'Escape' && !colorWin.hidden) closeColorWin();
+    else if (e.key === 'Escape' && !themePanel.hidden) closeThemePanel();
   });
+
+  // Окно выбора цвета (Figma 19278:31867, ховер 16369:59560, поле цвета 16385:66609): открывается по клику на кружок темы в шапке.
+  // Цвет применяется к странице сразу и делает тему пользовательской; ✓ и ✕ закрывают окно и оставляют выбранное,
+  // ↺ возвращает всё как было при открытии окна (тему, пользовательскую тему и цвет).
+  const CW_TITLES = { acc: 'Меню навигации', marker: 'Акцентный', accent2: 'Акцентный 2' };
+  const CW_ACC = [null, '#f0f0f0', '#f6eaf0', '#e9e9e9', '#d8e1e2', '#2c3e50', '#502c2c', '#402c50', '#323232', '#050620'];
+  const CW_ACCENT = ['#943253', '#f16767', '#f6733c', '#e5cb45', '#009918', '#0c94ff', '#326194', '#4c3294', '#943288', '#999999',
+    '#ffe3ec', '#ffe5e3', '#fff1e3', '#fffbe3', '#e3ffe8', '#e3faff', '#e3f1ff', '#eae3ff', '#ffe3fa', '#ededed'];
+  const colorWin = $('#colorWin');
+  const cwHex = $('#cwHex');
+  const cwAlpha = $('#cwAlpha');
+  const cwReset = $('#cwReset');
+  let cwKey = null;
+  let cwOrig;
+  let cwSnap;
+
+  const cwCurrent = () => custom[cwKey] ?? baseColor(baseTheme()[cwKey]);
+  // Новый цвет: в custom, в пользовательскую тему и на страницу.
+  function cwApply(c) {
+    custom[cwKey] = c;
+    saveUserTheme();
+    paintTheme();
+  }
+  function cwSet(c) {
+    if (JSON.stringify(c) === JSON.stringify(cwCurrent())) return;
+    cwApply(c);
+    cwRender(true);
+  }
+  // fields — обновить и поля ввода (не нужно, пока пользователь печатает в одном из них)
+  function cwRender(fields) {
+    const c = cwCurrent();
+    const pill = $('#cwPill');
+    pill.className = 'cw-pill' + (!c.hex ? ' is-none' : c.a < 100 ? ' is-alpha' : '');
+    pill.style.setProperty('--c', toCss(c) ?? '#fff');
+    if (fields) {
+      cwHex.value = c.hex ? c.hex.slice(1).toUpperCase() : '';
+      cwAlpha.value = c.hex ? c.a : 0;
+    }
+    cwReset.disabled = JSON.stringify(c) === JSON.stringify(cwOrig);
+  }
+  function openColorWin(key) {
+    setWindow(null);
+    closeRp();
+    closeThemePanel();
+    closePopups();
+    cwKey = key;
+    $('#cwTitle').textContent = CW_TITLES[key];
+    $('#cwPresets').innerHTML = (key === 'acc' ? CW_ACC : CW_ACCENT).map((h) =>
+      `<button class="cw-sw${h ? '' : ' is-none'}" type="button" data-hex="${h ?? ''}"${h ? ` style="--c:${h}"` : ''} aria-label="${h ?? 'Без цвета'}"></button>`).join('');
+    cwOrig = cwCurrent();
+    cwSnap = JSON.stringify({ themeId, userTheme });
+    const first = stageRect($('#themeSwatches .swatch'));
+    colorWin.hidden = false;
+    colorWin.style.left = Math.round(first.left - 23) + 'px';
+    colorWin.style.top = '0';
+    cwRender(true);
+  }
+  function closeColorWin() { colorWin.hidden = true; cwKey = null; }
+
+  $('#themeSwatches').addEventListener('click', (e) => {
+    const sw = e.target.closest('.swatch');
+    if (sw) openColorWin(sw.dataset.key);
+  });
+  $('#cwPresets').addEventListener('click', (e) => {
+    const sw = e.target.closest('.cw-sw');
+    if (sw) cwSet(sw.dataset.hex ? { hex: sw.dataset.hex, a: 100 } : { hex: null, a: 0 });
+  });
+  cwHex.addEventListener('input', () => {
+    const v = '#' + cwHex.value.trim().replace(/^#/, '');
+    if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(v)) {
+      const hex = v.length === 4 ? '#' + [...v.slice(1)].map((x) => x + x).join('') : v;
+      const c = cwCurrent();
+      cwApply({ hex: hex.toLowerCase(), a: c.hex ? c.a : 100 });
+      cwRender(false);
+      cwAlpha.value = custom[cwKey].a;
+    }
+  });
+  cwAlpha.addEventListener('input', () => {
+    cwAlpha.value = cwAlpha.value.replace(/\D/g, '');
+    if (cwAlpha.value === '') return;
+    const a = Math.min(100, +cwAlpha.value);
+    const c = cwCurrent();
+    cwApply({ hex: c.hex ?? (a > 0 ? '#ffffff' : null), a });
+    cwRender(false);
+    if (!c.hex && a > 0) cwHex.value = 'FFFFFF';
+  });
+  for (const input of [cwHex, cwAlpha]) input.addEventListener('blur', () => cwRender(true));
+  cwReset.addEventListener('click', () => {
+    const snap = JSON.parse(cwSnap);
+    userTheme = snap.userTheme;
+    applyTheme(snap.themeId);
+    cwRender(true);
+  });
+  $('#cwDone').addEventListener('click', closeColorWin);
+  $('#cwClose').addEventListener('click', closeColorWin);
 
   applyTheme(themeId);
   renderAccordion();

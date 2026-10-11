@@ -722,6 +722,9 @@
           </div>
           <div class="tp-card">
             <div class="tp-big"><span class="tp-big__frame" id="tpBig"></span></div>
+            <!-- «Пользовательские» (Figma 18321:16888): появляется после перенастройки цветов темы -->
+            <div class="tp-group" id="tpUserGroup" hidden><span>Пользовательские</span></div>
+            <div class="tp-grid" id="tpUserGrid" hidden></div>
             <div class="tp-group"><span>Системные</span></div>
             <div class="tp-grid" id="tpGrid"></div>
           </div>
@@ -755,6 +758,33 @@
           </div>
         </div>
       </section>
+
+      <!-- Окно выбора цвета темы (Figma 19278:31867): по клику на кружок темы в шапке; заголовок, пипетка и палитра зависят от кружка -->
+      <div class="color-win" id="colorWin" hidden role="dialog" aria-labelledby="cwTitle">
+        <div class="cw-head">
+          <span class="cw-title" id="cwTitle"></span>
+          <div class="cw-cmds">
+            <span class="cw-btn" title="Пипетка"><img src="assets/img/eyedropper.svg" width="16" height="16" alt=""></span>
+            <button class="cw-btn cw-reset" type="button" id="cwReset" aria-label="Сбросить" disabled><span class="ico">&#xE629;</span></button>
+          </div>
+          <button class="cw-done" type="button" id="cwDone" aria-label="Готово"><span class="ico">&#xE75E;</span></button>
+          <button class="cw-close" type="button" id="cwClose" aria-label="Закрыть"><img src="assets/img/close-color.svg" width="24" height="24" alt=""></button>
+        </div>
+        <div class="cw-body">
+          <div class="cw-card cw-value">
+            <span class="cw-pill" id="cwPill"></span>
+            <span class="cw-fields">
+              <span class="cw-mode">HEX<span class="ico">&#xE9AA;</span></span>
+              <span class="cw-hex">#<input id="cwHex" type="text" spellcheck="false" autocomplete="off" maxlength="6" placeholder="FFFFFF" aria-label="HEX"></span>
+              <span class="cw-alpha"><input id="cwAlpha" type="text" inputmode="numeric" autocomplete="off" maxlength="3" aria-label="Прозрачность"><span>%</span></span>
+            </span>
+          </div>
+          <div class="cw-card">
+            <div class="cw-presets" id="cwPresets"></div>
+            <div class="cw-more"><span>Другой цвет</span></div>
+          </div>
+        </div>
+      </div>
 
       <!-- Подтверждение «Сохранить изменения?» (Figma nuC4KFMiS36uDWDUp9wKGl 4064:21938) — по центру сцены, поверх всего -->
       <div class="confirm-layer" id="smeConfirm" hidden>

@@ -1215,6 +1215,7 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .tp-group { position: sticky; top: -12px; z-index: 1; height: 46px; padding: 8px 0 6px; background: #fff; }
 .tp-group span { display: block; padding: 10px 0 5px; font-size: 12px; font-weight: 600; line-height: 1.4; letter-spacing: -.1692px; text-transform: uppercase; color: #000; }
 .tp-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding-bottom: 12px; }
+.tp-group[hidden], .tp-grid[hidden] { display: none; }
 
 /* плашка темы: кружки (аккордеон, акцент 1, акцент 2) и превью; ховер — рамка, выбранная — рамка и галочка */
 .tp-tile { display: block; min-width: 0; padding: 4px; text-align: left; }
@@ -1289,3 +1290,51 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .tp-tool:hover .ico24 { color: #1e5391; } /* как Ghost secondary в редакторе подменю */
 .tp-tool--danger .ico24, .tp-tool--danger:hover .ico24 { color: #c2140a; }
 .tp-tools__sep { width: 16px; height: 9px; background: linear-gradient(#dbdbdb, #dbdbdb) center / 16px 1px no-repeat; }
+
+/* ---------- Окно выбора цвета темы (Figma 19278:31867) ---------- */
+/* 366 шириной, по клику на кружок в шапке: левый край по первому кружку, верх вплотную к верху сцены */
+.color-win {
+  position: absolute; z-index: 40; width: 366px; display: flex; flex-direction: column; border-radius: 12px;
+  background: #f3f5f7; box-shadow: 0 0 9px rgba(0, 0, 0, .12);
+}
+.color-win[hidden] { display: none; }
+.cw-head { height: 56px; display: flex; align-items: center; }
+.cw-title { flex: 1 0 0; align-self: flex-end; padding: 0 0 19px 16px; font-size: 17px; letter-spacing: -.2397px; color: #000; white-space: nowrap; }
+.cw-cmds { display: flex; align-items: center; gap: 6px; margin-right: 12px; }
+.cw-btn { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background-color .12s; }
+.cw-btn:hover:not(:disabled) { background: rgba(0, 0, 0, .06); }
+.cw-btn .ico { color: #ccc; }
+.cw-reset:not(:disabled) .ico { color: var(--label); }
+.cw-done { width: 28px; height: 28px; margin-right: 12px; border-radius: 50%; background: var(--success); display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 0 3px rgba(0, 0, 0, .1)); transition: filter .12s; }
+.cw-done .ico { color: #fff; }
+.cw-done:hover { filter: drop-shadow(0 0 3px rgba(0, 0, 0, .1)) brightness(1.08); }
+.cw-close { width: 24px; height: 24px; margin: 0 8px 0 0; display: flex; align-items: center; justify-content: center; transition: opacity .12s; }
+.cw-close:hover { opacity: .75; }
+.cw-close img { display: block; }
+.cw-body { display: flex; flex-direction: column; gap: 4px; padding: 0 4px 4px; }
+.cw-card { background: #fff; border-radius: 8px; padding: 0 12px; }
+.cw-value { display: flex; align-items: center; justify-content: space-between; padding-top: 8px; padding-bottom: 8px; }
+.cw-pill { width: 70px; height: 32px; border-radius: 18px; border: 1px solid var(--swatch-border); background: var(--c, #fff); }
+.cw-pill.is-none { background: #fff; }
+.cw-pill.is-alpha { background: linear-gradient(var(--c), var(--c)), repeating-conic-gradient(#d2d6da 0 25%, #fff 0 50%) 50% 50% / 8px 8px; }
+.cw-fields { display: flex; align-items: center; gap: 8px; }
+/* HEX ▾ 46 · 8 · код 66 · 4 · прозрачность 35; подчёркивания #d2d6da, текст с отступом 3 сверху */
+.cw-mode { position: relative; display: flex; align-items: flex-end; width: 46px; height: 24px; padding-bottom: 3px; border-bottom: 1px solid #d2d6da; font-size: 14px; letter-spacing: -.1974px; color: #000; box-sizing: border-box; }
+.cw-mode .ico { position: absolute; left: 30px; top: 3.5px; color: #ccc; }
+.cw-hex, .cw-alpha { display: flex; align-items: flex-end; height: 24px; padding-bottom: 1px; box-sizing: border-box; font-size: 14px; line-height: 20px; letter-spacing: -.1974px; color: #000; }
+.cw-hex { width: 66px; margin-right: -4px; padding-bottom: 0; border-bottom: 1px solid #d2d6da; }
+.cw-alpha { width: 35px; }
+.cw-fields input { flex: 1 0 0; min-width: 0; font: inherit; line-height: 20px; letter-spacing: inherit; color: #000; border: 0; background: none; height: 20px; padding: 0; outline: none; border-radius: 0; }
+.cw-fields input::placeholder { color: #ccc; opacity: 1; }
+.cw-alpha input { flex: none; width: 24px; text-align: right; border-bottom: 1px solid #d2d6da; height: 21px; margin-bottom: -1px; box-sizing: border-box; }
+.cw-alpha span { width: 11px; }
+.cw-hex:focus-within, .cw-alpha input:focus { border-bottom-color: #8c8c8c; }
+.cw-presets { display: flex; flex-wrap: wrap; gap: 8px 6px; width: 334px; padding: 12px 0 2px; }
+.cw-sw { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--swatch-border); background: var(--c); box-sizing: border-box; flex: none; transition: transform .12s; }
+.cw-sw:hover { transform: scale(1.142857); }
+.cw-sw.is-none { background: linear-gradient(to bottom right, transparent calc(50% - .5px), #d2d6da calc(50% - .5px), #d2d6da calc(50% + .5px), transparent calc(50% + .5px)), #fff; }
+/* разделитель 1px #eaeaea с отступами 12 по бокам (Figma «разделитель»), ссылка на 12 ниже */
+.cw-more { position: relative; margin-top: 17px; padding: 12px 2px; font-size: 14px; letter-spacing: -.1974px; color: #313e78; line-height: 24px; }
+.cw-more::before { content: ''; position: absolute; left: 12px; right: 12px; top: -1px; height: 1px; background: #eaeaea; }
+.cw-more span { cursor: default; }
+#themeSwatches .swatch { cursor: pointer; }
