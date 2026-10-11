@@ -22,18 +22,16 @@
 
         <div class="ctor-header__center">
           <div class="ctor-header__colors">
-            <button class="pill-group theme-btn" type="button">
-              <span class="theme-btn__label">Тема</span>
-              <span class="swatches">
-                <span class="swatch" style="--c:#2c3e50"></span>
-                <span class="swatch" style="--c:#0c94ff"></span>
-                <span class="swatch" style="--c:#cc3d00"></span>
-              </span>
-            </button>
-            <button class="pill-group theme-btn" type="button">
-              <span class="theme-btn__label">Фон</span>
-              <span class="swatches"><span class="swatch" style="--c:#f8f8f8"></span></span>
-            </button>
+            <!-- «Тема» открывает панель тем; кружки (цвет аккордеона, акцент 1, акцент 2) рисует app.js по выбранной теме -->
+            <div class="pill-group theme-btn">
+              <button class="theme-btn__label" type="button" id="themeBtn">Тема</button>
+              <span class="swatches" id="themeSwatches"></span>
+            </div>
+            <!-- «Фон»: подпись и кружок открывают окно фона; наведение на подпись подсвечивает и кружок -->
+            <div class="pill-group theme-btn theme-btn--bg" id="bgBtn">
+              <button class="theme-btn__label" type="button">Фон</button>
+              <span class="swatches"><span class="swatch" id="bgSwatch" style="--c:#f8f8f8"></span></span>
+            </div>
           </div>
 
           <div class="ctor-header__tools">
@@ -700,6 +698,120 @@
           <button class="icon-menu__item" type="button" data-act="settings"><span class="ico24">&#xEAA9;</span><span class="icon-menu__text">Настроить</span></button>
         </div>
         <button class="mw-menu__close" type="button" id="tabDotsClose" aria-label="Закрыть"><img src="assets/img/close-menu.svg" width="12" height="12" alt=""></button>
+      </div>
+
+      <!-- Панель «Тема оформления» (Figma xMQ3ZEN4AUINgwjVoxR8hS 16090:237338): справа на всю высоту, тема применяется сразу по клику на плашку -->
+      <section class="theme-panel" id="themePanel" hidden aria-label="Тема оформления">
+        <div class="tp-main">
+          <div class="tp-head">
+            <span class="tp-title">Тема оформления</span>
+            <button class="done-btn" type="button" id="tpDone" aria-label="Сохранить и закрыть"><span class="ico ico--20">&#xE75E;</span></button>
+          </div>
+          <div class="tp-card">
+            <div class="tp-big"><span class="tp-big__frame" id="tpBig"></span></div>
+            <!-- «Пользовательские» (Figma 18321:16888): появляется после перенастройки цветов темы -->
+            <div class="tp-group" id="tpUserGroup" hidden><span>Пользовательские</span></div>
+            <div class="tp-grid" id="tpUserGrid" hidden></div>
+            <div class="tp-group"><span>Системные</span></div>
+            <div class="tp-grid" id="tpGrid"></div>
+          </div>
+        </div>
+        <!-- Расширенные настройки темы (Figma 18846:22607): провал по «Настроить», пока только ховеры; «‹» — назад к списку тем -->
+        <div class="tp-edit">
+          <div class="tp-edit__head">
+            <button class="tp-back" type="button" id="tpBack" aria-label="Назад"><img src="assets/img/theme-back.svg" width="40" height="26" alt=""></button>
+            <span class="tp-edit__title">Моя новая тема 2</span>
+            <button class="done-btn" type="button" id="tpEditDone" aria-label="Сохранить и закрыть"><span class="ico ico--20">&#xE75E;</span></button>
+          </div>
+          <div class="tp-colors" id="tpColors"></div>
+        </div>
+        <div class="tp-side">
+          <div class="tp-side__top">
+            <button class="close-btn" type="button" id="tpClose" aria-label="Закрыть"><img src="assets/img/close-header.svg" width="28" height="28" alt=""></button>
+            <div class="tp-tools">
+              <span class="tp-tool" title="Языки"><span class="ico24">&#xEBA0;</span></span>
+              <span class="tp-tool tp-tool--danger" title="Удалить тему"><span class="ico24">&#xE65C;</span></span>
+              <span class="tp-tools__sep"></span>
+              <span class="tp-tool" title="Отменить"><span class="ico24">&#xE6CF;</span></span>
+              <span class="tp-tool" title="Повторить"><span class="ico24">&#xE6CA;</span></span>
+              <span class="tp-tool" title="Сбросить"><span class="ico24">&#xE629;</span></span>
+            </div>
+          </div>
+          <div class="tp-informers">
+            <span class="tp-round tp-today" id="tpToday"><b></b><small></small></span>
+            <span class="tp-round"><span class="ico">&#xE636;</span></span>
+            <span class="tp-round"><span class="ico">&#xE65D;</span></span>
+            <span class="tp-help"><img src="assets/img/help.svg" width="12" height="16" alt=""></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Окно выбора цвета темы (Figma 19278:31867): по клику на кружок темы в шапке; заголовок, пипетка и палитра зависят от кружка -->
+      <div class="color-win" id="colorWin" hidden role="dialog" aria-labelledby="cwTitle">
+        <div class="cw-head">
+          <span class="cw-title" id="cwTitle"></span>
+          <div class="cw-cmds">
+            <span class="cw-btn" title="Пипетка"><img src="assets/img/eyedropper.svg" width="16" height="16" alt=""></span>
+            <button class="cw-btn cw-reset" type="button" id="cwReset" aria-label="Сбросить" disabled><span class="ico">&#xE629;</span></button>
+          </div>
+          <button class="cw-done" type="button" id="cwDone" aria-label="Готово"><span class="ico">&#xE75E;</span></button>
+          <button class="cw-close" type="button" id="cwClose" aria-label="Закрыть"><img src="assets/img/close-color.svg" width="24" height="24" alt=""></button>
+        </div>
+        <div class="cw-body">
+          <div class="cw-card cw-value">
+            <span class="cw-pill" id="cwPill"></span>
+            <span class="cw-fields">
+              <span class="cw-mode">HEX<span class="ico">&#xE9AA;</span></span>
+              <span class="cw-hex">#<input id="cwHex" type="text" spellcheck="false" autocomplete="off" maxlength="6" placeholder="FFFFFF" aria-label="HEX"></span>
+              <span class="cw-alpha"><input id="cwAlpha" type="text" inputmode="numeric" autocomplete="off" maxlength="3" aria-label="Прозрачность"><span>%</span></span>
+            </span>
+          </div>
+          <div class="cw-card">
+            <div class="cw-presets" id="cwPresets"></div>
+            <div class="cw-more"><span>Другой цвет</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Окно «Фон» (Figma 16385:63244, верхняя строка 16385:63266): цвет из палитры — как светлая тема, картинка — с забелением;
+           клик по картинке открывает «Картинку» (настройки картинки) в том же окне -->
+      <div class="color-win bg-win" id="bgWin" hidden role="dialog" aria-labelledby="bgTitle">
+        <div class="cw-head">
+          <button class="bg-back" type="button" id="bgBack" aria-label="Назад"><img src="assets/img/back-arrow.svg" width="7.5" height="13" alt=""></button>
+          <span class="cw-title" id="bgTitle">Фон</span>
+          <div class="cw-cmds">
+            <span class="cw-btn" title="Загрузить"><span class="ico bg-clip">&#xE671;</span></span>
+            <span class="cw-btn" title="Пипетка"><img src="assets/img/eyedropper.svg" width="16" height="16" alt=""></span>
+          </div>
+          <button class="cw-done" type="button" id="bgDone" aria-label="Готово"><span class="ico">&#xE75E;</span></button>
+          <button class="cw-close" type="button" id="bgClose" aria-label="Закрыть"><img src="assets/img/close-color.svg" width="24" height="24" alt=""></button>
+        </div>
+        <div class="cw-body bg-main">
+          <div class="cw-card cw-value">
+            <span class="cw-pill" id="bgPill"></span>
+            <span class="cw-fields bg-fields--color">
+              <span class="cw-mode">HEX<span class="ico">&#xE9AA;</span></span>
+              <span class="cw-hex">#<input id="bgHex" type="text" spellcheck="false" autocomplete="off" maxlength="6" placeholder="FFFFFF" aria-label="HEX"></span>
+              <span class="cw-alpha"><input id="bgAlpha" type="text" inputmode="numeric" autocomplete="off" maxlength="3" aria-label="Прозрачность"><span>%</span></span>
+            </span>
+            <span class="cw-fields bg-fields--grad"><span class="bg-grad"><span class="bg-grad__hash">#</span><span id="bgGradFrom"></span><span class="bg-grad__arrow">&rarr;</span><span>F8F8F8</span></span><span class="bg-grad__alpha">100%</span></span>
+          </div>
+          <div class="cw-card">
+            <div class="cw-presets" id="bgPresets"></div>
+            <div class="cw-more bg-more"><span>Другой цвет</span><span>Градиент</span><span>Текстура</span></div>
+          </div>
+          <div class="cw-card bg-cat" id="bgCat"></div>
+        </div>
+        <div class="cw-body bg-pic">
+          <div class="cw-card bg-pic__card">
+            <div class="bg-pic__pv" id="bgPicPv">
+              <span class="bg-tool"><span class="ico">&#xE660;</span></span><span class="bg-tool"><span class="ico">&#xE95F;</span></span>
+            </div>
+            <div class="bg-row"><span class="bg-row__label">Отображение</span><span class="bg-link">Кадрировать</span><span class="bg-link-ico ico">&#xE660;</span></div>
+            <div class="bg-row"><span class="bg-row__label">Стиль</span><span class="bg-link">Оригинал картинки</span></div>
+          </div>
+          <div class="cw-card bg-pic__card bg-fx" id="bgFx"></div>
+        </div>
       </div>
 
       <!-- Подтверждение «Сохранить изменения?» (Figma nuC4KFMiS36uDWDUp9wKGl 4064:21938) — по центру сцены, поверх всего -->

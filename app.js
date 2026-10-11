@@ -453,7 +453,7 @@
   // встаёт углом на угол шапки аккордеона (отступы 12 и 7 от птички), кнопка в шапке не подсвечена.
   let openFrom = null;
   function setWindow(name, from = null) {
-    if (name) closeRp();
+    if (name) { closeRp(); closeThemePanel(); closeColorWin(); }
     if (openWin) {
       const w = windows[openWin];
       w.win.hidden = true;
@@ -1509,6 +1509,541 @@
   stage.addEventListener('mousedown', () => { hideTip(); tipTarget = null; });
   stage.addEventListener('mouseleave', () => { hideTip(); tipTarget = null; });
 
+
+  // ---------- Тема оформления ----------
+  // Готовые палитры: красят фон за контентом, аккордеон, подменю и акценты. Тема применяется сразу по клику на плашку,
+  // ✓ и ✕ просто закрывают панель. Цвета — с миниатюр макета (16090:237338), «Голубая» — с экрана 19270:30531 (gradient 1).
+  // acc — фон аккордеона (null — прозрачный, в кружке шахматка), marker — акцент 1, accent2 — акцент 2, pv — цвета превью.
+  // Аккордеон прозрачный, лежит на фоне страницы. Наведение и выбранный пункт — лёгкий оттенок акцента темы, не серый.
+  // Цвета непрозрачные: под командами ✎ ⋮ текст пункта должен закрываться.
+  const light = (hover, selected) => ({
+    '--acc-under': 'transparent', '--acc-item-hover': hover, '--acc-item-selected': selected, '--lw-bird-bg': 'transparent',
+    '--acc-text': '#000', '--acc-icon': '#8991a9', '--acc-weight': '400', '--acc-cmd-dots': '#8991a9', '--acc-cmd-hover': '#333',
+    '--acc-plus': '#8991a9', '--acc-plus-hover': '#333', '--acc-plus-hover-bg': 'rgba(0, 0, 0, .05)',
+    '--acc-burger-hover': hover, '--acc-bird-hover': hover, '--submenu-bg': '#fff', '--submenu-item-hover': selected,
+  });
+  const GRAY = { // светло-серый аккордеон, тёмный текст
+    '--acc-text': '#333', '--acc-icon': '#7b797a', '--acc-label': '#8c8c8c', '--acc-weight': '400', '--acc-cmd-dots': '#7b797a', '--acc-cmd-hover': '#000',
+    '--acc-plus': '#7b797a', '--acc-plus-hover': '#000', '--acc-plus-hover-bg': 'rgba(0, 0, 0, .06)', '--submenu-bg': '#fff', '--submenu-item-hover': '#f0f0f0',
+  };
+  const PV_LIGHT = { title: '#d6d6d6', line: '#d7d7d7', icon: '#d0dce6', iconSel: '#d0dce6' };
+  const PV_DARK = { title: '#e9ebec', line: '#6b7884', icon: '#98b2ca', iconSel: '#fff' };
+  const PV_GRAY = { title: '#666', line: '#ccc', icon: '#7b797a', iconSel: '#7b797a' };
+  const DARK_PAGE = { // тёмная страница: карточки, текст, скелетон
+    '--c-surface': '#23303e', '--c-text': '#e9ebec', '--c-text-strong': '#e9ebec', '--c-name': '#a9bfd9', '--c-name2': '#8fb4e8', '--c-sum': '#c9d3e8',
+    '--c-label': '#9aa6b4', '--c-link': '#6fa8ec', '--c-border': '#34465a', '--c-divider': '#34465a', '--c-row': '#2b3a4a',
+    '--c-sk': '#34465a', '--c-sk-row': '#2b3a4a', '--c-sk-pic': '#2b3a4a',
+  };
+  const THEMES = [
+    { id: 'blue', acc: null, marker: '#0c94ff', accent2: '#cc3d00', bg: 'linear-gradient(#f2f9ff, #f8f8f8 27.546%)', vars: light('#e8f1fb', '#eef5fd'), pv: { ...PV_LIGHT, sel: '#eef5fd' } },
+    { id: 'pink', acc: null, marker: '#ff4567', accent2: '#f6733c', bg: 'linear-gradient(#fff2f4, #f8f8f8 27.546%)', vars: light('#fbe9ed', '#fdf1f3'), pv: { ...PV_LIGHT, sel: '#fdf1f3' } },
+    { id: 'dark', acc: '#2c3e50', marker: '#0c94ff', accent2: '#cc3d00', vars: {}, pv: PV_DARK },
+    { id: 'gray-blue', acc: '#e9e9e9', marker: '#357ed0', accent2: '#cc3d00', vars: { ...GRAY, '--acc-item-hover': '#f2f2f2', '--acc-item-selected': '#dedede', '--acc-burger-hover': '#dedede', '--acc-bird-hover': '#dedede' }, pv: PV_GRAY },
+    { id: 'night', acc: '#050620', marker: '#71d186', accent2: '#f6733c',
+      vars: { '--acc-item-hover': '#222b47', '--acc-item-selected': '#161e34', '--acc-cmd-dots': '#6b7c99', '--acc-burger-hover': '#161e34', '--acc-bird-hover': '#222b47', '--submenu-bg': '#222b47', '--submenu-item-hover': '#2f3a5a' },
+      pv: { ...PV_DARK, line: '#505062', sel: '#161e34' } },
+    { id: 'gray-pink', acc: '#e9e9e9', marker: '#ff4567', accent2: '#ff4567', vars: { ...GRAY, '--acc-item-hover': '#f2f2f2', '--acc-item-selected': '#dedede', '--acc-burger-hover': '#dedede', '--acc-bird-hover': '#dedede' }, pv: { ...PV_GRAY, title: '#ff4567' } },
+    { id: 'gray-red', acc: '#f0f0f0', marker: '#cd3238', accent2: '#df1c33', vars: { ...GRAY, '--acc-item-hover': '#f8f8f8', '--acc-item-selected': '#e5e5e5', '--acc-burger-hover': '#e5e5e5', '--acc-bird-hover': '#e5e5e5' }, pv: { ...PV_GRAY, title: '#787878', line: '#d0d0d0' } },
+    { id: 'dark-full', acc: '#2c3e50', marker: '#0c93fe', accent2: '#ffcc99', bg: '#1d2834', vars: DARK_PAGE, pv: { ...PV_DARK, card: '#23303e', box: '#2b3a4a', top: '#2b3a4a' } },
+    { id: 'graphite', acc: '#323232', marker: '#962147', accent2: '#962147',
+      vars: { '--acc-item-hover': '#404040', '--acc-item-selected': '#222', '--acc-bird': '#fff', '--acc-bird-bg': '#962147', '--acc-text': '#e6e6e6', '--acc-icon': '#9c9c9c', '--acc-label': '#8c8c8c',
+        '--acc-cmd-dots': '#7a7a7a', '--acc-plus': '#9c9c9c', '--acc-burger-hover': '#2a2a2a', '--acc-bird-hover': '#404040', '--submenu-bg': '#404040', '--submenu-item-hover': '#4e4e4e' },
+      pv: { title: '#e6e6e6', line: '#414141', icon: '#9c9c9c', iconSel: '#fff', sel: '#222' } },
+    { id: 'mint', acc: '#d8e1e2', marker: '#00282c', accent2: '#00282c',
+      vars: { '--acc-item-hover': '#cfdadb', '--acc-item-selected': '#e6ecee', '--acc-text': '#1b3e42', '--acc-icon': '#3d5b5e', '--acc-label': '#5d7a7d', '--acc-weight': '400',
+        '--acc-cmd-dots': '#5d7a7d', '--acc-cmd-hover': '#00282c', '--acc-plus': '#3d5b5e', '--acc-plus-hover': '#00282c', '--acc-plus-hover-bg': 'rgba(0, 40, 44, .08)',
+        '--acc-burger-hover': '#cfdadb', '--acc-bird-hover': '#cfdadb', '--submenu-bg': '#eef3f3', '--submenu-item-hover': '#d8e1e2' },
+      pv: { title: '#1b3e42', line: '#98aaac', icon: '#00282c', iconSel: '#00282c', sel: '#e6ecee' } },
+  ];
+  const DEFAULT_BG = '#f8f8f8';
+  // Все токены, которые задаёт хоть одна тема, — чтобы при смене темы сбросить прежние.
+  const THEME_PROPS = [...new Set(THEMES.flatMap((t) => Object.keys(themeVars(t))))];
+  let themeId = 'dark';
+
+  // Свои цвета из окна выбора цвета (клик на кружок в шапке): {hex, a} поверх выбранной темы; смена темы их сбрасывает.
+  // Не заданный цвет аккордеона (hex: null) — прозрачный. Для плашек тем custom пуст — они рисуются как есть.
+  let custom = {};
+  const toCss = (c) => {
+    if (!c || !c.hex) return null;
+    if (c.a >= 100) return c.hex;
+    const [r, g, b] = hexRgb(c.hex);
+    return `rgba(${r}, ${g}, ${b}, ${+(c.a / 100).toFixed(2)})`;
+  };
+  function hexRgb(h) {
+    h = h.replace('#', '');
+    if (h.length === 3) h = [...h].map((x) => x + x).join('');
+    return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16));
+  }
+  function mixHex(a, b, k) {
+    const rb = hexRgb(b);
+    return '#' + hexRgb(a).map((x, i) => Math.round(x + (rb[i] - x) * k).toString(16).padStart(2, '0')).join('');
+  }
+  // Токены аккордеона под свой цвет: светлый — тёмный текст и серые оттенки, тёмный — белый текст по умолчанию, прозрачный — как «светлые» темы.
+  function accVars(c, marker) {
+    const { hex, a } = c;
+    // прозрачный, почти прозрачный или белое забеление (фон-картинка, Figma «Тема аккордеона» / image) — как светлые темы
+    if (!hex || a < 50 || (hex === '#ffffff' && a < 100)) return light(mixHex(marker, '#ffffff', .9), mixHex(marker, '#ffffff', .94));
+    const [r, g, b] = hexRgb(hex);
+    if ((.299 * r + .587 * g + .114 * b) / 255 > .6) {
+      const h = mixHex(hex, '#000000', .04), sel = mixHex(hex, '#000000', .1);
+      return { ...GRAY, '--acc-item-hover': h, '--acc-item-selected': sel, '--acc-burger-hover': sel, '--acc-bird-hover': sel, '--submenu-item-hover': sel };
+    }
+    const hov = mixHex(hex, '#ffffff', .12), sel = mixHex(hex, '#000000', .2);
+    return { '--acc-item-hover': hov, '--acc-item-selected': sel, '--acc-burger-hover': sel, '--acc-bird-hover': hov, '--submenu-bg': mixHex(hex, '#ffffff', .1), '--submenu-item-hover': hov };
+  }
+  const baseColor = (c) => (c ? { hex: c, a: 100 } : { hex: null, a: 0 });
+  function effColors(t, own = custom) {
+    const e = { acc: t.acc, marker: t.marker, accent2: t.accent2, vars: t.vars };
+    if (own.marker) e.marker = toCss(own.marker);
+    if (own.accent2) e.accent2 = toCss(own.accent2);
+    if (own.bg) { e.bg = bgCss(own.bg); e.pvBg = bgPreview(own.bg); }
+    if (own.acc) {
+      e.acc = toCss(own.acc);
+      // свой фон — страница светлая: тёмные карточки темы «на всю страницу» не берём
+      const page = own.bg ? {} : Object.fromEntries(Object.entries(t.vars).filter(([k]) => k.startsWith('--c-')));
+      e.vars = { ...page, ...accVars(own.acc, own.marker ? own.marker.hex : t.marker) };
+      // превью: цвета текста и иконок аккордеона под его новый фон
+      e.pv = !e.vars['--acc-text'] ? PV_DARK : e.vars['--acc-text'] === '#000' ? { ...PV_LIGHT, sel: e.vars['--acc-item-selected'] } : PV_GRAY;
+    }
+    return e;
+  }
+
+  function themeVars(t, e = effColors(t, {})) {
+    return {
+      ...e.vars,
+      '--acc-bg': e.acc ?? 'transparent', '--acc-marker': e.marker, '--accent2': e.accent2, '--content-bg': e.bg ?? t.bg ?? DEFAULT_BG,
+    };
+  }
+
+  // Переменные превью: фон, аккордеон, текст и иконки аккордеона, маркер, акцент 2, карточка страницы.
+  function pvStyle(t, e = effColors(t, {})) {
+    const v = { ...themeVars(t, e) };
+    const p = e.pv ?? t.pv;
+    const pv = {
+      bg: e.pvBg ?? v['--content-bg'], acc: v['--acc-bg'], sel: p.sel ?? v['--acc-item-selected'] ?? '#273748',
+      bird: v['--acc-bird'] ?? e.marker, 'bird-bg': v['--acc-bird-bg'] ?? 'transparent',
+      title: p.title, line: p.line, icon: p.icon, 'icon-sel': p.iconSel, marker: e.marker, accent2: e.accent2,
+      card: p.card ?? '#fff', box: p.box ?? '#f4f4f4', top: p.top ?? '#fff',
+    };
+    return Object.entries(pv).map(([k, c]) => `--pv-${k}:${c}`).join(';');
+  }
+
+  // Превью 306×181: аккордеон (птичка, название, пункт, выбранный пункт с маркером) и страница (вкладка, карточка).
+  function pvHTML(t, e) {
+    return `<span class="tpv" style="${pvStyle(t, e)}">` +
+      '<i class="tpv__acc"></i><i class="tpv__bird">&#xE9E2;</i><i class="tpv__title"></i>' +
+      '<i class="tpv__dot" style="top:46px"></i><i class="tpv__line" style="top:54px;width:60px"></i>' +
+      '<i class="tpv__sel"></i><i class="tpv__mark"></i><i class="tpv__dot" style="top:79px;background:var(--pv-icon-sel)"></i>' +
+      '<i class="tpv__line" style="top:87px;width:34px"></i><i class="tpv__line tpv__a2" style="top:87px;left:84px;width:10px"></i><i class="tpv__line tpv__a1" style="top:87px;left:98px;width:10px"></i>' +
+      '<i class="tpv__tab"></i><i class="tpv__bar"></i><i class="tpv__sq" style="left:272.8px"></i><i class="tpv__sq" style="left:283.3px"></i>' +
+      '<i class="tpv__sheet"></i><i class="tpv__box" style="left:148.6px;top:45.25px;width:35px;height:33.5px"></i>' +
+      '<i class="tpv__box" style="left:188.8px;top:45.25px;width:101.4px;height:11.7px;border-radius:6px"></i>' +
+      '<i class="tpv__box" style="left:188.8px;top:65.4px;width:101.4px;height:11.7px;border-radius:6px"></i>' +
+      '<i class="tpv__box" style="left:148.6px;top:85.5px;width:141.6px;height:11.7px;border-radius:6px"></i>' +
+      '</span>';
+  }
+
+  // Кружки темы: цвет аккордеона (прозрачный — шахматка), акцент 1, акцент 2.
+  const swatchList = (t) => [t.acc, t.marker, t.accent2];
+  const COLOR_KEYS = ['acc', 'marker', 'accent2'];
+  // Кружок в шапке: «нет цвета» — перечёркнутый, полупрозрачный — шахматка; клик открывает окно выбора цвета.
+  const headSwatch = (c, key) => {
+    const alpha = c && /^rgba/.test(c);
+    return `<span class="swatch${c ? (alpha ? ' is-alpha' : '') : ' is-none'}" data-key="${key}"${c ? ` style="--c:${c}"` : ''}></span>`;
+  };
+
+  const themePanel = $('#themePanel');
+  const themeBtn = $('#themeBtn');
+  const tpGrid = $('#tpGrid');
+
+  const tpUserGrid = $('#tpUserGrid');
+  const tileHTML = (id, t, e = effColors(t, {})) =>
+    `<button class="tp-tile" type="button" data-theme="${id}"><span class="tp-tile__wrap">` +
+    `<span class="tp-tile__sw">${[e.acc, e.marker, e.accent2].map((c) => (c ? `<i${/^rgba/.test(c) ? ' class="is-alpha"' : ''} style="--c:${c}"></i>` : '<i class="is-none"></i>')).join('')}</span>` +
+    `<span class="tp-tile__pv">${pvHTML(t, e)}</span>` +
+    '<span class="tp-tile__check"><span class="ico24">&#xE616;</span></span></span></button>';
+  tpGrid.innerHTML = THEMES.map((t) => tileHTML(t.id, t)).join('');
+
+  // Пользовательская тема (Figma 18321:16888): одна; появляется, как только цвета перенастроены в окне выбора цвета,
+  // и дальше обновляется при каждой перенастройке. Группа «Пользовательские» — над «Системными», плитка без подписи.
+  // base — системная тема, поверх которой заданы свои цвета own. Выбор системной темы её не удаляет.
+  let userTheme = null;
+  const USER = 'user';
+  const baseTheme = () => THEMES.find((x) => x.id === (themeId === USER ? userTheme.base : themeId));
+
+  function renderUserTheme() {
+    $('#tpUserGroup').hidden = tpUserGrid.hidden = !userTheme;
+    if (!userTheme) { tpUserGrid.innerHTML = ''; return; }
+    const t = THEMES.find((x) => x.id === userTheme.base);
+    tpUserGrid.innerHTML = tileHTML(USER, t, effColors(t, userTheme.own));
+    tpUserGrid.firstChild.classList.toggle('is-active', themeId === USER);
+  }
+
+  function applyTheme(id) {
+    themeId = id;
+    custom = id === USER ? { ...userTheme.own } : {};
+    paintTheme();
+    for (const b of tpGrid.children) b.classList.toggle('is-active', b.dataset.theme === id);
+    renderUserTheme();
+  }
+
+  // Свои цвета изменены в окне выбора цвета: активной становится пользовательская тема.
+  function saveUserTheme() {
+    if (themeId !== USER) {
+      userTheme = { base: themeId, own: {} };
+      themeId = USER;
+      for (const b of tpGrid.children) b.classList.remove('is-active');
+    }
+    userTheme.own = { ...custom };
+    renderUserTheme();
+  }
+
+  // Красит страницу выбранной темой с учётом своих цветов (custom).
+  function paintTheme() {
+    const t = baseTheme();
+    const e = effColors(t);
+    for (const p of THEME_PROPS) stage.style.removeProperty(p);
+    for (const [p, v] of Object.entries(themeVars(t, e))) stage.style.setProperty(p, v);
+    $('#themeSwatches').innerHTML = [e.acc, e.marker, e.accent2].map((c, i) => headSwatch(c, COLOR_KEYS[i])).join('');
+    paintBg(t);
+    // по наведению — кнопка «Настроить» (Figma 16360:50515); клик — расширенные настройки
+    $('#tpBig').innerHTML = pvHTML(t, e) + '<span class="tp-setup"><span class="ico24">&#xE660;</span>Настроить</span>';
+  }
+
+  function openThemePanel() {
+    setWindow(null);
+    closeColorWin();
+    closeBgWin();
+    closeRp();
+    themePanel.hidden = false;
+    themeBtn.classList.add('is-active');
+  }
+  function closeThemePanel() {
+    themePanel.hidden = true;
+    themePanel.classList.remove('is-edit');
+    themeBtn.classList.remove('is-active');
+  }
+
+  themeBtn.addEventListener('click', () => (themePanel.hidden ? openThemePanel() : closeThemePanel()));
+  $('#tpDone').addEventListener('click', closeThemePanel);
+  $('#tpClose').addEventListener('click', closeThemePanel);
+
+  // Расширенные настройки темы (Figma 18846:22607): «Настроить» на большом превью → список цветов темы.
+  // Пока ничего не кликается, только ховеры; «‹» возвращает к списку тем, ✓ закрывает панель. Кружки — картинки из макета.
+  const THEME_COLORS = ['Акцентный', 'Акцентный 2', 'Дополнительный', 'Опасность', 'Успех', 'Предупреждение', 'Информирование', 'Текст',
+    'Поверхности', 'Ссылки', 'Метки', 'Заголовки', 'Системные', 'Меню навигации', 'Расширенный набор цветов'];
+  $('#tpColors').innerHTML = THEME_COLORS.map((name, i) =>
+    `<div class="tp-color"><span class="tp-color__pv" style="background-image:url(assets/img/theme-colors/c${String(i + 1).padStart(2, '0')}.png)"></span>` +
+    `<span class="tp-color__name">${name}</span><span class="tp-color__arrow"><span class="ico">&#xE9C2;</span></span></div>`).join('');
+  $('#tpBig').addEventListener('click', (e) => { if (e.target.closest('.tp-setup')) themePanel.classList.add('is-edit'); });
+  $('#tpBack').addEventListener('click', () => themePanel.classList.remove('is-edit'));
+
+  // Информер «сегодня» в колонке панели: число и день недели.
+  const today = new Date();
+  $('#tpToday b').textContent = today.getDate();
+  $('#tpToday small').textContent = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'][today.getDay()];
+  $('#tpEditDone').addEventListener('click', closeThemePanel);
+  $('#themePanel .tp-card').addEventListener('click', (e) => {
+    const tile = e.target.closest('.tp-tile');
+    if (tile) applyTheme(tile.dataset.theme);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !bgWin.hidden) closeBgWin();
+    else if (e.key === 'Escape' && !colorWin.hidden) closeColorWin();
+    else if (e.key === 'Escape' && !themePanel.hidden) closeThemePanel();
+  });
+
+  // Окно выбора цвета (Figma 19278:31867, ховер 16369:59560, поле цвета 16385:66609): открывается по клику на кружок темы в шапке.
+  // Цвет применяется к странице сразу и делает тему пользовательской; ✓ и ✕ закрывают окно и оставляют выбранное,
+  // ↺ возвращает всё как было при открытии окна (тему, пользовательскую тему и цвет).
+  const CW_TITLES = { acc: 'Меню навигации', marker: 'Акцентный', accent2: 'Акцентный 2' };
+  const CW_ACC = [null, '#f0f0f0', '#f6eaf0', '#e9e9e9', '#d8e1e2', '#2c3e50', '#502c2c', '#402c50', '#323232', '#050620'];
+  const CW_ACCENT = ['#943253', '#f16767', '#f6733c', '#e5cb45', '#009918', '#0c94ff', '#326194', '#4c3294', '#943288', '#999999',
+    '#ffe3ec', '#ffe5e3', '#fff1e3', '#fffbe3', '#e3ffe8', '#e3faff', '#e3f1ff', '#eae3ff', '#ffe3fa', '#ededed'];
+  const colorWin = $('#colorWin');
+  const cwHex = $('#cwHex');
+  const cwAlpha = $('#cwAlpha');
+  const cwReset = $('#cwReset');
+  let cwKey = null;
+  let cwOrig;
+  let cwSnap;
+
+  const cwCurrent = () => custom[cwKey] ?? baseColor(baseTheme()[cwKey]);
+  // Новый цвет: в custom, в пользовательскую тему и на страницу.
+  function cwApply(c) {
+    custom[cwKey] = c;
+    saveUserTheme();
+    paintTheme();
+  }
+  function cwSet(c) {
+    if (JSON.stringify(c) === JSON.stringify(cwCurrent())) return;
+    cwApply(c);
+    cwRender(true);
+  }
+  // fields — обновить и поля ввода (не нужно, пока пользователь печатает в одном из них)
+  function cwRender(fields) {
+    const c = cwCurrent();
+    const pill = $('#cwPill');
+    pill.className = 'cw-pill' + (!c.hex ? ' is-none' : c.a < 100 ? ' is-alpha' : '');
+    pill.style.setProperty('--c', toCss(c) ?? '#fff');
+    if (fields) {
+      cwHex.value = c.hex ? c.hex.slice(1).toUpperCase() : '';
+      cwAlpha.value = c.hex ? c.a : 0;
+    }
+    cwReset.disabled = JSON.stringify(c) === JSON.stringify(cwOrig);
+  }
+  function openColorWin(key) {
+    setWindow(null);
+    closeRp();
+    closeThemePanel();
+    closeBgWin();
+    closePopups();
+    cwKey = key;
+    $('#cwTitle').textContent = CW_TITLES[key];
+    $('#cwPresets').innerHTML = (key === 'acc' ? CW_ACC : CW_ACCENT).map((h) =>
+      `<button class="cw-sw${h ? '' : ' is-none'}" type="button" data-hex="${h ?? ''}"${h ? ` style="--c:${h}"` : ''} aria-label="${h ?? 'Без цвета'}"></button>`).join('');
+    cwOrig = cwCurrent();
+    cwSnap = JSON.stringify({ themeId, userTheme });
+    const first = stageRect($('#themeSwatches .swatch'));
+    colorWin.hidden = false;
+    colorWin.style.left = Math.round(first.left - 23) + 'px';
+    colorWin.style.top = '0';
+    cwRender(true);
+  }
+  function closeColorWin() { colorWin.hidden = true; cwKey = null; }
+
+  $('#themeSwatches').addEventListener('click', (e) => {
+    const sw = e.target.closest('.swatch');
+    if (sw) openColorWin(sw.dataset.key);
+  });
+  $('#cwPresets').addEventListener('click', (e) => {
+    const sw = e.target.closest('.cw-sw');
+    if (sw) cwSet(sw.dataset.hex ? { hex: sw.dataset.hex, a: 100 } : { hex: null, a: 0 });
+  });
+  cwHex.addEventListener('input', () => {
+    const v = '#' + cwHex.value.trim().replace(/^#/, '');
+    if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(v)) {
+      const hex = v.length === 4 ? '#' + [...v.slice(1)].map((x) => x + x).join('') : v;
+      const c = cwCurrent();
+      cwApply({ hex: hex.toLowerCase(), a: c.hex ? c.a : 100 });
+      cwRender(false);
+      cwAlpha.value = custom[cwKey].a;
+    }
+  });
+  cwAlpha.addEventListener('input', () => {
+    cwAlpha.value = cwAlpha.value.replace(/\D/g, '');
+    if (cwAlpha.value === '') return;
+    const a = Math.min(100, +cwAlpha.value);
+    const c = cwCurrent();
+    cwApply({ hex: c.hex ?? (a > 0 ? '#ffffff' : null), a });
+    cwRender(false);
+    if (!c.hex && a > 0) cwHex.value = 'FFFFFF';
+  });
+  for (const input of [cwHex, cwAlpha]) input.addEventListener('blur', () => cwRender(true));
+  cwReset.addEventListener('click', () => {
+    const snap = JSON.parse(cwSnap);
+    userTheme = snap.userTheme;
+    applyTheme(snap.themeId);
+    cwRender(true);
+  });
+  $('#cwDone').addEventListener('click', closeColorWin);
+  $('#cwClose').addEventListener('click', closeColorWin);
+
+  // ---------- Фон (Figma 16385:63244, верхняя строка 16385:63266) ----------
+  // Свой фон хранится в custom.bg и, как свои цвета, делает тему пользовательской; выбор системной темы возвращает фон темы.
+  // Цвет или градиент из палитры — как светлые темы: аккордеон прозрачный. Картинка — режим image коллекции «Тема аккордеона»:
+  // аккордеон белый 70%, под контентом, ЦУ и информерами забеление 70%, поля по бокам — картинка как есть.
+  // {kind: 'color', hex, a} · {kind: 'grad', c} — от акцента 10% к #f8f8f8 · {kind: 'img', i, fx} — fx: настройки «Картинки».
+  const BG_GRADS = ['#943253', '#f16767', '#e59545', '#e5cb45', '#009918', '#0c94ff', '#326194', '#4c3294', '#943288'];
+  const BG_COLORS = ['#ffe3ec', '#ffe5e3', '#fff1e3', '#fffbe3', '#e3ffe8', '#e3faff', '#e3f1ff', '#eae3ff', '#ffe3fa', '#ededed'];
+  const BG_IMGS = [1, 2, 3, 4, 5, 6, 7, 8].map((n) => `assets/img/bg/0${n}.jpg`);
+  const FX_DEFAULT = { op: 100, blur: 0, con: 100, sat: 100, temp: 0 };
+  // Ползунки «Картинки»: диапазон и единица; 0 у контраста и насыщенности — серое / плоское, 100 — как в оригинале.
+  const FX = [
+    { key: 'op', name: 'Прозрачность', min: 0, max: 100, unit: '%' },
+    { key: 'blur', name: 'Размытие', min: 0, max: 100, unit: '' },
+    { key: 'con', name: 'Контраст', min: 0, max: 200, unit: '%' },
+    { key: 'sat', name: 'Насыщенность', min: 0, max: 200, unit: '%' },
+    { key: 'temp', name: 'Температура', min: -100, max: 100, unit: '' },
+  ];
+  const rgba = (hex, a) => `rgba(${hexRgb(hex).join(', ')}, ${a})`;
+  const gradTop = (b) => (b.c ? rgba(b.c, .1) : b.top);
+
+  function bgCss(b) {
+    if (b.kind === 'img') return DEFAULT_BG; // картинка — отдельным слоем .content::before
+    if (b.kind === 'grad') return `linear-gradient(${gradTop(b)}, rgba(248, 248, 248, 0) 27.546%), ${DEFAULT_BG}`;
+    return b.a >= 100 ? b.hex : `linear-gradient(${toCss(b)}, ${toCss(b)}), #fff`;
+  }
+  // Кружок в шапке, плашка в окне и превью темы
+  function bgPreview(b) {
+    if (b.kind === 'img') return `url(${BG_IMGS[b.i]}) center / cover`;
+    if (b.kind === 'grad') return `linear-gradient(${gradTop(b)}, rgba(248, 248, 248, 0)), ${DEFAULT_BG}`;
+    return bgCss(b);
+  }
+  // Текущий фон: свой или фон темы (градиент темы «Голубая» / «Розовая» — начало градиента из её bg)
+  function curBg() {
+    if (custom.bg) return custom.bg;
+    const bg = baseTheme().bg ?? DEFAULT_BG;
+    const m = /^linear-gradient\((#[0-9a-f]{6})/i.exec(bg);
+    return m ? { kind: 'grad', top: m[1] } : { kind: 'color', hex: bg, a: 100 };
+  }
+
+  function paintBg(t) {
+    const b = curBg();
+    const img = b.kind === 'img';
+    const sw = $('#bgSwatch');
+    sw.className = 'swatch' + (img ? ' is-img' : b.kind === 'color' && b.a < 100 ? ' is-alpha' : '');
+    sw.style.setProperty('--c', img ? `url(${BG_IMGS[b.i]})` : custom.bg ? bgPreview(b) : t.bg ?? DEFAULT_BG);
+    stage.classList.toggle('is-bg-img', img);
+    if (!img) { for (const p of ['--bg-img', '--bg-op', '--bg-filter', '--bg-tint']) stage.style.removeProperty(p); return; }
+    const f = b.fx;
+    // температура: тёплый или холодный оттенок поверх картинки (soft-light)
+    const tint = f.temp > 0 ? `255, 140, 0, ${(f.temp / 100 * .6).toFixed(2)}` : `0, 110, 255, ${(-f.temp / 100 * .6).toFixed(2)}`;
+    stage.style.setProperty('--bg-img', `url(${BG_IMGS[b.i]})`);
+    stage.style.setProperty('--bg-op', f.op / 100);
+    stage.style.setProperty('--bg-filter', `blur(${f.blur / 5}px) contrast(${f.con}%) saturate(${f.sat}%)`);
+    stage.style.setProperty('--bg-tint', `linear-gradient(rgba(${tint}), rgba(${tint}))`);
+  }
+
+  const bgWin = $('#bgWin');
+  const bgBtn = $('#bgBtn');
+  const bgHex = $('#bgHex');
+  const bgAlpha = $('#bgAlpha');
+  $('#bgPresets').innerHTML =
+    BG_GRADS.map((c) => `<button class="cw-sw is-grad" type="button" data-grad="${c}" style="--c:${rgba(c, .1)}" aria-label="Градиент"></button>`).join('') +
+    [DEFAULT_BG, ...BG_COLORS].map((h) => `<button class="cw-sw" type="button" data-hex="${h}" style="--c:${h}" aria-label="${h}"></button>`).join('');
+  $('#bgCat').innerHTML = BG_IMGS.map((src, i) =>
+    `<button class="bg-tile" type="button" data-img="${i}" style="--img:url(${src})" aria-label="Картинка ${i + 1}"><span class="bg-tool"><span class="ico">&#xE660;</span></span></button>`).join('');
+
+  // Новый фон: аккордеон — прозрачный (цвет, градиент) или белый 70% (картинка); тема становится пользовательской.
+  function setBg(b) {
+    custom.bg = b;
+    custom.acc = b.kind === 'img' ? { hex: '#ffffff', a: 70 } : { hex: null, a: 0 };
+    saveUserTheme();
+    paintTheme();
+    bgRender(true);
+  }
+  // Настройки картинки меняются без сброса аккордеона
+  function setFx(key, v, typed) {
+    custom.bg = { ...custom.bg, fx: { ...custom.bg.fx, [key]: v } };
+    saveUserTheme();
+    paintTheme();
+    fxRender(typed ? key : null);
+  }
+
+  function bgRender(fields) {
+    const b = curBg();
+    bgWin.dataset.kind = b.kind;
+    const pill = $('#bgPill');
+    pill.className = 'cw-pill' + (b.kind === 'img' ? ' is-img' : '');
+    pill.style.setProperty('--c', b.kind === 'img' ? `url(${BG_IMGS[b.i]})` : bgPreview(b));
+    if (b.kind === 'grad') $('#bgGradFrom').textContent = (b.c ? mixHex(DEFAULT_BG, b.c, .1) : b.top).slice(1).toUpperCase();
+    if (fields && b.kind === 'color') { bgHex.value = b.hex.slice(1).toUpperCase(); bgAlpha.value = b.a; }
+  }
+
+  // «Картинка»: превью и ползунки
+  $('#bgFx').innerHTML = FX.map((x) =>
+    `<div class="bg-row" data-fx="${x.key}"><span class="bg-row__label">${x.name}</span>` +
+    '<span class="bg-slider"><i class="bg-slider__fill"></i><i class="bg-slider__thumb"></i></span>' +
+    `<span class="bg-num${x.unit ? '' : ' no-unit'}"><input type="text" inputmode="numeric" autocomplete="off" maxlength="4" aria-label="${x.name}"><span>${x.unit}</span></span></div>`).join('');
+  function fxRender(skipInput) {
+    const f = custom.bg.fx;
+    for (const x of FX) {
+      const row = $(`[data-fx="${x.key}"]`, bgWin);
+      row.style.setProperty('--k', (f[x.key] - x.min) / (x.max - x.min));
+      if (skipInput !== x.key) $('input', row).value = f[x.key];
+    }
+  }
+  function openPic() {
+    if (custom.bg?.kind !== 'img') return;
+    bgWin.classList.add('is-pic');
+    $('#bgTitle').textContent = 'Картинка';
+    $('#bgPicPv').style.setProperty('--img', `url(${BG_IMGS[custom.bg.i]})`);
+    fxRender();
+  }
+  function closePic() {
+    bgWin.classList.remove('is-pic');
+    $('#bgTitle').textContent = 'Фон';
+  }
+
+  function openBgWin() {
+    setWindow(null);
+    closeRp();
+    closeThemePanel();
+    closeColorWin();
+    closePopups();
+    closePic();
+    bgRender(true);
+    const r = stageRect($('#bgSwatch'));
+    bgWin.hidden = false;
+    bgWin.style.left = Math.round(r.left - 23) + 'px';
+    bgWin.style.top = '0';
+    bgBtn.classList.add('is-active');
+  }
+  function closeBgWin() {
+    bgWin.hidden = true;
+    bgBtn.classList.remove('is-active');
+  }
+
+  bgBtn.addEventListener('click', () => (bgWin.hidden ? openBgWin() : closeBgWin()));
+  $('#bgDone').addEventListener('click', closeBgWin);
+  $('#bgClose').addEventListener('click', closeBgWin);
+  $('#bgBack').addEventListener('click', closePic);
+  $('#bgPresets').addEventListener('click', (e) => {
+    const sw = e.target.closest('.cw-sw');
+    if (!sw) return;
+    setBg(sw.dataset.grad ? { kind: 'grad', c: sw.dataset.grad } : { kind: 'color', hex: sw.dataset.hex, a: 100 });
+  });
+  // клик по картинке — применить и открыть «Картинку» (настройки сбрасываются для новой картинки)
+  $('#bgCat').addEventListener('click', (e) => {
+    const tile = e.target.closest('.bg-tile');
+    if (!tile) return;
+    const i = +tile.dataset.img;
+    if (!(custom.bg?.kind === 'img' && custom.bg.i === i)) setBg({ kind: 'img', i, fx: { ...FX_DEFAULT } });
+    openPic();
+  });
+  bgHex.addEventListener('input', () => {
+    const v = '#' + bgHex.value.trim().replace(/^#/, '');
+    if (!/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(v)) return;
+    const hex = (v.length === 4 ? '#' + [...v.slice(1)].map((x) => x + x).join('') : v).toLowerCase();
+    const b = curBg();
+    setBg({ kind: 'color', hex, a: b.kind === 'color' ? b.a : 100 });
+  });
+  bgAlpha.addEventListener('input', () => {
+    bgAlpha.value = bgAlpha.value.replace(/\D/g, '');
+    if (bgAlpha.value === '') return;
+    const b = curBg();
+    setBg({ kind: 'color', hex: b.hex, a: Math.min(100, +bgAlpha.value) });
+  });
+  for (const input of [bgHex, bgAlpha]) input.addEventListener('blur', () => bgRender(true));
+
+  // Ползунки: нажатие и перетаскивание; поле справа — ввод числа
+  $('#bgFx').addEventListener('pointerdown', (e) => {
+    const slider = e.target.closest('.bg-slider');
+    if (!slider) return;
+    const x = FX.find((f) => f.key === slider.parentNode.dataset.fx);
+    const move = (ev) => {
+      const r = slider.getBoundingClientRect();
+      const k = Math.min(1, Math.max(0, (ev.clientX - r.left) / r.width));
+      const v = Math.round(x.min + k * (x.max - x.min));
+      if (v !== custom.bg.fx[x.key]) setFx(x.key, v);
+    };
+    slider.setPointerCapture(e.pointerId);
+    move(e);
+    slider.onpointermove = move;
+    slider.onpointerup = slider.onpointercancel = () => { slider.onpointermove = slider.onpointerup = slider.onpointercancel = null; };
+  });
+  $('#bgFx').addEventListener('input', (e) => {
+    const row = e.target.closest('[data-fx]');
+    const x = FX.find((f) => f.key === row.dataset.fx);
+    const input = e.target;
+    input.value = input.value.replace(x.min < 0 ? /[^\d-]/g : /\D/g, '');
+    if (!/^-?\d+$/.test(input.value)) return;
+    setFx(x.key, Math.min(x.max, Math.max(x.min, +input.value)), true);
+  });
+  $('#bgFx').addEventListener('focusout', () => { if (custom.bg?.kind === 'img') fxRender(); });
+
+  applyTheme(themeId);
   renderAccordion();
   applyView();
 })();
