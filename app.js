@@ -1587,7 +1587,8 @@
     for (const [p, v] of Object.entries(themeVars(t))) stage.style.setProperty(p, v);
     $('#themeSwatches').innerHTML = swatchList(t).map((c) => (c ? `<span class="swatch" style="--c:${c}"></span>` : '<span class="swatch is-none"></span>')).join('');
     $('#bgSwatch').style.setProperty('--c', t.bg ?? DEFAULT_BG);
-    $('#tpBig').innerHTML = pvHTML(t);
+    // по наведению — кнопка «Настроить» (Figma 16360:50515); переход в расширенные настройки пока не сделан
+    $('#tpBig').innerHTML = pvHTML(t) + '<span class="tp-setup"><span class="ico24">&#xE660;</span>Настроить</span>';
     for (const b of tpGrid.children) b.classList.toggle('is-active', b.dataset.theme === id);
   }
 
