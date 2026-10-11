@@ -129,7 +129,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 
 /* ---------- Аккордеон ---------- */
 .accordion {
-  position: absolute; left: 9px; top: 45px; width: 220px; bottom: 0;
+  position: absolute; left: 9px; top: 45px; width: calc(var(--acc-gap) - 1px); bottom: 0; /* 220 / узкий 56 — от --acc-gap */
   background: var(--acc-bg); border-top-left-radius: 8px;
   display: flex; flex-direction: column; color: var(--acc-text);
 }
@@ -223,7 +223,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 .acc-item__short { display: none; }
 
 /* ---------- Узкий аккордеон (56px) ---------- */
-.accordion.is-narrow { width: 56px; z-index: 5; }
+.accordion.is-narrow { z-index: 5; }
 .accordion.is-panel-open { width: 200px; }
 
 /* шапка: только птичка и бургер */
@@ -286,12 +286,17 @@ ul { list-style: none; margin: 0; padding: 0; }
    При переключении плавно меняются --mid и --center (@property), аккордеон и ЦУ идут за краями середины. */
 @property --mid { syntax: '<length>'; inherits: true; initial-value: 996px; }
 @property --center { syntax: '<number>'; inherits: true; initial-value: 0; }
+@property --acc-gap { syntax: '<length>'; inherits: true; initial-value: 221px; }
+@property --mid-full { syntax: '<length>'; inherits: true; initial-value: 996px; }
 .stage { --acc-gap: 221px; --mid-full: 996px; --mid: 996px; --center: 0; --align-shift: calc((var(--mid-full) - var(--mid)) / 2 * var(--center)); }
 .stage.is-narrow { --acc-gap: 57px; --mid-full: 1160px; --mid: 1160px; }
 .stage.is-aligned { --mid: 696px; }
 .stage.is-aligned.is-narrow { --mid: 860px; }
 .stage.is-align-center { --center: 1; }
-.stage.is-aligning { transition: --mid .3s cubic-bezier(.4, 0, .2, 1), --center .3s cubic-bezier(.4, 0, .2, 1); }
+/* is-aligning — переключение позиционирования, is-resizing — сворачивание / разворачивание аккордеона */
+.stage.is-aligning,
+.stage.is-resizing { transition: --mid .3s cubic-bezier(.4, 0, .2, 1), --center .3s cubic-bezier(.4, 0, .2, 1), --acc-gap .3s cubic-bezier(.4, 0, .2, 1), --mid-full .3s cubic-bezier(.4, 0, .2, 1); }
+.stage.is-resizing .accordion { overflow: hidden; } /* пока ширина меняется, пункты обрезаются по краю */
 .accordion { left: calc(9px + var(--align-shift)); z-index: 1; } /* поверх области контента */
 .content { position: absolute; left: 8px; top: 45px; width: 1539px; height: 855px; overflow: hidden; background: #f8f8f8; display: flex; }
 /* «Растянуть»: под аккордеоном, как раньше, фон конструктора; «По центру» / «Слева» — по бокам фон страницы */
