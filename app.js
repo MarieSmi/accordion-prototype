@@ -88,8 +88,9 @@
     title: s.title, short: s.short, icon: null, head: s.submenu.headLabel ? null : s.submenu.head ?? s.title, showHead: true, cols: s.submenu.cols.map((c) => c.slice()),
   }]));
 
-  // Виды узкого аккордеона (окно «Меню» → «Вид панели»).
-  const NARROW_VIEWS = [
+  // Виды панели (окно «Меню» → «Вид панели»): широкий аккордеон и три вида узкого.
+  const PANEL_VIEWS = [
+    { id: 'wide', title: 'Широкий' },
     { id: 'labels', title: 'С названиями разделов' },
     { id: 'icons', title: 'Без названий' },
     { id: 'panel', title: 'Раскрывается по ховеру' },
@@ -461,15 +462,14 @@
   // ---------- Окно «Меню» ----------
   const menuWin = $('#menuWin');
   const resetBtn = $('#mwReset');
-  const narrowRow = $('#mwNarrowRow');
   const narrowLink = $('#mwNarrowLink');
   const dropdown = $('#mwMenu');
   const dropdownList = $('#mwMenuList');
 
+  const panelView = () => (isNarrow() ? settings.narrowView : 'wide');
+
   function renderWin() {
-    for (const t of menuWin.querySelectorAll('.mw-tile')) t.classList.toggle('is-active', t.dataset.view === settings.view);
-    narrowRow.hidden = !isNarrow();
-    narrowLink.textContent = NARROW_VIEWS.find((v) => v.id === settings.narrowView).title;
+    narrowLink.textContent = PANEL_VIEWS.find((v) => v.id === panelView()).title;
     const forced = triggerForced();
     for (const r of menuWin.querySelectorAll('.mw-radio')) {
       const value = r.dataset.trigger;
@@ -490,9 +490,8 @@
 
   registerWindow('menu', { win: menuWin, btn: $('#menuBtn'), onOpen: renderWin, onClose: closeDropdown });
   resetBtn.addEventListener('click', () => update(DEFAULTS));
-  for (const t of menuWin.querySelectorAll('.mw-tile')) t.addEventListener('click', () => update({ view: t.dataset.view }));
   for (const r of menuWin.querySelectorAll('.mw-radio')) r.addEventListener('click', () => update({ submenuTrigger: r.dataset.trigger }));
-  // Бургер в шапке аккордеона сворачивает / разворачивает меню — как плитки в окне «Меню».
+  // Бургер в шапке аккордеона сворачивает / разворачивает меню — как «Широкий» и узкие виды в окне «Меню».
   $('#accBurger').addEventListener('click', () => update({ view: isNarrow() ? 'wide' : 'narrow' }));
   // Значки ховера загружаем заранее, иначе при первом наведении круг на миг пустой.
   for (const n of ['collapse', 'expand']) new Image().src = `assets/img/burger-${n}.svg`;
@@ -500,11 +499,11 @@
   // Выпадающий список «Вид панели»: всегда открывается на одном месте — первый пункт встаёт на место ссылки.
   function openDropdown() {
     dropdownList.innerHTML = '';
-    NARROW_VIEWS.forEach((v) => {
-      const b = el('button', 'mw-menu__item' + (v.id === settings.narrowView ? ' is-on' : ''),
+    PANEL_VIEWS.forEach((v) => {
+      const b = el('button', 'mw-menu__item' + (v.id === panelView() ? ' is-on' : ''),
         `<span class="mw-menu__dot"></span><span class="mw-menu__text">${v.title}</span>`);
       b.type = 'button';
-      b.addEventListener('click', () => { closeDropdown(); update({ narrowView: v.id }); });
+      b.addEventListener('click', () => { closeDropdown(); update(v.id === 'wide' ? { view: 'wide', narrowView: DEFAULTS.narrowView } : { view: 'narrow', narrowView: v.id }); });
       dropdownList.append(b);
     });
     dropdown.hidden = false;

@@ -383,35 +383,6 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 
 .set-win__body { display: flex; flex-direction: column; gap: 8px; padding: 8px 12px; background: #fff; border-radius: 8px; }
 
-/* плитки: раскрытый и узкий аккордеон */
-.mw-tiles { display: flex; gap: 8px; }
-.mw-tile {
-  --tile-fill: rgba(0, 0, 0, .06); --tile-mark: rgba(0, 0, 0, .2);
-  position: relative; flex: 1 0 0; height: 62px; overflow: hidden;
-  background: #f2f2f2; border: 1px solid rgba(0, 0, 0, .2); border-radius: 8px;
-}
-.mw-tile:hover { --tile-fill: rgba(0, 0, 0, .1); --tile-mark: rgba(0, 0, 0, .3); border-color: rgba(0, 0, 0, .3); }
-.mw-tile.is-active { --tile-mark: var(--accent); border-color: var(--accent); cursor: default; }
-.mw-tile__in { position: absolute; inset: -1px; display: flex; gap: 4px; padding-right: 5px; }
-.mw-tile__acc { display: flex; flex-direction: column; height: 100%; padding: 3px 0; flex: none; width: 60px; background: var(--tile-fill); }
-.mw-tile.is-active .mw-tile__acc { background: var(--accent-bg); }
-.mw-tile__row { flex: 1 0 0; display: flex; align-items: center; gap: 3px; padding: 0 6px; }
-.mw-tile__row.is-mid { background: var(--tile-fill); }
-.mw-tile.is-active .mw-tile__row.is-mid { background: var(--accent-active-bg); }
-.mw-tile__row i { width: 4px; height: 4px; border-radius: 4px; background: var(--tile-mark); flex: none; }
-.mw-tile__row b { width: 30px; height: 4px; border-radius: 4px; background: var(--tile-mark); flex: none; }
-.mw-tile__page { flex: 1 0 0; min-width: 0; display: flex; flex-direction: column; gap: 5px; padding-top: 8px; }
-.mw-tile__title { display: flex; }
-.mw-tile__title b { width: 16px; height: 3px; border-radius: 6px; background: rgba(51, 51, 51, .15); }
-.mw-tile__sheet { flex: 1 0 0; background: #fff; border-radius: 3.438px 3.438px 0 0; }
-.mw-tile--narrow .mw-tile__acc { width: 30px; }
-.mw-tile--narrow .mw-tile__row { flex-direction: column; justify-content: center; }
-.mw-tile--narrow .mw-tile__row b { width: 16px; }
-.mw-tile--narrow .mw-tile__title { padding: 0 5px; }
-.mw-tile--narrow .mw-tile__title b { width: 30px; }
-.mw-tile--narrow .mw-tile__sheet { display: flex; flex-direction: column; gap: 6px; padding: 5px; }
-.mw-tile--narrow .mw-tile__sheet b { height: 3px; border-radius: 6px; background: rgba(51, 51, 51, .15); }
-
 /* свойства */
 .mw-prop { display: flex; align-items: flex-start; gap: 8px; }
 .mw-prop__name { width: 140px; height: 24px; flex: none; display: flex; align-items: center; font-size: 14px; letter-spacing: -.1974px; color: var(--label); }
