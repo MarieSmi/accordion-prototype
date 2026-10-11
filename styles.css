@@ -1153,10 +1153,10 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .tab-add__ico16 .ico { color: var(--label); }
 .tab-add__more { margin-left: 6px; color: var(--label); }
 
-.tab-dots { position: absolute; z-index: 30; width: 226px; }
+.tab-dots { position: absolute; z-index: 30; width: max-content; }
 .tab-dots[hidden] { display: none; }
 .tab-dots__list { display: flex; flex-direction: column; gap: 6px; padding: 8px; background: #fff; border-radius: 8px; box-shadow: var(--win-shadow); }
-.tab-dots .icon-menu__item { padding: 0 8px 0 12px; }
+.tab-dots .icon-menu__item { padding: 0 24px 0 12px; }
 
 /* ---------- Тултип ---------- */
 .tooltip {
