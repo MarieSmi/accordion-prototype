@@ -248,11 +248,9 @@
     acc.classList.toggle('is-panel-open', panel && state.panelOpen);
     acc.classList.toggle('is-compact', narrow && !(panel && state.panelOpen));
     acc.classList.toggle('is-labels', narrow && settings.narrowView === 'labels');
-    const burgerLabel = narrow ? 'Развернуть меню' : 'Свернуть меню';
-    $('#accBurger').setAttribute('aria-label', burgerLabel);
-    $('#accBurger').dataset.tip = burgerLabel;
-    // в узком аккордеоне птичка не кнопка — над ней подсказка шапки «На главную»
-    if (narrow) delete $('.acc-bird').dataset.tip; else $('.acc-bird').dataset.tip = 'Логотип';
+    $('#accBurger').setAttribute('aria-label', narrow ? 'Развернуть меню' : 'Свернуть меню');
+    // в узком аккордеоне птичка не кнопка — клик по ней ведёт на «Главную», как и по всей шапке
+    $('.acc-bird').dataset.tip = narrow ? 'На главную' : '';
     updateShot();
   }
 
