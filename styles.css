@@ -302,8 +302,10 @@ ul { list-style: none; margin: 0; padding: 0; }
 /* «Растянуть»: под аккордеоном, как раньше, фон конструктора; «По центру» / «Слева» — по бокам фон страницы */
 .stage:not(.is-aligned) .content { background: linear-gradient(var(--ctor-bg), var(--ctor-bg)) 0 0 / var(--acc-gap) 100% no-repeat, #f8f8f8; }
 .content__mid { flex: none; width: var(--mid); margin-left: calc(var(--acc-gap) + var(--align-shift)); overflow: hidden; }
-.content__side { flex: none; width: 322px; overflow: hidden; display: flex; justify-content: flex-end; }
+.content__side { position: relative; flex: none; width: 322px; overflow: hidden; display: flex; justify-content: flex-end; }
 .content__shot { display: block; flex: none; width: auto; height: 855px; }
+/* «Информеры» выключены: кнопки телефона и чата на скриншоте (x 7…35, y 757…821 у обоих скриншотов) закрываем цветом фона */
+.stage.no-informers .content__side::after { content: ""; position: absolute; left: 4px; top: 754px; width: 34px; height: 70px; background: #f8f8f8; }
 
 /* ---------- Середина: общая шапка страницы ---------- */
 .page { display: flex; flex-direction: column; height: 100%; padding-left: 8px; box-sizing: border-box; font-family: "Inter", sans-serif; color: #333; }
@@ -494,6 +496,130 @@ ul { list-style: none; margin: 0; padding: 0; }
 .right-panel__spacer { flex: 1; }
 .rp-help { width: 32px; height: 32px; border-radius: 16px; background: #eeebff; border: 1px solid #d4ccff; display: flex; align-items: center; justify-content: center; transition: background-color .12s; }
 .rp-help:hover { background: #e1dbff; }
+/* активная иконка: фон navigation_active, оранжевый маркер справа (Figma 16086:209177) */
+.rp-btn { position: relative; }
+.rp-btn.is-active, .rp-btn.is-active:hover { background: #f2f2f2; }
+.rp-btn.is-active::after { content: ""; position: absolute; right: -4px; top: 8px; width: 4px; height: 32px; border-radius: 3px; background: #cc3d00; }
+
+/* ---------- Окна правой панели (Figma 16041:47515) ---------- */
+.rp-win {
+  position: absolute; z-index: 15; right: 53px; width: 350px; overflow: hidden;
+  display: flex; flex-direction: column;
+  background: #f8f8f8; border-radius: 8px; box-shadow: var(--win-shadow);
+}
+.rp-win[hidden] { display: none; }
+.rp-win__head { flex: none; height: 44px; display: flex; align-items: center; gap: 12px; padding: 12px 12px 8px; }
+.rp-win__title { font-size: 18px; font-weight: 600; letter-spacing: -.2538px; line-height: 1; white-space: nowrap; }
+
+/* список (пункт 28px, слот маркера 3px + 5px, слот стрелки 20px) */
+.rp-list { padding: 0 4px 4px; }
+.rp-row { height: 28px; display: flex; align-items: center; padding: 0 8px 0 8px; border-radius: 4px; cursor: default; transition: background-color .12s; }
+/* ховер — как пункт слоёв в Builder-components (rHabzni5OI5D4fxBLQdj2m 5:28133): фон и команды «глазик», «удалить» */
+.rp-row { position: relative; }
+.rp-row:hover { background: #ebf4ff; }
+.rp-row__cmds { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); display: none; gap: 6px; padding-left: 4px; background: #ebf4ff; }
+.rp-row:hover .rp-row__cmds { display: flex; }
+.rp-row__eye { padding-bottom: 2px; color: #8991a9; }
+.rp-row__del { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; }
+.rp-row__del .ico { color: #c2140a; }
+.rp-row__lead { flex: none; width: 20px; display: flex; align-items: center; padding-left: 2px; }
+.rp-arrow { font-size: 12px; width: 12px; height: 12px; color: #8991a9; }
+.rp-wico { color: #5a49ab; margin-right: 4px; }
+.rp-row__name { flex: 1; min-width: 0; font-size: 15px; letter-spacing: -.2115px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* плашки «Поиска» (Figma 16086:188332) */
+.rp-chips { display: flex; flex-direction: column; gap: 8px; padding: 0 8px 12px; }
+.rp-chip { height: 36px; display: flex; align-items: center; padding: 6px 12px 6px 10px; background: #fff; border-radius: 8px; }
+.rp-chip__name { flex: 1; font-size: 14px; font-weight: 600; letter-spacing: -.1974px; line-height: 1; }
+.rp-chip__x { width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; cursor: default; }
+.rp-chip__x img { flex: none; display: block; border-radius: 50%; transition: background-color .12s; }
+.rp-chip__x:hover img { background: rgba(51, 51, 51, .05); }
+
+/* «Можно добавить» */
+.rp-add { display: flex; flex-direction: column; gap: 7px; padding-top: 8px; }
+.rp-add__label { padding: 0 4px; font-size: 12px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--label); line-height: 15px; }
+.rp-add__list { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.rp-add__item { height: 24px; padding: 0 10px; border-radius: 23px; font-size: 14px; letter-spacing: -.1974px; color: var(--label); cursor: default; transition: background-color .12s, color .12s; }
+.rp-add__item:hover { background: rgba(51, 51, 51, .05); color: var(--text); }
+
+.rp-add--filter { padding-bottom: 8px; }
+.rp-add--filter .rp-add__list { gap: 4px; }
+
+/* «Магазин» (Figma 16041:47582): список категорий 220 + превью виджетов 350 (картинка из макета) */
+.rp-win--shop { width: 574px; }
+.rp-plus { flex: none; height: 24px; padding: 0 10px; margin-left: -6px; display: flex; align-items: center; border-radius: 100px; background: rgba(51, 51, 51, .05); }
+.rp-filter-ico { flex: none; margin-left: auto; width: 32px; height: 32px; padding-top: 1px; margin-right: -8px; color: var(--label); }
+.rp-find.rp-find--shop { margin-left: 0; }
+.rp-shop { flex: 1; min-height: 0; display: flex; gap: 4px; }
+.rp-cats { flex: none; width: 220px; padding: 4px 0 0 4px; display: flex; flex-direction: column; }
+.rp-cat { flex: none; position: relative; height: 31px; display: flex; align-items: center; gap: 8px; padding: 0 12px 0 6px; border-radius: 6px; cursor: default; transition: background-color .12s; }
+/* ховер — пункт списка со счётчиком из Default-components (nuC4KFMiS36uDWDUp9wKGl 25581:1272) */
+.rp-cat:hover { background: #ebf4ff; }
+.rp-cat--child { padding-left: 24px; }
+.rp-cat.is-selected, .rp-cat.is-selected:hover { background: #ebf4ff; }
+.rp-cat.is-selected::before { content: ""; position: absolute; left: 0; top: 7.5px; width: 3px; height: 16px; border-radius: 4px; background: #cc3d00; }
+.rp-cat__arrow { flex: none; width: 16px; margin-right: -4px; color: #8991a9; }
+.rp-cat__name { flex: 1; min-width: 0; font-size: 15px; letter-spacing: -.2115px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rp-cat.is-selected .rp-cat__name { font-weight: 600; }
+.rp-cat__count { flex: none; font-size: 14px; letter-spacing: -.1974px; color: #8991a9; }
+/* превью из макета обрезано на 726px — виджет «Отчеты» (Figma 19259:36760) кладём отдельной картинкой с 700px; низ обрезает окно */
+.rp-shop__pv { flex: none; position: relative; align-self: flex-start; height: 961px; }
+.rp-shop__reports { position: absolute; left: 12px; top: 700px; width: 326px; height: 261px; display: flex; flex-direction: column; background: #f8f8f8; box-shadow: 0 0 0 12px #f8f8f8; }
+.rp-sw__title { font-size: 14px; letter-spacing: -.1974px; line-height: 17px; }
+.rp-sw__desc { margin-top: 4px; font-size: 12px; letter-spacing: -.1692px; line-height: 15px; color: #999; }
+.rp-sw__pv { position: relative; margin-top: 8px; height: 202px; overflow: hidden; border: 1px solid rgba(0, 0, 0, .05); border-radius: 8px; background: #ecebe9; }
+.rp-sw__pv img { position: absolute; left: 0; top: -1.87%; width: 100%; height: 103.75%; }
+/* зоны ховера поверх карточек превью — как «Виджет магазина» в Builder-components (1517:29714):
+   рамка #7b62f8 40%, у больших превью ещё «+» по центру */
+.rp-wz { position: absolute; border: 1px solid transparent; border-radius: 8px; cursor: default; }
+.rp-wz:hover { border-color: rgba(123, 98, 248, .4); }
+.rp-wz__plus { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 36px; height: 36px; padding-bottom: 1px; border-radius: 18px; background: #eeebff; color: #5a49ab; display: none; }
+.rp-wz:hover .rp-wz__plus { display: flex; }
+.rp-shop__preview { display: block; }
+
+/* поле «Найти» в шапке «Данных» (статика) */
+.rp-find {
+  flex: none; margin-left: auto; width: 180px; height: 26px; display: flex; align-items: center; padding: 0 4px 0 12px;
+  background: #fff; border: 1px solid #eaeaea; border-radius: 12px;
+  font-size: 14px; letter-spacing: -.1974px; color: rgba(137, 145, 169, .6);
+}
+
+/* дерево полей «Данных» (Figma 16086:210659) */
+.rp-fields { display: flex; flex-direction: column; padding-bottom: 4px; }
+.rp-group { display: flex; flex-direction: column; gap: 2px; padding: 0 4px; }
+/* высоты строк — как в макете: 16px-строка 30.75, 14px-строка 30 */
+.rp-field { height: 30.75px; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; border-radius: 6px; cursor: default; transition: background-color .12s; }
+/* ховер — строка поля из «Настройка контекста (Данные)» (U01fRnckQPNcOngndCyQ1R 6901:83495) */
+.rp-field:hover { background: #eff0f4; }
+.rp-field--child { padding-left: 28px; }
+.rp-field--leaf { height: 30px; }
+.rp-field__name { display: flex; align-items: center; gap: 2px; min-width: 0; font-size: 16px; letter-spacing: -.2256px; white-space: nowrap; }
+.rp-field--obj .rp-field__name { font-weight: 600; }
+.rp-field--leaf .rp-field__name { font-size: 14px; letter-spacing: -.1974px; }
+.rp-field__arrow { box-sizing: content-box; padding: 2px; font-size: 12px; width: 12px; height: 12px; color: #8991a9; }
+.rp-field__type { flex: none; padding-left: 12px; font-size: 12px; letter-spacing: -.1692px; color: #8991a9; }
+
+/* карточки «Настроек» (Figma 16086:213006) */
+.rp-cards { display: flex; flex-direction: column; gap: 4px; padding: 0 4px 4px; }
+.rp-card { display: flex; flex-direction: column; gap: 4px; padding: 8px 12px; background: #fff; border-radius: 8px; }
+.rp-card__title { height: 24px; display: flex; align-items: center; font-size: 12px; font-weight: 600; letter-spacing: -.1692px; text-transform: uppercase; }
+.rp-props { display: flex; flex-direction: column; gap: 8px; }
+.rp-prop { height: 24px; display: flex; align-items: center; gap: 8px; }
+.rp-prop__label { flex: none; width: 60px; font-size: 14px; letter-spacing: -.1974px; color: var(--label); white-space: nowrap; }
+.rp-prop__label--82 { width: 82px; }
+.rp-prop__label--soft { width: auto; color: #8991a9; }
+.rp-link { height: 24px; padding-bottom: 1px; font-size: 14px; letter-spacing: -.1974px; color: var(--link); transition: color .12s; }
+.rp-link:hover { color: var(--link-hover); }
+.rp-gap { width: 56px; height: 24px; display: flex; align-items: center; gap: 6px; border-bottom: 1px solid var(--border); font-size: 14px; letter-spacing: -.1974px; }
+.rp-gap img { flex: none; display: block; }
+
+/* переключатель: включён — акцентный (Figma), выключен — подобран */
+.rp-switch { width: 24px; height: 24px; display: flex; align-items: center; }
+.rp-switch::before { content: ""; width: 24px; height: 16px; border-radius: 8px; background: var(--border) radial-gradient(circle 6px at 8px 8px, #fff 5.5px, transparent 6px); transition: background-color .12s; }
+.rp-switch:hover::before { background-color: #b8bdc3; }
+.rp-switch.is-on::before { background: var(--accent) radial-gradient(circle 6px at 16px 8px, #fff 5.5px, transparent 6px); }
+.rp-switch.is-on:hover::before { background-color: #e5622b; }
+.mw-menu.rp-menu { width: 160px; } /* Figma 18452:13240 */
 
 /* ---------- Подменю ---------- */
 .submenu-layer { position: absolute; inset: 0; pointer-events: none; z-index: 10; }
