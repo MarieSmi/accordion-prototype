@@ -80,10 +80,11 @@
     title: s.title, short: s.short, icon: null, head: s.submenu.headLabel ? null : s.submenu.head ?? s.title, showHead: true, cols: s.submenu.cols.map((c) => c.slice()),
   }]));
 
-  // Виды узкого аккордеона (окно «Меню» → «Вид панели»).
-  const NARROW_VIEWS = [
-    { id: 'labels', title: 'С названиями разделов' },
-    { id: 'icons', title: 'Без названий' },
+  // Виды панели (окно «Меню» → «Вид панели»): широкий аккордеон и три вида узкого.
+  const PANEL_VIEWS = [
+    { id: 'wide', title: 'Широкая' },
+    { id: 'labels', title: 'Узкая с названиями' },
+    { id: 'icons', title: 'Узкая без названий' },
     { id: 'panel', title: 'Раскрывается по ховеру' },
   ];
 
@@ -263,6 +264,8 @@
     acc.classList.toggle('is-compact', narrow && !(panel && state.panelOpen));
     acc.classList.toggle('is-labels', narrow && settings.narrowView === 'labels');
     $('#accBurger').setAttribute('aria-label', narrow ? 'Развернуть меню' : 'Свернуть меню');
+    // в узком аккордеоне птичка не кнопка — клик по ней ведёт на «Главную», как и по всей шапке
+    $('.acc-bird').dataset.tip = narrow ? 'На главную' : '';
   }
 
   function setPanelOpen(open) {
@@ -503,15 +506,14 @@
   // ---------- Окно «Меню» ----------
   const menuWin = $('#menuWin');
   const resetBtn = $('#mwReset');
-  const narrowRow = $('#mwNarrowRow');
   const narrowLink = $('#mwNarrowLink');
   const dropdown = $('#mwMenu');
   const dropdownList = $('#mwMenuList');
 
+  const panelView = () => (isNarrow() ? settings.narrowView : 'wide');
+
   function renderWin() {
-    for (const t of menuWin.querySelectorAll('.mw-tile')) t.classList.toggle('is-active', t.dataset.view === settings.view);
-    narrowRow.hidden = !isNarrow();
-    narrowLink.textContent = NARROW_VIEWS.find((v) => v.id === settings.narrowView).title;
+    narrowLink.textContent = PANEL_VIEWS.find((v) => v.id === panelView()).title;
     const forced = triggerForced();
     for (const r of menuWin.querySelectorAll('.mw-radio')) {
       const value = r.dataset.trigger;
@@ -532,9 +534,8 @@
 
   registerWindow('menu', { win: menuWin, btn: $('#menuBtn'), onOpen: renderWin, onClose: closeDropdown });
   resetBtn.addEventListener('click', () => update(DEFAULTS));
-  for (const t of menuWin.querySelectorAll('.mw-tile')) t.addEventListener('click', () => update({ view: t.dataset.view }));
   for (const r of menuWin.querySelectorAll('.mw-radio')) r.addEventListener('click', () => update({ submenuTrigger: r.dataset.trigger }));
-  // Бургер в шапке аккордеона сворачивает / разворачивает меню — как плитки в окне «Меню».
+  // Бургер в шапке аккордеона сворачивает / разворачивает меню — как «Широкий» и узкие виды в окне «Меню».
   $('#accBurger').addEventListener('click', () => update({ view: isNarrow() ? 'wide' : 'narrow' }));
   // Значки ховера загружаем заранее, иначе при первом наведении круг на миг пустой.
   for (const n of ['collapse', 'expand']) new Image().src = `assets/img/burger-${n}.svg`;
@@ -542,11 +543,11 @@
   // Выпадающий список «Вид панели»: всегда открывается на одном месте — первый пункт встаёт на место ссылки.
   function openDropdown() {
     dropdownList.innerHTML = '';
-    NARROW_VIEWS.forEach((v) => {
-      const b = el('button', 'mw-menu__item' + (v.id === settings.narrowView ? ' is-on' : ''),
+    PANEL_VIEWS.forEach((v) => {
+      const b = el('button', 'mw-menu__item' + (v.id === panelView() ? ' is-on' : ''),
         `<span class="mw-menu__dot"></span><span class="mw-menu__text">${v.title}</span>`);
       b.type = 'button';
-      b.addEventListener('click', () => { closeDropdown(); update({ narrowView: v.id }); });
+      b.addEventListener('click', () => { closeDropdown(); update(v.id === 'wide' ? { view: 'wide', narrowView: DEFAULTS.narrowView } : { view: 'narrow', narrowView: v.id }); });
       dropdownList.append(b);
     });
     dropdown.hidden = false;
@@ -1481,6 +1482,32 @@
     if (!dropdown.hidden || !iconMenu.hidden || tabMenuOpen()) closePopups();
     else closeSubmenu();
   });
+
+  // ---------- Тултип ----------
+  // Подсказка из data-tip ближайшего элемента: появляется через паузу под курсором, прячется при клике и уходе.
+  const tip = el('div', 'tooltip');
+  tip.hidden = true;
+  stage.append(tip);
+  let tipTarget = null, tipTimer = 0, tipX = 0, tipY = 0;
+  const hideTip = () => { clearTimeout(tipTimer); tip.hidden = true; };
+  stage.addEventListener('mousemove', (e) => { tipX = e.clientX; tipY = e.clientY; });
+  stage.addEventListener('mouseover', (e) => {
+    const t = e.target.closest('[data-tip]');
+    if (t === tipTarget) return;
+    tipTarget = t;
+    hideTip();
+    if (!t) return;
+    tipTimer = setTimeout(() => {
+      if (!t.dataset.tip) return;
+      tip.textContent = t.dataset.tip;
+      tip.hidden = false;
+      const s = stage.getBoundingClientRect();
+      tip.style.left = `${Math.min((tipX - s.left) / scale, 1600 - tip.offsetWidth - 4)}px`;
+      tip.style.top = `${(tipY - s.top) / scale + 18}px`;
+    }, 500);
+  });
+  stage.addEventListener('mousedown', () => { hideTip(); tipTarget = null; });
+  stage.addEventListener('mouseleave', () => { hideTip(); tipTarget = null; });
 
   renderAccordion();
   applyView();
