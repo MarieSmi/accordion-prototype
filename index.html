@@ -22,18 +22,15 @@
 
         <div class="ctor-header__center">
           <div class="ctor-header__colors">
-            <button class="pill-group theme-btn" type="button">
-              <span class="theme-btn__label">Тема</span>
-              <span class="swatches">
-                <span class="swatch" style="--c:#2c3e50"></span>
-                <span class="swatch" style="--c:#0c94ff"></span>
-                <span class="swatch" style="--c:#cc3d00"></span>
-              </span>
-            </button>
-            <button class="pill-group theme-btn" type="button">
+            <!-- «Тема» открывает панель тем; кружки (цвет аккордеона, акцент 1, акцент 2) рисует app.js по выбранной теме -->
+            <div class="pill-group theme-btn">
+              <button class="theme-btn__label" type="button" id="themeBtn">Тема</button>
+              <span class="swatches" id="themeSwatches"></span>
+            </div>
+            <div class="pill-group theme-btn">
               <span class="theme-btn__label">Фон</span>
-              <span class="swatches"><span class="swatch" style="--c:#f8f8f8"></span></span>
-            </button>
+              <span class="swatches"><span class="swatch" id="bgSwatch" style="--c:#f8f8f8"></span></span>
+            </div>
           </div>
 
           <div class="ctor-header__tools">
@@ -715,6 +712,30 @@
         </div>
         <button class="mw-menu__close" type="button" id="tabDotsClose" aria-label="Закрыть"><img src="assets/img/close-menu.svg" width="12" height="12" alt=""></button>
       </div>
+
+      <!-- Панель «Тема оформления» (Figma xMQ3ZEN4AUINgwjVoxR8hS 16090:237338): справа на всю высоту, тема применяется сразу по клику на плашку -->
+      <section class="theme-panel" id="themePanel" hidden aria-label="Тема оформления">
+        <div class="tp-main">
+          <div class="tp-head">
+            <span class="tp-title">Тема оформления</span>
+            <button class="done-btn" type="button" id="tpDone" aria-label="Сохранить и закрыть"><span class="ico ico--20">&#xE75E;</span></button>
+          </div>
+          <div class="tp-card">
+            <div class="tp-big"><span class="tp-big__frame" id="tpBig"></span></div>
+            <div class="tp-group"><span>Системные</span></div>
+            <div class="tp-grid" id="tpGrid"></div>
+          </div>
+        </div>
+        <div class="tp-side">
+          <button class="close-btn" type="button" id="tpClose" aria-label="Закрыть"><img src="assets/img/close-header.svg" width="28" height="28" alt=""></button>
+          <div class="tp-informers">
+            <span class="tp-round tp-today"><b>16</b><small>чт</small></span>
+            <span class="tp-round"><span class="ico">&#xE636;</span></span>
+            <span class="tp-round"><span class="ico">&#xE65D;</span></span>
+            <span class="tp-help"><img src="assets/img/help.svg" width="12" height="16" alt=""></span>
+          </div>
+        </div>
+      </section>
 
       <!-- Подтверждение «Сохранить изменения?» (Figma nuC4KFMiS36uDWDUp9wKGl 4064:21938) — по центру сцены, поверх всего -->
       <div class="confirm-layer" id="smeConfirm" hidden>
