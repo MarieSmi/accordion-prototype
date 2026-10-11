@@ -25,7 +25,6 @@
   --acc-item-hover: #3e5266;
   --acc-item-selected: #273748;
   --acc-marker: #0c94ff;        /* акцент 1: маркер выбранного пункта */
-  --acc-bird: var(--acc-marker);
   --acc-bird-bg: transparent;   /* кружок под птичкой (тема «Графит») */
   --acc-icon: #9cb1c7;
   --acc-text: #e9ebec;
@@ -165,7 +164,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 .acc-header__row { cursor: pointer; }
 .acc-header__row:hover { background: var(--acc-item-hover); }
 .acc-bird { width: 32px; height: 32px; border-radius: 16px; display: flex; align-items: center; justify-content: center; padding-bottom: 2px; flex: none; }
-.acc-bird .ico24 { color: var(--acc-bird); background: var(--acc-bird-bg); border-radius: 50%; }
+.acc-bird .ico24 { color: var(--acc-bird, var(--acc-marker)); background: var(--acc-bird-bg); border-radius: 50%; }
 .acc-header__row:hover .acc-bird { background: var(--acc-bg); }
 /* птичка — кнопка окна «Логотип»: своя подсветка поверх подсветки строки (Figma 16315:62242) */
 .acc-bird { transition: background-color .12s; }
@@ -556,7 +555,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 .page--skeleton .pg-head { padding-right: 10.5px; }
 .sk-pills { flex: none; width: 123.429px; display: flex; gap: 10.286px; }
 .sk-pill { width: 30px; height: 17px; border-radius: 8px; background: #e8e8e8; }
-.sk-pill--on { background: #0085f2; }
+.sk-pill--on { background: var(--acc-marker); } /* акцент 1 */
 .pg-search--skeleton { margin-left: 111px; }
 .sk-bar { display: block; height: 10px; border-radius: 16px; background: #e8e8e8; }
 .sk-bar--right { flex: none; width: 40px; margin-left: auto; border-radius: 8px; }
@@ -879,7 +878,7 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 }
 .lw-bird { position: relative; width: 32px; height: 32px; flex: none; border-radius: 16px; background: var(--acc-item-selected); }
 .lw-bird__logo { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding-bottom: 2px; transition: opacity .12s; }
-.lw-bird__logo .ico24 { color: var(--acc-bird); }
+.lw-bird__logo .ico24 { color: var(--acc-bird, var(--acc-marker)); }
 .lw-bird__clip { position: absolute; left: 8px; top: 8px; color: var(--acc-text); opacity: 0; transition: opacity .12s; }
 .lw-bird:hover { background-image: linear-gradient(rgba(0, 0, 0, .07), rgba(0, 0, 0, .07)); }
 .lw-bird:hover .lw-bird__logo { opacity: .3; }
