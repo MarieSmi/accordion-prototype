@@ -248,7 +248,11 @@
     acc.classList.toggle('is-panel-open', panel && state.panelOpen);
     acc.classList.toggle('is-compact', narrow && !(panel && state.panelOpen));
     acc.classList.toggle('is-labels', narrow && settings.narrowView === 'labels');
-    $('#accBurger').setAttribute('aria-label', narrow ? 'Развернуть меню' : 'Свернуть меню');
+    const burgerLabel = narrow ? 'Развернуть меню' : 'Свернуть меню';
+    $('#accBurger').setAttribute('aria-label', burgerLabel);
+    $('#accBurger').dataset.tip = burgerLabel;
+    // в узком аккордеоне птичка не кнопка — над ней подсказка шапки «На главную»
+    if (narrow) delete $('.acc-bird').dataset.tip; else $('.acc-bird').dataset.tip = 'Логотип';
     updateShot();
   }
 
@@ -889,6 +893,32 @@
     if (!dropdown.hidden || !iconMenu.hidden) closePopups();
     else closeSubmenu();
   });
+
+  // ---------- Тултип ----------
+  // Подсказка из data-tip ближайшего элемента: появляется через паузу под курсором, прячется при клике и уходе.
+  const tip = el('div', 'tooltip');
+  tip.hidden = true;
+  stage.append(tip);
+  let tipTarget = null, tipTimer = 0, tipX = 0, tipY = 0;
+  const hideTip = () => { clearTimeout(tipTimer); tip.hidden = true; };
+  stage.addEventListener('mousemove', (e) => { tipX = e.clientX; tipY = e.clientY; });
+  stage.addEventListener('mouseover', (e) => {
+    const t = e.target.closest('[data-tip]');
+    if (t === tipTarget) return;
+    tipTarget = t;
+    hideTip();
+    if (!t) return;
+    tipTimer = setTimeout(() => {
+      if (!t.dataset.tip) return;
+      tip.textContent = t.dataset.tip;
+      tip.hidden = false;
+      const s = stage.getBoundingClientRect();
+      tip.style.left = `${Math.min((tipX - s.left) / scale, 1600 - tip.offsetWidth - 4)}px`;
+      tip.style.top = `${(tipY - s.top) / scale + 18}px`;
+    }, 500);
+  });
+  stage.addEventListener('mousedown', () => { hideTip(); tipTarget = null; });
+  stage.addEventListener('mouseleave', () => { hideTip(); tipTarget = null; });
 
   renderAccordion();
   applyView();

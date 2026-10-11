@@ -665,3 +665,11 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .icon-pick__tab:hover { background: rgba(51, 51, 51, .05); }
 .icon-pick__tab.is-active { background: rgba(51, 51, 51, .05); }
 .icon-pick__tab.is-active .ico { color: #cc3d00; } /* text/primary_text-color */
+
+/* ---------- Тултип ---------- */
+.tooltip {
+  position: absolute; z-index: 50; pointer-events: none; white-space: nowrap;
+  padding: 4px 8px; border-radius: 4px; background: #313131; box-shadow: 0 2px 6px rgba(0, 0, 0, .2);
+  color: #fff; font-size: 13px; line-height: 18px; font-weight: 400; -webkit-font-smoothing: antialiased;
+}
+.tooltip[hidden] { display: none; }
