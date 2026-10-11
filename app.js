@@ -2,12 +2,7 @@
   'use strict';
 
   // ---------- Данные ----------
-  // Середина контента свёрстана (Главная / скелетон страницы раздела), справа — скриншот информеров и ЦУ.
-  // Страница → скриншот, из которого видны только последние 322px (информеры + ЦУ).
-  const SIDE_SHOTS = {
-    main: 'assets/img/page-main-center.png',
-    skeleton: 'assets/img/page-contacts-skeleton-center.png',
-  };
+  // Контент свёрстан целиком: середина (Главная / скелетон страницы раздела), справа информеры и ЦУ — одинаковые на всех страницах.
   const SKELETON_ROWS = 8;
 
   // Пункт подменю: [заголовок, уровень (1|2)]
@@ -130,7 +125,6 @@
   const layer = $('#submenuLayer');
   const pageMain = $('#pageMain');
   const pageSkeleton = $('#pageSkeleton');
-  const shotSide = $('#contentShotSide'); // информеры и ЦУ
 
   // Сцена 1600×900 вписывается в окно браузера с сохранением пропорций.
   let scale = 1;
@@ -409,7 +403,6 @@
     const page = state.page.section ? 'skeleton' : 'main';
     pageMain.hidden = page !== 'main';
     pageSkeleton.hidden = page !== 'skeleton';
-    if (!shotSide.src.endsWith(SIDE_SHOTS[page])) shotSide.src = SIDE_SHOTS[page];
   }
   // Строки-заглушки реестра в скелетоне
   $('#skList').innerHTML = '<div class="sk-row"><div class="sk-row__pic"></div><div class="sk-row__body"><div class="sk-row__lines"></div><div class="sk-row__tag"></div></div></div>'.repeat(SKELETON_ROWS);

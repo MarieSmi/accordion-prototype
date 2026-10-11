@@ -64,6 +64,11 @@
   /* правая панель */
   --rp-hover: #f9f9f9;          /* background/navigation_hover_background-color */
   --rp-accent: #db4200;
+
+  /* фон контента — задаётся темой оформления */
+  --content-bg: #f8f8f8;                     /* фон за контентом: цвет или картинка, например url(...) center / cover #f8f8f8 */
+  --under-content: rgba(255, 255, 255, 0);   /* настройка-интерфейса/цвет-под-контентом (под информерами) */
+  --cu-bg: #ecedee;                          /* настройка-интерфейса/цвет-цу — сейчас сплошной, может быть прозрачным */
 }
 
 * { box-sizing: border-box; }
@@ -298,12 +303,89 @@ ul { list-style: none; margin: 0; padding: 0; }
 .stage.is-resizing { transition: --mid .3s cubic-bezier(.4, 0, .2, 1), --center .3s cubic-bezier(.4, 0, .2, 1), --acc-gap .3s cubic-bezier(.4, 0, .2, 1), --mid-full .3s cubic-bezier(.4, 0, .2, 1); }
 .stage.is-resizing .accordion { overflow: hidden; } /* пока ширина меняется, пункты обрезаются по краю */
 .accordion { left: calc(9px + var(--align-shift)); z-index: 1; } /* поверх области контента */
-.content { position: absolute; left: 8px; top: 45px; width: 1539px; height: 855px; overflow: hidden; background: #f8f8f8; display: flex; }
+.content { position: absolute; left: 8px; top: 45px; width: 1539px; height: 855px; overflow: hidden; background: var(--content-bg); display: flex; }
 /* «Растянуть»: под аккордеоном, как раньше, фон конструктора; «По центру» / «Слева» — по бокам фон страницы */
-.stage:not(.is-aligned) .content { background: linear-gradient(var(--ctor-bg), var(--ctor-bg)) 0 0 / var(--acc-gap) 100% no-repeat, #f8f8f8; }
+.stage:not(.is-aligned) .content { background: linear-gradient(var(--ctor-bg), var(--ctor-bg)) 0 0 / var(--acc-gap) 100% no-repeat, var(--content-bg); }
 .content__mid { flex: none; width: var(--mid); margin-left: calc(var(--acc-gap) + var(--align-shift)); overflow: hidden; }
-.content__side { flex: none; width: 322px; overflow: hidden; display: flex; justify-content: flex-end; }
-.content__shot { display: block; flex: none; width: auto; height: 855px; }
+.content__side { flex: none; width: 322px; overflow: hidden; display: flex; font-family: "Inter", sans-serif; }
+
+/* ---------- Информеры (42px) ---------- */
+.informers { flex: none; width: 42px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 10px 0 8px; background: var(--under-content); }
+.informers__top { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.informers__fio { position: relative; width: 26.975px; height: 26.975px; display: flex; align-items: center; justify-content: center; padding-left: 2.53px; font-size: 11.802px; font-weight: 600; letter-spacing: -.1664px; color: #8991a9; }
+.informers__fio img { position: absolute; left: 3.372px; top: 16.016px; }
+.informers__btn { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+.informers__btn .ico { font-size: 18.67px; width: 18.667px; height: 18.667px; color: #656c87; }
+.informers__bottom { display: flex; flex-direction: column; gap: 10px; }
+/* Звонки и Сообщения в макете — кадры из скриншота Saby */
+.informers__shot { position: relative; width: 26.975px; height: 26.975px; border-radius: 13.488px; overflow: hidden; }
+.informers__shot img { position: absolute; left: -3187.5%; width: 4684.37%; height: 2762.5%; max-width: none; }
+.informers__help { width: 27px; height: 27px; display: flex; align-items: center; justify-content: center; border-radius: 16px; background: #eeebff; border: .844px solid #d4ccff; }
+
+/* ---------- ЦУ (280px), без прокрутки ---------- */
+.cu { flex: none; width: 280px; height: 100%; overflow: hidden; display: flex; flex-direction: column; gap: 8px; padding: 10px 8px; background: var(--cu-bg); color: #000; font-size: 10.959px; letter-spacing: -.1545px; line-height: normal; }
+.cu b { font-weight: 600; }
+.cu img { display: block; flex: none; }
+.cu-date, .cu-muted { color: #999; }
+.cu-accent { color: #cc3d00; }
+.cu-link { color: #2562aa; }
+.cu-w { flex: none; border-radius: 8px; filter: drop-shadow(0 0 4px rgba(0, 0, 0, .06)); }
+.cu-w--card { background: #fff; }
+.cu-w__head { display: flex; align-items: flex-end; justify-content: space-between; gap: 6.744px; min-height: 38.446px; padding-bottom: 10.116px; } /* высоту задаёт скрытая «Доп. инфа» (28.33px) */
+.cu-w__marker { flex: none; width: 3.372px; height: 17.702px; } /* маркер в макете пустой — только отступ */
+.cu-w__title { margin-right: auto; font-size: 13.488px; letter-spacing: -.1902px; color: #333; }
+
+/* Лучшие сотрудники */
+.cu-best { padding: 10.116px; display: flex; flex-direction: column; gap: 5.058px; }
+.cu-best__head { display: flex; align-items: baseline; gap: 10.116px; }
+.cu-best__head b { flex: 1 1 0; min-width: 0; font-size: 13.488px; letter-spacing: -.1902px; }
+.cu-best__note { margin-top: 5.058px; }
+.cu-best__podium { display: flex; align-items: flex-end; justify-content: center; }
+.cu-best__place { width: 66.595px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.cu-best__ava { position: relative; padding: 1.686px; border: .843px solid #e5e7eb; border-radius: 50%; margin-bottom: -11.802px; }
+.cu-best__ava img { margin: -.843px; }
+.cu-best__num { position: relative; padding: 1.686px 5.479px; border-radius: 12.645px; background: #fff; font-weight: 600; }
+.cu-best__name { margin-top: 5.058px; }
+.cu-best__place--first .cu-best__name { margin-top: 10.116px; }
+.cu-best__list { margin-top: 5.058px; display: flex; flex-direction: column; gap: 3.372px; }
+.cu-best__row { display: flex; align-items: center; justify-content: space-between; padding: 5.479px 10.116px; border-radius: 16.86px; background: #f8f7ff; white-space: nowrap; }
+.cu-best__pos { width: auto; }
+.cu-best__who { margin-right: auto; margin-left: 20.231px; display: flex; align-items: center; gap: 5.058px; }
+
+/* Задачи / сообщения / уведомления */
+.cu-feed { padding: 10.116px 5.058px 0; }
+.cu-feed__group { padding-bottom: 5.058px; }
+.cu-feed__group--last { padding-bottom: 0; }
+.cu-feed__title { display: flex; gap: 3.372px; padding: 4.215px 5.058px; font-size: 11.802px; line-height: 14px; letter-spacing: -.1664px; }
+.cu-feed__item { display: flex; gap: 5.058px; align-items: flex-start; padding: 5.058px; }
+.cu-feed__pic { position: relative; flex: none; width: 26.975px; height: 26.975px; }
+.cu-feed__pic > img:first-child { width: 100%; height: 100%; object-fit: cover; border-radius: 5.058px; }
+.cu-feed__dot { position: absolute; left: -1.69px; top: 21.92px; }
+.cu-feed__body { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; }
+.cu-feed__body--task { gap: 1.686px; }
+.cu-feed__body--call { gap: 3.372px; }
+.cu-feed__head { display: flex; align-items: flex-end; justify-content: space-between; gap: 13.488px; height: 14px; white-space: nowrap; }
+.cu-feed__from { min-width: 0; overflow: hidden; text-overflow: ellipsis; font-size: 11.802px; letter-spacing: -.1664px; color: #313e78; }
+.cu-feed__text--2 { margin: 1.9px 0; /* две строки по центру блока 30.347px, как в макете */ display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.cu-feed__text--line { height: 15.174px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cu-feed__foot { display: flex; align-items: center; justify-content: flex-end; gap: 5.058px; white-space: nowrap; }
+.cu-btn { height: 20.231px; display: flex; align-items: center; padding: 0 10.116px; border: .843px solid #cc3d00; border-radius: 10.116px; background: #fff; }
+
+/* Рейтинг */
+.cu-rating__list { display: flex; gap: 10.116px; padding: 0 11.802px 10.116px; }
+.cu-rating__person { display: flex; flex-direction: column; align-items: center; gap: 5.058px; width: 60.694px; text-align: center; color: #313e78; }
+.cu-rating__person img { width: 60.694px; height: 60.694px; object-fit: cover; border-radius: 5.058px; }
+
+/* События по сотрудникам */
+.cu-events__title { margin-right: auto; font-size: 15.174px; font-weight: 700; color: #333; white-space: nowrap; }
+.cu-events__title span { font-size: 13.488px; font-weight: 400; color: #999; }
+.cu-events__date { align-self: flex-end; }
+.cu-events__item { display: flex; gap: 5.058px; padding: 0 10.116px 10.116px; }
+.cu-events__photo { width: 80.926px; height: 80.926px; object-fit: cover; border-radius: 5.058px; }
+.cu-events__body { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; }
+.cu-events__info { align-self: stretch; display: flex; flex-direction: column; }
+.cu-events__name { font-size: 11.802px; letter-spacing: -.1664px; }
+.cu-events__act { display: flex; align-items: center; gap: 1.686px; }
 
 /* ---------- Середина: общая шапка страницы ---------- */
 .page { display: flex; flex-direction: column; height: 100%; padding-left: 8px; box-sizing: border-box; font-family: "Inter", sans-serif; color: #333; }
