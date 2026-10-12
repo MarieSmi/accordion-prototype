@@ -344,6 +344,21 @@
   acc.addEventListener('mouseleave', scheduleLeave);
 
   // ---------- Подменю ----------
+  // Виджет «Календарь» под пунктами подменю Календаря — во всех видах подменю и в сводной
+  function calendarWidgetHTML() {
+    // Figma 9eLwMJLQCwT0xHKviN2j1P 16104:266292: «Месяц» со стрелками, дни недели, 6 недель; соседние месяцы серые, сб и вс — акцентным
+    const now = new Date();
+    const month = new Date(now.getFullYear(), now.getMonth(), 1).toLocaleDateString('ru-RU', { month: 'long' });
+    const start = new Date(now.getFullYear(), now.getMonth(), 1 - (new Date(now.getFullYear(), now.getMonth(), 1).getDay() + 6) % 7);
+    const cells = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'].map((d) => `<span class="kind-cal__wd">${d}</span>`);
+    for (let i = 0; i < 42; i++) {
+      const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+      const cls = (d.getMonth() !== now.getMonth() ? ' is-other' : '') + (i % 7 > 4 ? ' is-weekend' : '')
+        + (d.toDateString() === now.toDateString() ? ' is-today' : '');
+      cells.push(`<span class="kind-cal__day${cls}">${d.getDate()}</span>`);
+    }
+    return `<div class="kind-cal"><div class="kind-cal__head"><span class="kind-cal__arr"></span><span class="kind-cal__month">${month[0].toUpperCase() + month.slice(1)}</span><span class="kind-cal__arr"></span></div><div class="kind-cal__grid">${cells.join('')}</div></div>`;
+  }
   function openSubmenu(id) {
     const sec = SECTIONS.find((s) => s.id === id);
     closeSubmenu();
@@ -388,6 +403,7 @@
       cols.append(c);
     });
     panel.append(cols);
+    if (sec.calendar) panel.insertAdjacentHTML('beforeend', calendarWidgetHTML());
     box.append(panel);
 
     // Плавающие кнопки: ✎ — у всех подменю; ✕ — только когда подменю открыто по клику (по наведению оно закрывается само).
@@ -440,20 +456,6 @@
     ['business', 'Многоколоночное'],
     ['calendar', 'С виджетом'],
   ];
-  function calendarWidgetHTML() {
-    // Figma 9eLwMJLQCwT0xHKviN2j1P 16104:266292: «Месяц» со стрелками, дни недели, 6 недель; соседние месяцы серые, сб и вс — акцентным
-    const now = new Date();
-    const month = new Date(now.getFullYear(), now.getMonth(), 1).toLocaleDateString('ru-RU', { month: 'long' });
-    const start = new Date(now.getFullYear(), now.getMonth(), 1 - (new Date(now.getFullYear(), now.getMonth(), 1).getDay() + 6) % 7);
-    const cells = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'].map((d) => `<span class="kind-cal__wd">${d}</span>`);
-    for (let i = 0; i < 42; i++) {
-      const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
-      const cls = (d.getMonth() !== now.getMonth() ? ' is-other' : '') + (i % 7 > 4 ? ' is-weekend' : '')
-        + (d.toDateString() === now.toDateString() ? ' is-today' : '');
-      cells.push(`<span class="kind-cal__day${cls}">${d.getDate()}</span>`);
-    }
-    return `<div class="kind-cal"><div class="kind-cal__head"><span class="kind-cal__arr"></span><span class="kind-cal__month">${month[0].toUpperCase() + month.slice(1)}</span><span class="kind-cal__arr"></span></div><div class="kind-cal__grid">${cells.join('')}</div></div>`;
-  }
   const kindsBox = $('#submenuKinds');
   for (const [id, label] of KINDS) {
     const sec = SECTIONS.find((s) => s.id === id);
@@ -467,7 +469,7 @@
       cols.append(c);
     }
     panel.append(cols);
-    if (id === 'calendar') panel.insertAdjacentHTML('beforeend', calendarWidgetHTML());
+    if (sec.calendar) panel.insertAdjacentHTML('beforeend', calendarWidgetHTML());
     box.append(panel);
     const kind = el('div', 'kind', `<div class="kind__label">${label}</div>`);
     kind.append(box);
