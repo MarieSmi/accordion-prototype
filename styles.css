@@ -112,7 +112,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 .viewport { position: fixed; inset: 0; overflow: hidden; } /* шапку демо, сцену и панель справа расставляет и масштабирует app.js */
 .stage {
   position: absolute; left: 0; top: 0; width: 1600px; height: 900px;
-  background: var(--ctor-bg); overflow: hidden; border-radius: 8px; /* скругление только у окна редактора, у контента углов нет */
+  background: var(--ctor-bg); overflow: hidden; border-radius: 8px; /* скругление окна конструктора; у области под шапкой — свои верхние углы (.content) */
   transform-origin: 0 0;
 }
 
@@ -350,7 +350,9 @@ ul { list-style: none; margin: 0; padding: 0; }
 .stage.is-resizing { transition: --mid .3s cubic-bezier(.4, 0, .2, 1), --center .3s cubic-bezier(.4, 0, .2, 1), --acc-gap .3s cubic-bezier(.4, 0, .2, 1), --mid-full .3s cubic-bezier(.4, 0, .2, 1); }
 .stage.is-resizing .accordion { overflow: hidden; } /* пока ширина меняется, пункты обрезаются по краю */
 .accordion { left: calc(9px + var(--align-shift)); z-index: 1; } /* поверх области контента */
-.content { position: absolute; left: 8px; top: 45px; width: 1539px; height: 855px; overflow: hidden; background: var(--content-bg); display: flex; }
+.content { position: absolute; left: 8px; top: 45px; width: 1539px; height: 855px; overflow: hidden; background: var(--content-bg); border-radius: 8px 8px 0 0; display: flex; }
+/* аккордеон лежит поверх левого верхнего угла области, пока он у края («Растянуть», «Слева»), — скругляем и его */
+.stage:not(.is-aligned.is-align-center) .accordion { border-top-left-radius: 8px; }
 /* «Растянуть»: под аккордеоном, как раньше, фон конструктора; «По центру» / «Слева» — по бокам фон страницы */
 .stage:not(.is-aligned) .content { background: linear-gradient(var(--acc-under), var(--acc-under)) 0 0 / var(--acc-gap) 100% no-repeat, var(--content-bg); }
 /* clip + запас: тени карточек и тулбар виджета вкладок (по левому краю виджета) выходят за край колонки, а не обрезаются */
@@ -1600,6 +1602,10 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
   content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
   background: var(--bg-tint, linear-gradient(transparent, transparent)), var(--bg-img) center / cover; background-blend-mode: soft-light, normal; opacity: var(--bg-op, 1); filter: var(--bg-filter, none);
 }
+/* забеление 70% под страницей и ЦУ (и под аккордеоном, пока он белый 70%) — как на сцене (.content::after) */
+.stage.is-bg-img .ipv::after { content: ""; position: absolute; left: 76.042px; top: 0; right: 0; bottom: 0; z-index: -1; pointer-events: none; background: rgba(255, 255, 255, .7); }
+.stage.is-bg-img.is-acc-veil .ipv::after { left: 0; }
+.stage.is-bg-img.is-acc-veil .ipv__acc { background: none; }
 .ipv i { display: block; }
 .ipv__acc { flex: none; width: 76.042px; height: 269.105px; background: var(--acc-bg); }
 .ipv__head { display: flex; align-items: center; gap: 3.576px; padding: 4.47px 0 2.682px 7.153px; }
@@ -1637,16 +1643,23 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .ipv__rp i { width: 11.241px; height: 10.58px; border-radius: 10px; background: rgba(51, 51, 51, .07); }
 .ipv__rp .ipv__shop { height: 23.804px; border-radius: 13px; background: #f6733c; }
 .ipv__rp .ipv__lav { border-radius: 13px; background: #eeebff; }
-.ipv__cu { flex: none; align-self: stretch; width: 92.573px; display: flex; flex-direction: column; gap: 2.863px; padding: 5.29px; overflow: hidden; background: #ecedee; }
+.ipv__cu { flex: none; align-self: stretch; width: 92.573px; display: flex; flex-direction: column; gap: 2.863px; padding: 5.29px; overflow: hidden; background: var(--cu-bg); } /* как на сцене: под ЦУ виден фон темы */
 .ipv__note { flex: none; display: flex; flex-direction: column; gap: 2.863px; padding: 4.294px; border-radius: 4.329px; background: #fff; }
 .ipv__note i { background: rgba(51, 51, 51, .07); }
 .ipv__cap { position: relative; width: 39.674px; height: 5.29px; border-radius: 54px; }
 .ipv__cap::before { content: ""; position: absolute; left: -4.294px; top: -.218px; width: 1.431px; height: 5.725px; border-radius: 0 1.431px 1.431px 0; background: rgba(51, 51, 51, .07); }
 .ipv__blk { height: 35.782px; border-radius: 6px; }
-.ipv__sqs { display: flex; gap: 2.863px; }
+.ipv__sqs { display: flex; gap: 2.863px; overflow: hidden; } /* три квадрата шире карточки — третий обрезается по её краю, как в макете */
 .ipv__sqs i { flex: none; width: 26.449px; height: 26.449px; border-radius: 6px; }
 .ipv__note--news { height: 44.303px; flex-direction: row; }
 .ipv__pic { flex: none; width: 35.782px; border-radius: 6px; }
 .ipv__note--news > span { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2.147px; }
 .ipv__note--news span i { height: 3.967px; border-radius: 54px; }
 .ipv__note--news .ipv__end { margin-top: auto; }
+
+/* Сценарий «Аккаунт» (Figma xMQ3ZEN4AUINgwjVoxR8hS 18637:73187): экран — картинка, поверх живая середина (копия середины админки) */
+.ins-main--acc { position: absolute; left: 199px; top: 45px; width: 1090px; height: 797px; align-items: center; gap: 100px; padding: 60px 37px; }
+.ins-main--acc > * { width: 100%; }
+.ins-main--acc .ins-top { padding-right: 0; }
+/* превью 620×350 — то же превью в масштабе 1.4 (аккордеон 106, ЦУ 130 — как в макете); поля задают место под увеличенное */
+.ins-main--acc .ipv { width: 442.857px; border-radius: 7.196px; transform: scale(1.4); transform-origin: 0 0; margin: 0 177.143px 100px 0; }

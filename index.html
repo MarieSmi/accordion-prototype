@@ -875,6 +875,21 @@
         </div>
       </div>
 
+      <!-- Переход на другую страницу приложения при несохранённых правках — оформление как у «Сохранить изменения?» выше -->
+      <div class="confirm-layer" id="navConfirm" hidden>
+        <div class="confirm" role="dialog" aria-modal="true" aria-labelledby="navConfirmMsg">
+          <div class="confirm__head"><span class="confirm__marker"></span></div>
+          <div class="confirm__content">
+            <p class="confirm__message" id="navConfirmMsg">Сохранить изменения текущей страницы?</p>
+          </div>
+          <div class="confirm__footer">
+            <button class="confirm__btn confirm__btn--primary" type="button" data-answer="yes">Да</button>
+            <button class="confirm__btn" type="button" data-answer="no">Нет</button>
+            <button class="confirm__btn" type="button" data-answer="cancel">Отмена</button>
+          </div>
+        </div>
+      </div>
+
       <!-- Меню «Иконка» (загрузка логотипа) -->
       <div class="icon-menu" id="iconMenu" hidden>
         <div class="icon-menu__head">
@@ -923,7 +938,7 @@
                   <!-- Превью 470×250 (Figma 18659:78067): аккордеон, страница, ЦУ -->
                   <div class="ipv">
                     <div class="ipv__acc">
-                      <div class="ipv__head"><span class="ipv__bird" id="insidePvBird"></span><span class="ipv__logo" id="insidePvLogo"></span></div>
+                      <div class="ipv__head"><span class="ipv__bird"></span><span class="ipv__logo"></span></div>
                       <div class="ipv__item"><i></i><b></b></div>
                       <div class="ipv__item is-sel"><i></i><b></b></div>
                       <div class="ipv__item"><i></i><b></b></div>
@@ -956,7 +971,7 @@
                       <p class="ins-intro__title">Настройте интерфейс Saby</p>
                       <p class="ins-intro__sub">Выберите готовую тему или настройте внешний вид и расположение элементов интерфейса под свои задачи.</p>
                     </div>
-                    <button class="ins-setup" type="button" id="insideSetup">Настроить<span class="ico">&#xE9AB;</span></button>
+                    <button class="ins-setup" type="button">Настроить<span class="ico">&#xE9AB;</span></button>
                   </div>
                 </div>
                 <div class="ins-info">
@@ -979,6 +994,15 @@
           </div>
         </div>
       </section>
+
+      <!-- Сценарий «Аккаунт» (Figma xMQ3ZEN4AUINgwjVoxR8hS 18637:73187): экран 1600×843 — картинка, середина (превью 620×350,
+           текст, «Настроить», карточки) живая — копия середины админки (app.js) -->
+      <section class="ins" id="account" hidden aria-label="Аккаунт">
+        <div class="ins__screen">
+          <img class="ins__bg ins__bg--acc" src="assets/img/account/bg.png" width="1600" height="843" alt="">
+          <div class="ins-main ins-main--acc"></div>
+        </div>
+      </section>
     </div>
   </div>
   <!-- Вспомогательная панель справа от демо (Figma xMQ3ZEN4AUINgwjVoxR8hS 18715:93398): устройство, сценарии, ссылки -->
@@ -996,14 +1020,17 @@
         <div class="sys-options">
           <button class="sys-radio is-on" type="button" role="radio" aria-checked="true" data-scenario="demo"><span class="sys-radio__box"></span><span class="sys-radio__text">Общее демо</span></button>
         </div>
-        <div class="sys-group">Точка захода в редактор</div>
-        <div class="sys-options">
-          <button class="sys-radio" type="button" role="radio" aria-checked="false" data-scenario="editor-inside"><span class="sys-radio__box"></span><span class="sys-radio__text">Админка (Inside)</span></button>
-          <button class="sys-radio" type="button" role="radio" aria-checked="false" disabled data-scenario="editor-account"><span class="sys-radio__box"></span><span class="sys-radio__text">Аккаунт</span></button>
-          <button class="sys-radio" type="button" role="radio" aria-checked="false" disabled data-scenario="editor-user"><span class="sys-radio__box"></span><span class="sys-radio__text">Пользователь</span></button>
-          <div class="sys-sub">
-            <button class="sys-radio" type="button" role="radio" aria-checked="false" disabled data-scenario="editor-user" data-variant="main"><span class="sys-radio__box"></span><span class="sys-radio__text">С главной</span></button>
-            <button class="sys-radio" type="button" role="radio" aria-checked="false" disabled data-scenario="editor-user" data-variant="settings"><span class="sys-radio__box"></span><span class="sys-radio__text">Из настроек</span></button>
+        <!-- «Точка захода в редактор» пока скрыта (сценарии и экраны готовы) — вернуть: убрать hidden -->
+        <div hidden>
+          <div class="sys-group">Точка захода в редактор</div>
+          <div class="sys-options">
+            <button class="sys-radio" type="button" role="radio" aria-checked="false" data-scenario="editor-inside"><span class="sys-radio__box"></span><span class="sys-radio__text">Админка (Inside)</span></button>
+            <button class="sys-radio" type="button" role="radio" aria-checked="false" data-scenario="editor-account"><span class="sys-radio__box"></span><span class="sys-radio__text">Аккаунт</span></button>
+            <button class="sys-radio" type="button" role="radio" aria-checked="false" disabled data-scenario="editor-user"><span class="sys-radio__box"></span><span class="sys-radio__text">Пользователь</span></button>
+            <div class="sys-sub">
+              <button class="sys-radio" type="button" role="radio" aria-checked="false" disabled data-scenario="editor-user" data-variant="main"><span class="sys-radio__box"></span><span class="sys-radio__text">С главной</span></button>
+              <button class="sys-radio" type="button" role="radio" aria-checked="false" disabled data-scenario="editor-user" data-variant="settings"><span class="sys-radio__box"></span><span class="sys-radio__text">Из настроек</span></button>
+            </div>
           </div>
         </div>
         <div class="sys-group">Добавление вкладки</div>

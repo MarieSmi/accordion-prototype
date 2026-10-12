@@ -156,7 +156,7 @@
     selectTabs(false);
     resetTabs(radio.dataset.scenario.startsWith('tab-'));
     resetHistory(); // смена сценария — не правка: история начинается заново
-    setInside(scenario === 'editor-inside');
+    setInside(scenario);
   });
   function fitStage() {
     const css = getComputedStyle(document.documentElement);
@@ -469,7 +469,39 @@
   // Строки-заглушки реестра в скелетоне
   $('#skList').innerHTML = '<div class="sk-row"><div class="sk-row__pic"></div><div class="sk-row__body"><div class="sk-row__lines"></div><div class="sk-row__tag"></div></div></div>'.repeat(SKELETON_ROWS);
 
+  // Переход на другую страницу при несохранённых правках (история не на исходном снимке) — сначала «Сохранить изменения
+  // текущей страницы?»: «Да» — правки остаются, «Нет» — откатываются, в обоих случаях переход; «Отмена» — остаться.
+  const navConfirm = $('#navConfirm');
+  let navPending = null;
   function navigate(section, item) {
+    const same = state.page.section === section && state.page.item === item;
+    if (!same && pageDirty()) {
+      navPending = { section, item };
+      closeSubmenu();
+      setPanelOpen(false);
+      navConfirm.hidden = false;
+      return;
+    }
+    goPage(section, item);
+  }
+  navConfirm.addEventListener('click', (e) => {
+    const answer = e.target.closest('[data-answer]')?.dataset.answer;
+    if (!answer) return;
+    navConfirm.hidden = true;
+    const to = navPending;
+    navPending = null;
+    if (answer === 'cancel' || !to) return;
+    if (answer === 'no') restore(hist[0]);
+    resetHistory(); // сохранено или откачено — новая страница начинает с чистой истории
+    goPage(to.section, to.item);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape' || navConfirm.hidden) return;
+    e.stopImmediatePropagation(); // Esc — как «Отмена»
+    navConfirm.hidden = true;
+    navPending = null;
+  }, true);
+  function goPage(section, item) {
     state.page = { section, item };
     if (section) leaveTabs();
     updatePage();
@@ -2264,6 +2296,11 @@
     undoBtn.disabled = histAt === 0;
     redoBtn.disabled = histAt === hist.length - 1;
   }
+  // Есть несохранённые правки: снимок отличается от начала истории (недописанный ввод — сначала записать).
+  function pageDirty() {
+    record();
+    return snapshot() !== hist[0];
+  }
   function resetHistory() {
     hist = [snapshot()];
     histAt = 0;
@@ -2335,27 +2372,33 @@
   document.addEventListener('keyup', (e) => { if (e.key === 'Enter' || e.key === 'Escape' || e.key === 'Delete') later(); }, true);
   document.addEventListener('input', () => { clearTimeout(inputTimer); inputTimer = setTimeout(record, INPUT_PAUSE); }, true);
 
-  // ---------- Сценарий «Админка (Inside)» (Figma xMQ3ZEN4AUINgwjVoxR8hS 18428:12935) ----------
-  // Экран админки поверх конструктора. Превью красится токенами темы со сцены; логотип и надпись — как в аккордеоне.
+  // ---------- Точка захода в редактор: «Админка (Inside)» и «Аккаунт» ----------
+  // Экран приложения (Figma xMQ3ZEN4AUINgwjVoxR8hS: админка 18428:12935, аккаунт 18637:73187) поверх конструктора.
+  // Середина экрана одна на оба: превью красится токенами темы со сцены; логотип и надпись — как в аккордеоне.
   // «Настроить» открывает конструктор (редактор), ✓ шапки — сохранить и вернуться, ✕ — вернуться; если были правки,
   // сначала «Сохранить изменения?»: «Да» — как ✓, «Нет» — откатить правки этого захода, «Отмена» — остаться в редакторе.
-  const inside = $('#inside');
-  let insideSnap = null; // снимок при входе в редактор из админки; null — редактор открыт не из админки
-  let insideAsk = false; // подтверждение открыто ✕ шапки в сценарии «Админка»
+  const ENTRIES = { 'editor-inside': $('#inside'), 'editor-account': $('#account') };
+  // середина аккаунта — копия середины админки
+  $('#account .ins-main').append(...[...$('#inside .ins-main').children].map((n) => n.cloneNode(true)));
+  let entry = null;      // экран текущего сценария захода в редактор; null — другой сценарий
+  let insideSnap = null; // снимок при входе в редактор с экрана; null — редактор открыт не с экрана
+  let insideAsk = false; // подтверждение открыто ✕ шапки в сценарии захода
 
   function showInside() {
     closeOtherWindows();
     closeSubmenu();
-    $('#insidePvBird').innerHTML = logoHTML();
-    $('#insidePvLogo').innerHTML = $('#goHome').innerHTML;
+    for (const b of entry.querySelectorAll('.ipv__bird')) b.innerHTML = logoHTML();
+    for (const l of entry.querySelectorAll('.ipv__logo')) l.innerHTML = $('#goHome').innerHTML;
     insideSnap = null;
-    inside.hidden = false;
+    entry.hidden = false;
   }
-  function setInside(on) {
+  function setInside(scenario) {
     insideAsk = false;
     smeConfirm.hidden = true;
-    if (on) showInside();
-    else { inside.hidden = true; insideSnap = null; }
+    for (const sec of Object.values(ENTRIES)) sec.hidden = true;
+    insideSnap = null;
+    entry = ENTRIES[scenario] ?? null;
+    if (entry) showInside();
   }
   function answerInsideConfirm(answer) {
     smeConfirm.hidden = true;
@@ -2366,11 +2409,13 @@
     showInside();
   }
 
-  $('#insideSetup').addEventListener('click', () => {
-    inside.hidden = true;
-    resetHistory(); // отмена в редакторе — только в пределах этого захода
-    insideSnap = snapshot();
-  });
+  for (const sec of Object.values(ENTRIES)) {
+    sec.querySelector('.ins-setup').addEventListener('click', () => {
+      sec.hidden = true;
+      resetHistory(); // отмена в редакторе — только в пределах этого захода
+      insideSnap = snapshot();
+    });
+  }
   $('.ctor-header .done-btn').addEventListener('click', () => {
     if (insideSnap === null) return;
     record();
