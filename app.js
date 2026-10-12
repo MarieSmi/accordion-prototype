@@ -349,7 +349,7 @@
   // Элемент справа у пункта и заголовка подменю: счётчик, двойной счётчик, стрелка или плюс (без кликов)
   function rightHTML(r) {
     if (!r) return '';
-    if (r === 'arrow') return '<span class="sm-right sm-right--arrow"><img src="assets/img/arrow-cut-forward.svg" width="8" height="16" alt=""></span>';
+    if (r === 'arrow') return '<span class="sm-right sm-right--arrow"><span class="ico">&#xE9AB;</span></span>';
     if (r === 'plus') return '<span class="sm-right sm-right--plus"><span class="ico">&#xEB25;</span></span>';
     return `<span class="sm-right">${r.accent ? `<span class="sm-count sm-count--accent">${r.accent}</span>` : ''}<span class="sm-count">${r.count}</span></span>`;
   }
