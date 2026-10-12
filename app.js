@@ -159,6 +159,7 @@
     resetTabs(radio.dataset.scenario.startsWith('tab-'));
     resetHistory(); // смена сценария — не правка: история начинается заново
     setInside(scenario);
+    setEditorOnly(scenario === 'submenu-editor');
   });
   function fitStage() {
     const css = getComputedStyle(document.documentElement);
@@ -1025,6 +1026,18 @@
     editor.hidden = true;
     shield.hidden = true;
     ed = null;
+    if (stage.dataset.scenario === 'submenu-editor') openEditorOnly();
+  }
+
+  // Сценарий «Редактор подменю»: на сцене только редактор «Бизнеса» по центру; после ✓/✕ он открывается снова.
+  function openEditorOnly() {
+    openEditor('business');
+    editor.style.left = Math.round((1600 - editor.offsetWidth) / 2) + 'px';
+    editor.style.top = Math.round((900 - editor.offsetHeight) / 2) + 'px';
+  }
+  function setEditorOnly(on) {
+    if (on) openEditorOnly();
+    else if (ed) closeEditor();
   }
 
   // Плавающий тулбар выделенного виджета (Figma rHabzni5OI5D4fxBLQdj2m 131:17364, состав 854:7145): ‹, ⚙, удалить, ⋯.

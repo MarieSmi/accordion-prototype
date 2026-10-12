@@ -1007,6 +1007,8 @@
       <section class="kinds" id="submenuKinds" aria-label="Виды подменю"></section>
       <!-- Сценарий «Виды пунктов»: сводная отличающихся пунктов подменю (заголовки, 1-й и 2-й уровень) в их состояниях; наполняет app.js -->
       <section class="kinds kinds--items" id="itemKinds" aria-label="Виды пунктов"></section>
+      <!-- Сценарий «Редактор подменю»: только редактор подменю «Бизнес» на фоне конструктора; после ✓/✕ открывается заново -->
+      <div class="kinds" id="editorOnly"></div>
     </div>
   </div>
   <!-- Вспомогательная панель справа от демо (Figma xMQ3ZEN4AUINgwjVoxR8hS 18715:93398): устройство, сценарии, ссылки -->
@@ -1057,6 +1059,7 @@
       <div class="sys-options">
         <button class="sys-radio" type="button" role="radio" aria-checked="false" data-scenario="submenu-kinds"><span class="sys-radio__box"></span><span class="sys-radio__text">Виды подменю</span></button>
         <button class="sys-radio" type="button" role="radio" aria-checked="false" data-scenario="submenu-items"><span class="sys-radio__box"></span><span class="sys-radio__text">Виды пунктов</span></button>
+        <button class="sys-radio" type="button" role="radio" aria-checked="false" data-scenario="submenu-editor"><span class="sys-radio__box"></span><span class="sys-radio__text">Редактор подменю</span></button>
       </div>
     </div>
     <div class="sys-card">
