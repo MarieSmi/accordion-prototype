@@ -30,7 +30,7 @@
 
         <div class="ctor-header__center">
           <div class="ctor-header__colors">
-            <!-- «Тема» открывает панель тем; кружки (цвет аккордеона, акцент 1, акцент 2) рисует app.js по выбранной теме -->
+            <!-- «Тема» открывает панель тем; кружки (цвет аккордеона, «Акцентный», «Акцентный 2») рисует app.js по выбранной теме -->
             <div class="pill-group theme-btn">
               <button class="theme-btn__label" type="button" id="themeBtn">Тема</button>
               <span class="swatches" id="themeSwatches"></span>
@@ -54,8 +54,8 @@
               <button class="tb-btn" type="button"><span class="ico">&#xEAB4;</span></button>
             </div>
             <div class="pill-group pill-group--r12">
-              <button class="tb-btn" type="button"><span class="ico">&#xE6CF;</span></button>
-              <button class="tb-btn" type="button"><span class="ico">&#xE6CA;</span></button>
+              <button class="tb-btn" type="button" id="undoBtn" aria-label="Отменить" disabled><span class="ico">&#xE6CF;</span></button>
+              <button class="tb-btn" type="button" id="redoBtn" aria-label="Повторить" disabled><span class="ico">&#xE6CA;</span></button>
               <button class="tb-btn" type="button"><span class="ico">&#xE629;</span></button>
               <button class="tb-btn tb-btn--zoom" type="button">100%</button>
             </div>
@@ -65,7 +65,7 @@
         <div class="ctor-header__right">
           <!-- Сценарий «Из шапки конструктора»: ссылка «+вкладка» слева от языка через 12px, остаётся и после добавления вкладки -->
           <button class="pg-link ctor-add-tab" type="button" id="ctorAddTab"><span class="ico">&#xEB25;</span><span class="pg-link__text">вкладка</span></button>
-          <button class="pill-group lang-btn" type="button">Язык RU</button>
+          <button class="pill-group lang-btn" type="button" id="langBtn">Язык RU</button>
           <button class="done-btn" type="button" aria-label="Сохранить"><span class="ico ico--20">&#xE75E;</span></button>
           <button class="close-btn" type="button" aria-label="Закрыть"><img src="assets/img/close-header.svg" width="28" height="28" alt=""></button>
         </div>
@@ -590,6 +590,11 @@
       </section>
 
       <!-- Выпадающий список «Состояние панели» -->
+      <!-- Меню «Язык» (Figma 16065:176561): только ховеры, выбор не меняет язык; строка выбранного языка — на высоте кнопки, ✕ меню — поверх ✕ шапки -->
+      <div class="mw-menu lang-menu" id="langMenu" hidden>
+        <div class="mw-menu__list" id="langMenuList"></div>
+        <button class="mw-menu__close" type="button" id="langMenuClose" aria-label="Закрыть"><img src="assets/img/close-menu.svg" width="12" height="12" alt=""></button>
+      </div>
       <div class="mw-menu" id="mwMenu" hidden>
         <div class="mw-menu__list" id="mwMenuList"></div>
         <button class="mw-menu__close" type="button" id="mwMenuClose" aria-label="Закрыть"><img src="assets/img/close-menu.svg" width="12" height="12" alt=""></button>
@@ -841,12 +846,12 @@
           <div class="cw-card bg-cat" id="bgCat"></div>
         </div>
         <div class="cw-body bg-pic">
-          <div class="cw-card bg-pic__card">
+          <div class="cw-card bg-pic__card bg-pic__info">
             <div class="bg-pic__pv" id="bgPicPv">
               <span class="bg-tool"><span class="ico">&#xE660;</span></span><span class="bg-tool"><span class="ico">&#xE95F;</span></span>
             </div>
-            <div class="bg-row"><span class="bg-row__label">Отображение</span><span class="bg-link">Кадрировать</span><span class="bg-link-ico ico">&#xE660;</span></div>
-            <div class="bg-row"><span class="bg-row__label">Стиль</span><span class="bg-link">Оригинал картинки</span></div>
+            <div class="bg-row"><span class="bg-row__label">Отображение</span><span class="bg-row__val"><span class="bg-link">Кадрировать</span><span class="bg-link-ico ico">&#xE660;</span></span></div>
+            <div class="bg-row"><span class="bg-row__label">Стиль</span><span class="bg-row__val"><span class="bg-link">Оригинал картинки</span></span></div>
           </div>
           <div class="cw-card bg-pic__card bg-fx" id="bgFx"></div>
         </div>

@@ -155,6 +155,7 @@
     closeTabsWin();
     selectTabs(false);
     resetTabs(radio.dataset.scenario.startsWith('tab-'));
+    resetHistory(); // смена сценария — не правка: история начинается заново
   });
   function fitStage() {
     const css = getComputedStyle(document.documentElement);
@@ -495,6 +496,17 @@
   const windows = {}; // имя → { win, btn, onOpen, onClose }
   let openWin = null;
 
+  // Одновременно открыто одно окно на сцене: «Меню», «Логотип», окна правой панели, «Тема», выбор цвета, «Фон», «Вкладки».
+  // Каждое окно перед открытием закрывает остальные (своё закрывать не нужно — его закрывающая функция ничего не сломает).
+  function closeOtherWindows() {
+    setWindow(null);
+    closeRp();
+    closeThemePanel();
+    closeColorWin();
+    closeBgWin();
+    if (tw) closeTabsWin();
+  }
+
   function registerWindow(name, { win, btn, onOpen = () => {}, onClose = () => {} }) {
     windows[name] = { win, btn, onOpen, onClose };
     btn.addEventListener('click', () => setWindow(openWin === name && !openFrom ? null : name));
@@ -508,7 +520,7 @@
   // встаёт углом на угол шапки аккордеона (отступы 12 и 7 от птички), кнопка в шапке не подсвечена.
   let openFrom = null;
   function setWindow(name, from = null) {
-    if (name) { closeRp(); closeThemePanel(); closeColorWin(); }
+    if (name) closeOtherWindows();
     if (openWin) {
       const w = windows[openWin];
       w.win.hidden = true;
@@ -620,6 +632,34 @@
     closeDropdown();
   });
 
+  // ---------- Меню «Язык» (Figma 16065:176561) ----------
+  // Кнопка «Язык RU» в шапке открывает меню языков. Пока только ховеры: клик по языку и «•••» ничего не делают.
+  // Строка выбранного языка встаёт на высоту кнопки, ✕ меню — ровно поверх ✕ шапки конструктора (как на макете экрана).
+  const LANGS = [['RU', 'Русский'], ['EN', 'English'], ['KK', 'Қазақша'], ['FR', 'Français'], ['UZ', 'Oʻzbek'], ['AR', 'اللغة العربية'], ['HE', 'עִברִי']];
+  const langBtn = $('#langBtn');
+  const langMenu = $('#langMenu');
+  $('#langMenuList').innerHTML = LANGS.map(([code, name], i) =>
+    `<div class="mw-menu__item${i === 0 ? ' is-on' : ''}"><span class="mw-menu__dot"></span><span class="lang-menu__code">${code}</span><span class="mw-menu__text">${name}</span></div>`).join('') +
+    '<div class="lang-menu__more"><img src="assets/img/lang-more.svg" width="32" height="10" alt="Ещё"></div>';
+
+  function openLangMenu() {
+    langMenu.hidden = false;
+    langBtn.classList.add('is-active');
+    const btn = stageRect(langBtn);
+    const close = stageRect($('.ctor-header .close-btn'));
+    // правый край меню — по центру ✕ шапки (✕ меню: right −14, 28px); 8 — верхний отступ списка, 16 — половина строки
+    langMenu.style.left = Math.round(close.left + close.width / 2 - langMenu.offsetWidth) + 'px';
+    langMenu.style.top = Math.round(btn.top + btn.height / 2 - 8 - 16) + 'px';
+  }
+  function closeLangMenu() { langMenu.hidden = true; langBtn.classList.remove('is-active'); }
+
+  langBtn.addEventListener('click', () => (langMenu.hidden ? openLangMenu() : closeLangMenu()));
+  $('#langMenuClose').addEventListener('click', closeLangMenu);
+  stage.addEventListener('mousedown', (e) => {
+    if (!langMenu.hidden && !e.target.closest('#langMenu, #langBtn')) closeLangMenu();
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !langMenu.hidden) closeLangMenu(); });
+
   // ---------- Окно «Логотип» ----------
   // Логотип — иконка вместо птички в шапке аккордеона. «Загрузка» подставляет случайную иконку из набора.
   const LOGOS = ['leaf', 'sun', 'drop', 'hex', 'star'].map((n) => `assets/img/logos/${n}.svg`);
@@ -678,7 +718,7 @@
     const win = $('#rp-' + name);
     closeRp();
     if (!win) return;
-    setWindow(null);
+    closeOtherWindows();
     closeSubmenu();
     rpOpen = name;
     const btn = rpBtn(name);
@@ -828,8 +868,7 @@
   function openEditor(id) {
     const sec = SECTIONS.find((s) => s.id === id);
     closeSubmenu();
-    setWindow(null);
-    closeRp();
+    closeOtherWindows();
     cancelLeave();
     setPanelOpen(false);
     const draft = {
@@ -1288,7 +1327,7 @@
 
   function openTabsWin(screen) {
     if (!tw) {
-      setWindow(null);
+      closeOtherWindows();
       tw = { start: tabsSnapshot() };
       tabsWin.hidden = false;
       const r = stageRect(tabsW);
@@ -1788,9 +1827,9 @@
       '</span>';
   }
 
-  // Кружки темы: цвет аккордеона (прозрачный — шахматка), акцент 1, акцент 2.
-  const swatchList = (t) => [t.acc, t.marker, t.accent2];
-  const COLOR_KEYS = ['acc', 'marker', 'accent2'];
+  // Кружки темы: цвет аккордеона (прозрачный — шахматка), «Акцентный» (рыжий, accent2), «Акцентный 2» (синий, marker).
+  const swatchList = (t) => [t.acc, t.accent2, t.marker];
+  const COLOR_KEYS = ['acc', 'accent2', 'marker'];
   // Кружок в шапке: «нет цвета» — перечёркнутый, полупрозрачный — шахматка; клик открывает окно выбора цвета.
   const headSwatch = (c, key) => {
     const alpha = c && /^rgba/.test(c);
@@ -1804,7 +1843,7 @@
   const tpUserGrid = $('#tpUserGrid');
   const tileHTML = (id, t, e = effColors(t, {})) =>
     `<button class="tp-tile" type="button" data-theme="${id}"><span class="tp-tile__wrap">` +
-    `<span class="tp-tile__sw">${[e.acc, e.marker, e.accent2].map((c) => (c ? `<i${/^rgba/.test(c) ? ' class="is-alpha"' : ''} style="--c:${c}"></i>` : '<i class="is-none"></i>')).join('')}</span>` +
+    `<span class="tp-tile__sw">${[e.acc, e.accent2, e.marker].map((c) => (c ? `<i${/^rgba/.test(c) ? ' class="is-alpha"' : ''} style="--c:${c}"></i>` : '<i class="is-none"></i>')).join('')}</span>` +
     `<span class="tp-tile__pv">${pvHTML(t, e)}</span>` +
     '<span class="tp-tile__check"><span class="ico24">&#xE616;</span></span></span></button>';
   tpGrid.innerHTML = THEMES.map((t) => tileHTML(t.id, t)).join('');
@@ -1849,17 +1888,14 @@
     const e = effColors(t);
     for (const p of THEME_PROPS) stage.style.removeProperty(p);
     for (const [p, v] of Object.entries(themeVars(t, e))) stage.style.setProperty(p, v);
-    $('#themeSwatches').innerHTML = [e.acc, e.marker, e.accent2].map((c, i) => headSwatch(c, COLOR_KEYS[i])).join('');
+    $('#themeSwatches').innerHTML = [e.acc, e.accent2, e.marker].map((c, i) => headSwatch(c, COLOR_KEYS[i])).join('');
     paintBg(t);
     // по наведению — кнопка «Настроить» (Figma 16360:50515); клик — расширенные настройки
     $('#tpBig').innerHTML = pvHTML(t, e) + '<span class="tp-setup"><span class="ico24">&#xE660;</span>Настроить</span>';
   }
 
   function openThemePanel() {
-    setWindow(null);
-    closeColorWin();
-    closeBgWin();
-    closeRp();
+    closeOtherWindows();
     themePanel.hidden = false;
     themeBtn.classList.add('is-active');
   }
@@ -1901,7 +1937,7 @@
   // Окно выбора цвета (Figma 19278:31867, ховер 16369:59560, поле цвета 16385:66609): открывается по клику на кружок темы в шапке.
   // Цвет применяется к странице сразу и делает тему пользовательской; ✓ и ✕ закрывают окно и оставляют выбранное,
   // ↺ возвращает всё как было при открытии окна (тему, пользовательскую тему и цвет).
-  const CW_TITLES = { acc: 'Меню навигации', marker: 'Акцентный', accent2: 'Акцентный 2' };
+  const CW_TITLES = { acc: 'Меню навигации', accent2: 'Акцентный', marker: 'Акцентный 2' };
   const CW_ACC = [null, '#f0f0f0', '#f6eaf0', '#e9e9e9', '#d8e1e2', '#2c3e50', '#502c2c', '#402c50', '#323232', '#050620'];
   const CW_ACCENT = ['#943253', '#f16767', '#f6733c', '#e5cb45', '#009918', '#0c94ff', '#326194', '#4c3294', '#943288', '#999999',
     '#ffe3ec', '#ffe5e3', '#fff1e3', '#fffbe3', '#e3ffe8', '#e3faff', '#e3f1ff', '#eae3ff', '#ffe3fa', '#ededed'];
@@ -1938,10 +1974,7 @@
     cwReset.disabled = JSON.stringify(c) === JSON.stringify(cwOrig);
   }
   function openColorWin(key) {
-    setWindow(null);
-    closeRp();
-    closeThemePanel();
-    closeBgWin();
+    closeOtherWindows();
     closePopups();
     cwKey = key;
     $('#cwTitle').textContent = CW_TITLES[key];
@@ -1949,9 +1982,10 @@
       `<button class="cw-sw${h ? '' : ' is-none'}" type="button" data-hex="${h ?? ''}"${h ? ` style="--c:${h}"` : ''} aria-label="${h ?? 'Без цвета'}"></button>`).join('');
     cwOrig = cwCurrent();
     cwSnap = JSON.stringify({ themeId, userTheme });
-    const first = stageRect($('#themeSwatches .swatch'));
+    // окно — над своим кружком: левый край на 23px левее нажатого кружка
+    const sw = stageRect($(`#themeSwatches .swatch[data-key="${key}"]`));
     colorWin.hidden = false;
-    colorWin.style.left = Math.round(first.left - 23) + 'px';
+    colorWin.style.left = Math.round(Math.min(sw.left - 23, 1600 - colorWin.offsetWidth)) + 'px';
     colorWin.style.top = '0';
     cwRender(true);
   }
@@ -1963,7 +1997,10 @@
   });
   $('#cwPresets').addEventListener('click', (e) => {
     const sw = e.target.closest('.cw-sw');
-    if (sw) cwSet(sw.dataset.hex ? { hex: sw.dataset.hex, a: 100 } : { hex: null, a: 0 });
+    if (!sw) return;
+    // выбор цвета из палитры применяет его и сразу закрывает окно
+    cwSet(sw.dataset.hex ? { hex: sw.dataset.hex, a: 100 } : { hex: null, a: 0 });
+    closeColorWin();
   });
   cwHex.addEventListener('input', () => {
     const v = '#' + cwHex.value.trim().replace(/^#/, '');
@@ -2112,16 +2149,14 @@
   }
 
   function openBgWin() {
-    setWindow(null);
-    closeRp();
-    closeThemePanel();
-    closeColorWin();
+    closeOtherWindows();
     closePopups();
     closePic();
     bgRender(true);
-    const r = stageRect($('#bgSwatch'));
+    // окно встаёт левым краем по левому краю кнопки «Фон», верх — по верху шапки
+    const r = stageRect(bgBtn);
     bgWin.hidden = false;
-    bgWin.style.left = Math.round(r.left - 23) + 'px';
+    bgWin.style.left = Math.round(r.left) + 'px';
     bgWin.style.top = '0';
     bgBtn.classList.add('is-active');
   }
@@ -2137,15 +2172,17 @@
   $('#bgPresets').addEventListener('click', (e) => {
     const sw = e.target.closest('.cw-sw');
     if (!sw) return;
+    // заготовленный цвет или градиент применяется и сразу закрывает окно; картинка — нет (у неё есть настройки)
     setBg(sw.dataset.grad ? { kind: 'grad', c: sw.dataset.grad } : { kind: 'color', hex: sw.dataset.hex, a: 100 });
+    closeBgWin();
   });
-  // клик по картинке — применить и открыть «Картинку» (настройки сбрасываются для новой картинки)
+  // клик по картинке — поставить её фоном (настройки сбрасываются для новой картинки); карандаш на картинке — ещё и открыть «Картинку»
   $('#bgCat').addEventListener('click', (e) => {
     const tile = e.target.closest('.bg-tile');
     if (!tile) return;
     const i = +tile.dataset.img;
     if (!(custom.bg?.kind === 'img' && custom.bg.i === i)) setBg({ kind: 'img', i, fx: { ...FX_DEFAULT } });
-    openPic();
+    if (e.target.closest('.bg-tool')) openPic();
   });
   bgHex.addEventListener('input', () => {
     const v = '#' + bgHex.value.trim().replace(/^#/, '');
@@ -2188,7 +2225,101 @@
   });
   $('#bgFx').addEventListener('focusout', () => { if (custom.bg?.kind === 'img') fxRender(); });
 
+  // ---------- Отмена / повтор в шапке конструктора ----------
+  // История — снимки всего, что пользователь меняет на странице: вид аккордеона, логотип, позиционирование, «Информеры»,
+  // тема и свои цвета / фон, вкладки, разделы (после ✓ редактора подменю). Шаг записывается после действия пользователя
+  // (клик, отпускание ползунка, Enter / Esc, уход фокуса); ввод в поля — одним шагом после паузы.
+  // Новый шаг отбрасывает шаги «вперёд». Пока открыт редактор подменю, шапка под его подложкой — у него своя история.
+  const undoBtn = $('#undoBtn'), redoBtn = $('#redoBtn');
+  const INPUT_PAUSE = 500;
+  let hist = [], histAt = 0, inputTimer = null;
+
+  // Только изменения: свёрнут ли аккордеон, какая вкладка активна, что выделено и какие окна открыты — не пишется.
+  const snapshot = () => JSON.stringify({
+    submenuTrigger: settings.submenuTrigger,
+    logo, align: state.align, informers: state.informers, themeId, userTheme,
+    tabs, tabsAdded: stage.classList.contains('tabs-added'),
+    sections: SECTIONS.map((s) => ({ title: s.title, short: s.short, customIcon: s.customIcon ?? null,
+      head: s.submenu.head ?? null, noHead: !!s.submenu.noHead, cols: s.submenu.cols })),
+  });
+
+  function renderHistory() {
+    undoBtn.disabled = histAt === 0;
+    redoBtn.disabled = histAt === hist.length - 1;
+  }
+  function resetHistory() {
+    hist = [snapshot()];
+    histAt = 0;
+    renderHistory();
+  }
+  function record() {
+    clearTimeout(inputTimer);
+    const snap = snapshot();
+    if (snap === hist[histAt]) return;
+    hist = hist.slice(0, histAt + 1);
+    hist.push(snap);
+    histAt = hist.length - 1;
+    renderHistory();
+  }
+
+  function restore(snap) {
+    const s = JSON.parse(snap);
+    if (tw) closeTabsWin();
+    closePopups();
+    closeSubmenu();
+    // открытие подменю (окно «Меню»); вид панели — свёрнута / раскрыта / узкая — не трогаем
+    settings.submenuTrigger = s.submenuTrigger;
+    applyView();
+    renderWin();
+    setLogo(s.logo);
+    setAlign(s.align);
+    if (s.informers !== state.informers) informers.click();
+    // тема: системная или пользовательская со своими цветами и фоном; открытые окна цвета и фона — по новым цветам
+    userTheme = s.userTheme;
+    applyTheme(s.themeId);
+    if (!colorWin.hidden) cwRender(true);
+    if (!bgWin.hidden) {
+      if (custom.bg?.kind === 'img') { $('#bgPicPv').style.setProperty('--img', `url(${BG_IMGS[custom.bg.i]})`); fxRender(); }
+      else closePic();
+      bgRender(true);
+    }
+    // вкладки
+    // активная вкладка остаётся, если она есть в восстановленных
+    tabs = s.tabs;
+    if (!findTab(activeTab)) activeTab = tabs[0].id;
+    stage.classList.toggle('tabs-added', s.tabsAdded);
+    if (!s.tabsAdded) selectTabs(false);
+    renderTabs();
+    // разделы; открытый пункт подменю, которого больше нет, снимается
+    SECTIONS.forEach((sec, i) => {
+      const d = s.sections[i];
+      Object.assign(sec, { title: d.title, short: d.short, customIcon: d.customIcon });
+      Object.assign(sec.submenu, { head: d.head ?? undefined, noHead: d.noHead, cols: d.cols });
+    });
+    const { section, item } = state.page;
+    if (section && item != null && !subItem(SECTIONS.find((x) => x.id === section), item)) state.page.item = null;
+    renderAccordion();
+  }
+
+  function goGlobal(step) {
+    record(); // недописанный ввод — отдельным шагом
+    const at = histAt + step;
+    if (at < 0 || at >= hist.length) return;
+    histAt = at;
+    restore(hist[at]);
+    renderHistory();
+  }
+  undoBtn.addEventListener('click', () => goGlobal(-1));
+  redoBtn.addEventListener('click', () => goGlobal(1));
+
+  // Перехват на фазе погружения: обработчики, останавливающие событие, не мешают записи; запись — после них.
+  const later = () => setTimeout(record);
+  for (const type of ['click', 'pointerup', 'focusout']) document.addEventListener(type, later, true);
+  document.addEventListener('keyup', (e) => { if (e.key === 'Enter' || e.key === 'Escape' || e.key === 'Delete') later(); }, true);
+  document.addEventListener('input', () => { clearTimeout(inputTimer); inputTimer = setTimeout(record, INPUT_PAUSE); }, true);
+
   applyTheme(themeId);
   renderAccordion();
   applyView();
+  resetHistory();
 })();
