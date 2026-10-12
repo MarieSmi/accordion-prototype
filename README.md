@@ -6,11 +6,25 @@
 
 ## Ссылки
 
-- Демо: https://accordion-prototype-seven.vercel.app
-- Репозиторий (приватный): https://github.com/MarieSmi/accordion-prototype
+- Демо (GitHub Pages): https://mariesmi.github.io/accordion-prototype/
+- Демо (Vercel): https://accordion-prototype-seven.vercel.app
+- Репозиторий (публичный): https://github.com/MarieSmi/accordion-prototype
 - Проект Vercel: `maria-smi/accordion-prototype`
 
 ## Публикация
+
+### GitHub Pages
+
+- Сайт собирается из ветки `main`, папка `/ (root)` (Settings → Pages → Deploy from a branch).
+- Пуш в `main` обновляет сайт автоматически за 1–2 минуты. Пуш в другие ветки сайт не меняет —
+  их нужно сначала влить в `main`.
+- Ход сборки — во вкладке Actions репозитория (запуск «pages build and deployment»).
+- Если после обновления видна старая версия — обновить страницу с очисткой кеша (Ctrl+F5).
+- Файл `.nojekyll` отключает обработку Jekyll, файлы отдаются как есть.
+- `.vercelignore` здесь не действует: на сайт попадает весь репозиторий, включая `.claude/` и README.
+- Репозиторий публичный — открыта вся история git, включая старые файлы.
+
+### Vercel
 
 - Пуш в `main` публикует демо автоматически, другие ветки дают превью-ссылки.
 - На сайт не попадает то, что перечислено в `.vercelignore` (служебная папка `.claude/`, README).
