@@ -50,7 +50,7 @@
   --win-shadow: 0 0 46px rgba(0, 0, 0, .12), 0 0 15px rgba(0, 0, 0, .12); /* shadow_a */
   --label: #656c87;            /* icon/secondary_icon-color */
   --link: #2562aa;             /* text/link_text-color */
-  --link-hover: #153f6f;       /* text/link_hover_text-color */
+  --link-hover: #153f6f;       /* text/link_hover_text-color (Figma xMQ3ZEN4AUINgwjVoxR8hS 19307:42711) */
   --readonly: #ccc;            /* text/readonly_text-color */
   --switcher-text: #8991a9;    /* components/toggle/text-color_switcher */
   --border: #d2d6da;           /* border/unaccented_border-color */
@@ -96,7 +96,7 @@
 
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; }
-body { background: #d6d5dc; font-family: var(--font); overflow: hidden; }
+body { background: #fff; font-family: var(--font); overflow: hidden; }
 button { font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; cursor: pointer; }
 ul { list-style: none; margin: 0; padding: 0; }
 
@@ -109,12 +109,11 @@ ul { list-style: none; margin: 0; padding: 0; }
 .acc-icon16 { font-family: "Accordion-Font"; font-size: 16px; line-height: 1; color: var(--acc-icon); }
 
 /* ---------- Сцена 1600×900, масштабируется под окно ---------- */
-.viewport { position: fixed; inset: 0; overflow: hidden; }
+.viewport { position: fixed; inset: 0; overflow: hidden; } /* шапку демо, сцену и панель справа расставляет и масштабирует app.js */
 .stage {
   position: absolute; left: 0; top: 0; width: 1600px; height: 900px;
-  background: var(--ctor-bg); overflow: hidden;
+  background: var(--ctor-bg); overflow: hidden; border-radius: 8px; /* скругление только у окна редактора, у контента углов нет */
   transform-origin: 0 0;
-  box-shadow: 0 8px 40px rgba(0, 0, 0, .12);
 }
 
 /* ---------- Шапка конструктора ---------- */
@@ -134,7 +133,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 .tb-btn--text { padding: 2px 6px; }
 .tb-btn__label, .tb-btn--zoom, .theme-btn__label, .lang-btn { font-size: 14px; letter-spacing: -.1974px; color: var(--text); }
 .tb-btn__label { padding-right: 4px; }
-.tb-btn--zoom { width: 39px; padding: 0 4px; }
+.tb-btn--zoom { width: 55px; padding: 2px 10px; } /* «Масштаб» (Figma xMQ3ZEN4AUINgwjVoxR8hS 16219:71273): 55×28, отступы 10 по бокам */
 .tb-btn:hover { background: var(--pill-hover); }
 .tb-btn.is-active { background: var(--pill-active); }
 
@@ -168,7 +167,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 /* ---------- Аккордеон ---------- */
 .accordion {
   position: absolute; left: 9px; top: 45px; width: calc(var(--acc-gap) - 1px); bottom: 0; /* 220 / узкий 56 — от --acc-gap */
-  background: var(--acc-bg); border-top-left-radius: 8px;
+  background: var(--acc-bg);
   display: flex; flex-direction: column; color: var(--acc-text);
 }
 /* Светлый текст на тёмном фоне выглядит жирнее, чем в Figma — компенсируем тонким начертанием (Inter переменной толщины) */
@@ -242,7 +241,16 @@ ul { list-style: none; margin: 0; padding: 0; }
 .accordion:not(.is-narrow) .acc-item.has-sub .acc-item__sub { display: flex; }
 .accordion:not(.is-narrow) .acc-item.has-sub .acc-item__btn { border-radius: 8px 8px 0 0; }
 .accordion:not(.is-narrow) .acc-item.has-sub::before { top: 46px; height: 29px; }
-.acc-item.has-sub.is-hover .acc-item__sub, .acc-item.has-sub.is-open .acc-item__sub { background: var(--acc-item-hover); }
+/* блок «раздел + пункт» (Figma xMQ3ZEN4AUINgwjVoxR8hS 16016:174921): фон выбранного у блока, строки скруглены по 8,
+   ховер — у строки под курсором (раздел подсвечен и при открытом подменю), команды ✎ ⋮ — у неё же */
+.acc-item__group { display: contents; }
+.accordion:not(.is-narrow) .acc-item.has-sub .acc-item__group { display: block; border-radius: 8px; background: var(--acc-item-selected); }
+.accordion:not(.is-narrow) .acc-item.is-selected.has-sub .acc-item__btn,
+.accordion:not(.is-narrow) .acc-item.is-selected.has-sub .acc-item__sub { border-radius: 8px; background: none; }
+.accordion:not(.is-narrow) .acc-item.is-selected.has-sub.is-hover:not(.is-sub-hover) .acc-item__btn,
+.accordion:not(.is-narrow) .acc-item.is-selected.has-sub.is-open .acc-item__btn,
+.accordion:not(.is-narrow) .acc-item.is-selected.has-sub.is-sub-hover .acc-item__sub { background: var(--acc-item-hover); }
+.acc-item__sub { position: relative; overflow: hidden; }
 
 /* команды по ховеру (✎ ⋮) — появляются после задержки */
 .acc-cmds {
@@ -259,6 +267,9 @@ ul { list-style: none; margin: 0; padding: 0; }
 .acc-cmd:hover .ico { color: var(--acc-cmd-hover); }
 .acc-item.is-delay .acc-cmds,
 .acc-item.is-selected.is-hover .acc-cmds { opacity: 1; pointer-events: auto; }
+/* в блоке «раздел + пункт» команды — только у строки под курсором */
+.acc-item.is-sub-hover .acc-item__btn .acc-cmds,
+.acc-item:not(.is-sub-hover) .acc-item__sub .acc-cmds { opacity: 0; pointer-events: none; }
 .acc-item__short { display: none; }
 
 /* ---------- Узкий аккордеон (56px) ---------- */
@@ -337,10 +348,11 @@ ul { list-style: none; margin: 0; padding: 0; }
 .stage.is-resizing { transition: --mid .3s cubic-bezier(.4, 0, .2, 1), --center .3s cubic-bezier(.4, 0, .2, 1), --acc-gap .3s cubic-bezier(.4, 0, .2, 1), --mid-full .3s cubic-bezier(.4, 0, .2, 1); }
 .stage.is-resizing .accordion { overflow: hidden; } /* пока ширина меняется, пункты обрезаются по краю */
 .accordion { left: calc(9px + var(--align-shift)); z-index: 1; } /* поверх области контента */
-.content { position: absolute; left: 8px; top: 45px; width: 1539px; height: 855px; overflow: hidden; background: var(--content-bg); border-top-right-radius: 8px; display: flex; }
+.content { position: absolute; left: 8px; top: 45px; width: 1539px; height: 855px; overflow: hidden; background: var(--content-bg); display: flex; }
 /* «Растянуть»: под аккордеоном, как раньше, фон конструктора; «По центру» / «Слева» — по бокам фон страницы */
 .stage:not(.is-aligned) .content { background: linear-gradient(var(--acc-under), var(--acc-under)) 0 0 / var(--acc-gap) 100% no-repeat, var(--content-bg); }
-.content__mid { flex: none; width: var(--mid); margin-left: calc(var(--acc-gap) + var(--align-shift)); overflow: hidden; }
+/* clip + запас: тени карточек и тулбар виджета вкладок (по левому краю виджета) выходят за край колонки, а не обрезаются */
+.content__mid { flex: none; width: var(--mid); margin-left: calc(var(--acc-gap) + var(--align-shift)); overflow: clip; overflow-clip-margin: 110px; }
 .content__side { flex: none; width: 322px; overflow: hidden; display: flex; font-family: "Inter", sans-serif; }
 
 /* ---------- Информеры (42px) ---------- */
@@ -350,6 +362,12 @@ ul { list-style: none; margin: 0; padding: 0; }
 .informers__fio img { position: absolute; left: 3.372px; top: 16.016px; }
 .informers__btn { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
 .informers__btn .ico { font-size: 18.67px; width: 18.667px; height: 18.667px; color: #656c87; }
+.inf-plus { display: none; width: 24px; height: 24px; margin: 2px 0; align-items: center; justify-content: center; border-radius: 100px; background: rgba(51, 51, 51, .05); transition: background-color .12s; } /* background/contrast/pale_color */
+.inf-plus .ico24 { color: #333; } /* icon/icon-color; глиф — как «+» в заголовке меню «вкладка», чтобы плюсы совпали */
+.inf-plus:hover, .inf-plus.is-active { background: rgba(51, 51, 51, .1); } /* наведения в макете нет */
+/* после добавления вкладки (.tabs-added) — снова «4 квадратика», как в Figma 18797:65818 */
+.stage[data-scenario="tab-toolbar"]:not(.tabs-added) .informers__btn { display: none; }
+.stage[data-scenario="tab-toolbar"]:not(.tabs-added) .inf-plus { display: flex; }
 .informers__bottom { display: flex; flex-direction: column; gap: 10px; }
 /* Звонки и Сообщения в макете — кадры из скриншота Saby */
 .informers__shot { position: relative; width: 26.975px; height: 26.975px; border-radius: 13.488px; overflow: hidden; }
@@ -426,38 +444,63 @@ ul { list-style: none; margin: 0; padding: 0; }
 /* ---------- Середина: общая шапка страницы ---------- */
 .page { display: flex; flex-direction: column; height: 100%; padding-left: 8px; box-sizing: border-box; font-family: "Inter", sans-serif; color: var(--c-text-strong); }
 .page[hidden] { display: none; }
-.pg-head { flex: none; display: flex; align-items: center; gap: 12px; padding: 10px 0 7px 4px; }
+/* высота шапки постоянная (10 + поле 24 + 7) — во всех сценариях и на скелетоне, что бы в ней ни стояло */
+.pg-head { flex: none; height: 41px; box-sizing: border-box; display: flex; align-items: center; gap: 12px; padding: 10px 0 7px 4px; }
 .pg-search {
   flex: none; width: 300px; height: 24px; box-sizing: border-box; padding: 0 4px 0 12px; display: flex; align-items: center;
   background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 12px;
   font-size: 14px; line-height: 18px; letter-spacing: -.1974px; color: rgba(137, 145, 169, .6);
 }
+/* ссылка «+вкладка» (label-кнопка) — справа в шапке: иконка 16 + отступ 4, текст 14px, цвет label #8991a9; текст — по базовой с «Найти» */
+.pg-link { display: none; flex: none; align-items: baseline; font-size: 14px; line-height: 18px; letter-spacing: -.1974px; color: #8991a9; white-space: nowrap; transition: color .12s; }
+/* иконка 12px по центру строки текста; базовую линию ссылки (с «Найти») задаёт текст */
+.pg-link .ico { align-self: center; width: 12px; height: 12px; font-size: 12px; margin-right: 4px; color: inherit; }
+.pg-link:hover .pg-link__text { text-decoration: underline from-font; text-underline-position: from-font; } /* как у ссылок вспомогательной панели */
+.pg-link:hover, .pg-link.is-active { color: #313e78; } /* label_hover_text-color / label_hover_icon-color (Figma nuC4KFMiS36uDWDUp9wKGl 17890:7593) */
+.stage[data-scenario="tab-dash-head"]:not(.tabs-added) #dashAddTab { display: flex; }
+/* «+вкладка» в шапке конструктора: до «Язык RU» 12px (gap шапки), не пропадает после добавления вкладки */
+.stage[data-scenario="tab-ctor-head"] .ctor-add-tab { display: flex; align-items: center; }
+/* правая часть шапки: «+вкладка» и фильтры через 8px */
+.pg-head__right { margin-left: auto; display: flex; align-items: baseline; gap: 8px; }
+/* фильтры (Figma xMQ3ZEN4AUINgwjVoxR8hS 19325:47991): значение фильтра и кнопка-воронка 32×32, вписанная в высоту шапки */
+.pg-filters { display: none; align-items: baseline; }
+.stage[data-scenario="tab-dash-head"][data-variant="filters"] .pg-filters { display: flex; }
+.pg-filter { height: 24px; padding: 0 8px; display: flex; align-items: center; border-radius: 100px; background: #ebf4ff; font-size: 14px; line-height: 18px; letter-spacing: -.1974px; color: #000; white-space: nowrap; } /* background/same/secondary_same_background-color */
+.pg-filter-btn { align-self: center; width: 32px; height: 32px; margin: -4px 0; padding-top: 1px; display: flex; align-items: center; justify-content: center; border-radius: 16px; }
+.pg-filter-btn .ico { color: #656c87; } /* icons/secondary_icon-color */
+#pageMain .pg-head { align-items: baseline; }
 .pg-tabs { flex: none; align-self: flex-end; display: flex; height: 32px; }
 .pg-tab { display: flex; flex-direction: column; justify-content: center; padding: 3px 12px 0; position: relative; font-size: 15px; letter-spacing: -.2115px; color: var(--c-name); white-space: nowrap; }
 .pg-tab.is-active { color: var(--accent2); font-weight: 600; }
 .pg-tab.is-active::after { content: ""; position: absolute; left: 12px; right: 12px; bottom: 0; height: 3px; border-radius: 4px; background: var(--accent2); }
+.pg-tab:not(.is-active):hover::after { content: ""; position: absolute; left: 12px; right: 12px; bottom: 0; height: 3px; border-radius: 4px; background: #e5e7eb; } /* extra/marker_hover_color (Figma xMQ3ZEN4AUINgwjVoxR8hS 16016:204167) */
 /* ширина вкладки — по жирному начертанию, чтобы не прыгала при выборе */
 .pg-tab__text { display: inline-grid; }
 .pg-tab__text::after { content: attr(data-text); font-weight: 600; height: 0; visibility: hidden; }
 
 /* ---------- Виджет «Вкладки» (Figma xMQ3ZEN4AUINgwjVoxR8hS 18731:100134) ---------- */
 /* наведение — рамка info 60%, выделение — сплошная рамка и тулбар «+ ⚙ ⋯» над виджетом (40px вверх) */
+/* сценарии «Добавление вкладки»: вкладок нет, контент поднимается на их высоту */
+/* виджет не бывает из одной вкладки: без .tabs-added (одна вкладка) его нет */
+.stage:not(.tabs-added) .tabs-w { display: none; }
 .tabs-w { position: relative; flex: none; align-self: flex-end; z-index: 2; cursor: default; user-select: none; }
 .tabs-w::after { content: ""; position: absolute; inset: 0; border: 1px solid transparent; border-radius: 2px; pointer-events: none; }
 .tabs-w:hover::after { border-color: var(--info-border-soft); }
 .tabs-w.is-selected::after { border-color: var(--info-border); }
 .tabs-w .pg-tab { cursor: pointer; }
 .tabs-w .pg-tab.is-dragging { opacity: .6; }
+/* тулбар — всегда по левому краю виджета */
+.tabs-w__toolbar { position: absolute; left: 0; right: 0; top: -40px; display: none; pointer-events: none; }
+.tabs-w.is-selected .tabs-w__toolbar { display: flex; }
 .tabs-w__bar {
-  position: absolute; left: 0; top: -40px; display: none; align-items: flex-start;
+  display: flex; flex: none; align-items: flex-start; direction: ltr; pointer-events: auto;
   background: var(--pill-bg); border: 1px solid rgba(123, 98, 248, .2); border-radius: 6px; box-shadow: 0 0 8px rgba(0, 0, 0, .06);
 }
-.tabs-w.is-selected .tabs-w__bar { display: flex; }
 .tabs-w__btn { display: flex; align-items: center; padding: 4px 6px; transition: background-color .12s; }
 .tabs-w__btn .ico24 { padding-bottom: 1px; }
 .tabs-w__btn:hover, .tabs-w__btn.is-active { background: var(--pill-hover); } /* наведения в макете нет — как у кнопок шапки */
-/* правка названия по двойному клику — линия под текстом, как у названия в редакторе подменю */
-.pg-tab__text.is-editing { outline: none; cursor: text; user-select: text; background: linear-gradient(#8f99a3, #8f99a3) bottom / 100% 1px no-repeat; }
+/* правка названия по второму клику на активную вкладку — без подчёркивания, только каретка (всегда чёрная) */
+.pg-tab__text.is-editing { outline: none; cursor: text; user-select: text; caret-color: #000; }
 
 /* ---------- Вкладка «Для менеджеров» (Figma 18771:29704) ---------- */
 .dash[hidden] { display: none; }
@@ -602,13 +645,28 @@ ul { list-style: none; margin: 0; padding: 0; }
 .rp-btn { width: 44px; height: 48px; padding: 12px 10px; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: background-color .12s; }
 .rp-btn:hover { background: var(--rp-hover); }
 .rp-btn--accent .ico24 { color: var(--rp-accent); }
-/* «Данные» и «Слои» есть только в шрифте cbuc-icons (в cbuc-icons24 глифы пустые); размер подобран, чтобы выглядели как 24px-иконки */
-.rp-ico21 { font-size: 21px; width: 24px; height: 24px; }
+/* подсказка клика «Пин» (Figma xMQ3ZEN4AUINgwjVoxR8hS 18797:65764): круг 40 #6cc 50% и курсор 16 справа снизу.
+   Сценарий «Из магазина» — на «Магазине», пока он закрыт и вкладки не добавлены */
+.click-pin { display: none; position: absolute; left: 50%; top: 50%; width: 40px; height: 40px; margin: -20px 0 0 -20px; pointer-events: none; }
+.click-pin::before { content: ""; position: absolute; inset: 0; border-radius: 32px; background: #6cc; opacity: .5; }
+.click-pin img { position: absolute; left: 26px; top: 26px; }
+.stage[data-scenario="tab-shop"]:not(.tabs-added) .rp-btn[data-rp="shop"]:not(.is-active) .click-pin { display: block; }
+/* «Данные» и «Слои»: в cbuc-icons24 глифов нет — контуры из макета (Figma xMQ3ZEN4AUINgwjVoxR8hS 16041:45391, 16041:45392), цвет как у иконок */
+.rp-svg { width: 24px; height: 24px; background: var(--icon); -webkit-mask: var(--m) center / 24px no-repeat; mask: var(--m) center / 24px no-repeat; }
+.rp-svg--data { --m: url("assets/img/rp-data.svg"); }
+.rp-svg--layers { --m: url("assets/img/rp-layers.svg"); }
 .rp-more { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background-color .12s; }
 /* «⋮» — кнопка Ghost: при наведении фон pale_color rgba(51,51,51,.05), иконка #575757 (Figma 17890:9932) */
 .rp-more:hover { background: rgba(51, 51, 51, .05); }
 .rp-more .ico { transition: color .12s; }
 .rp-more:hover .ico { color: #575757; }
+.rp-more.is-active { background: rgba(51, 51, 51, .05); }
+/* меню «⋮» (Figma vUgZuefpqUuaG2j0DDnEZf 16550:155703): ширина 250, пункт — отступы 12/16, иконка 24 + 8, у «Опубликовать» стрелка-кнопка 32 */
+.mw-menu.rp-more-menu { width: 250px; }
+.mw-menu__item.rp-more-item { padding: 0 16px 0 12px; cursor: default; } /* пункт: 12 слева, 8 + 8 (_closeButtonOffset) справа */
+.rp-more-item .ico24 { flex: none; height: 32px; margin-right: 8px; color: #656c87; } /* icon/secondary_icon-color */
+.rp-more-item__arrow { flex: none; width: 32px; height: 32px; margin: 0 -16px 0 6px; display: flex; align-items: center; justify-content: center; }
+.rp-more-item__arrow .ico { color: #656c87; padding-bottom: 1px; }
 .right-panel__spacer { flex: 1; }
 .rp-help { width: 32px; height: 32px; border-radius: 16px; background: #eeebff; border: 1px solid #d4ccff; display: flex; align-items: center; justify-content: center; transition: background-color .12s; }
 .rp-help:hover { background: #e1dbff; }
@@ -689,6 +747,8 @@ ul { list-style: none; margin: 0; padding: 0; }
    рамка #7b62f8 40%, у больших превью ещё «+» по центру */
 .rp-wz { position: absolute; border: 1px solid transparent; border-radius: 8px; cursor: default; }
 .rp-wz:hover { border-color: rgba(123, 98, 248, .4); }
+/* «Вкладки» добавляются кликом, пока виджета нет на странице */
+.stage:not(.tabs-added) .rp-wz[data-act="tabs"] { cursor: pointer; }
 .rp-wz__plus { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 36px; height: 36px; padding-bottom: 1px; border-radius: 18px; background: #eeebff; color: #5a49ab; display: none; }
 .rp-wz:hover .rp-wz__plus { display: flex; }
 .rp-shop__preview { display: block; }
@@ -721,11 +781,11 @@ ul { list-style: none; margin: 0; padding: 0; }
 .rp-card__title { height: 24px; display: flex; align-items: center; font-size: 12px; font-weight: 600; letter-spacing: -.1692px; text-transform: uppercase; }
 .rp-props { display: flex; flex-direction: column; gap: 8px; }
 .rp-prop { height: 24px; display: flex; align-items: center; gap: 8px; }
-.rp-prop__label { flex: none; width: 60px; font-size: 14px; letter-spacing: -.1974px; color: var(--label); white-space: nowrap; }
+/* подписи — как ссылки и поля: строка 24px, текст на 1px выше центра (textWrap pb-px), чтобы всё стояло на одной базовой линии */
+.rp-prop__label { flex: none; width: 60px; height: 24px; display: flex; align-items: center; padding-bottom: 1px; font-size: 14px; letter-spacing: -.1974px; color: var(--label); white-space: nowrap; }
 .rp-prop__label--82 { width: 82px; }
 .rp-prop__label--soft { width: auto; color: #8991a9; }
 .rp-link { height: 24px; padding-bottom: 1px; font-size: 14px; letter-spacing: -.1974px; color: var(--link); transition: color .12s; }
-.rp-link:hover { color: var(--link-hover); }
 .rp-gap { width: 56px; height: 24px; display: flex; align-items: center; gap: 6px; border-bottom: 1px solid var(--border); font-size: 14px; letter-spacing: -.1974px; }
 .rp-gap img { flex: none; display: block; }
 
@@ -818,15 +878,16 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 
 /* свойства */
 .mw-prop { display: flex; align-items: flex-start; gap: 8px; }
-.mw-prop__name { width: 140px; height: 24px; flex: none; display: flex; align-items: center; font-size: 14px; letter-spacing: -.1974px; color: var(--label); }
+.mw-prop__name { width: 140px; height: 24px; flex: none; display: flex; align-items: center; padding-bottom: 1px; font-size: 14px; letter-spacing: -.1974px; color: var(--label); }
 .mw-link { height: 24px; padding-bottom: 1px; font-size: 14px; letter-spacing: -.1974px; color: var(--link); }
 .mw-link { transition: color .12s; }
-.mw-link:hover, .lw-link:hover { color: var(--link-hover); text-decoration: underline; text-underline-offset: 2px; }
+/* все ссылки одинаковые (Figma xMQ3ZEN4AUINgwjVoxR8hS 19307:42711): при наведении — link_hover и подчёркивание по параметрам шрифта */
+.rp-link:hover, .mw-link:hover, .lw-link:hover, .bg-link:hover { color: var(--link-hover); text-decoration: underline from-font; text-underline-position: from-font; text-decoration-skip-ink: none; }
 .mw-radios { display: flex; flex-direction: column; }
 .mw-radio { display: flex; align-items: flex-start; text-align: left; }
 .mw-radio__box { height: 24px; display: flex; align-items: center; padding-right: 4px; }
 .mw-radio__box::before { content: ""; width: 12px; height: 12px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box; }
-.mw-radio__text { padding: 2px 0 1px; font-size: 14px; line-height: 1.4; letter-spacing: -.1974px; color: var(--switcher-text); }
+.mw-radio__text { padding: 1.5px 0 2.5px; font-size: 14px; line-height: 20px; letter-spacing: -.1974px; color: var(--switcher-text); }
 .mw-radio.is-on { cursor: default; }
 .mw-radio.is-on .mw-radio__box::before { border: 0; background: url("assets/img/radio-on.svg") no-repeat; }
 .mw-radio.is-forced .mw-radio__box::before { background-image: url("assets/img/radio-on-2.svg"); }
@@ -835,7 +896,7 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .mw-radio:disabled .mw-radio__box::before { height: 13px; border: 0; background: url("assets/img/radio-disabled.svg") no-repeat; }
 .mw-radio:disabled .mw-radio__text { color: var(--readonly); }
 
-/* выпадающий список «Вид панели» */
+/* выпадающий список «Состояние панели» */
 .mw-menu { position: absolute; z-index: 30; width: 244px; }
 .mw-menu__list {
   display: flex; flex-direction: column; gap: 6px; padding: 12px 8px;
@@ -1122,12 +1183,12 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .tw-list { display: flex; flex-direction: column; padding: 12px 0 8px; background: #fff; border-radius: 8px; }
 .tw-row { position: relative; display: flex; align-items: center; height: 31px; padding: 3px 12px 4px; background: #fff; cursor: pointer; transition: background-color .12s; }
 .tw-row__text { font-size: 14px; letter-spacing: -.1974px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.tw-row__cmds { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; gap: 12px; opacity: 0; transition: opacity .12s; }
+.tw-row__cmds { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; gap: 12px; opacity: 0; transition: opacity .12s; }
 .tw-row__cmd { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 .tw-row__cmd .ico24 { color: var(--label); transition: color .12s; }
 .tw-row__cmd:hover .ico24 { color: var(--text); }
 .tw-row__cmd--del .ico24, .tw-row__cmd--del:hover .ico24 { color: #c2140a; } /* icon/danger_icon-color */
-.tw-row:hover { background: var(--menu-item-hover); }
+.tw-row:hover { background: #f3f4f8; } /* background/hover_background-color (Figma 18715:97018) */
 .tw-row:hover .tw-row__cmds { opacity: 1; }
 .tw-row.is-dragging { z-index: 1; background: #fff; box-shadow: 0 0 8px rgba(0, 0, 0, .12); cursor: grabbing; }
 .tw-row.is-dragging .tw-row__cmds { opacity: 0; }
@@ -1147,8 +1208,7 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .tab-add__sep::before { content: ""; flex: 1; height: 1px; background: rgba(0, 0, 0, .04); } /* extra/separator_color */
 .tab-add .icon-menu__item + .icon-menu__item { margin-top: 6px; }
 .tab-add__sep + .icon-menu__item { margin-top: 0; }
-.icon-menu__item.is-static { cursor: default; }
-.icon-menu__item.is-static:hover { background: none; }
+.icon-menu__item.is-static { cursor: default; } /* только наведение, клик ничего не делает */
 .tab-add__ico16 { width: 24px; height: 24px; flex: none; display: flex; align-items: center; justify-content: center; margin-right: 8px; }
 .tab-add__ico16 .ico { color: var(--label); }
 .tab-add__more { margin-left: 6px; color: var(--label); }
@@ -1359,7 +1419,7 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .bg-row { display: flex; align-items: center; height: 24px; margin-top: 8px; font-size: 14px; letter-spacing: -.1974px; }
 .bg-pic__card .bg-row:first-of-type { margin-top: 0; }
 .bg-row__label { flex: none; width: 111px; color: #8991a9; white-space: nowrap; }
-.bg-link { color: #2562aa; cursor: default; }
+.bg-link { color: var(--link); cursor: default; transition: color .12s; }
 .bg-link-ico { margin-left: 10px; width: 24px; height: 24px; font-size: 16px; color: #333; }
 .bg-fx { display: flex; flex-direction: column; gap: 8px; }
 .bg-fx .bg-row { margin-top: 0; }
@@ -1381,3 +1441,53 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
   background: var(--bg-tint, linear-gradient(transparent, transparent)), var(--bg-img) center / cover; background-blend-mode: soft-light, normal; opacity: var(--bg-op, 1); filter: var(--bg-filter, none);
 }
 .stage.is-bg-img .content__mid, .stage.is-bg-img .content__side { background: rgba(255, 255, 255, .7); }
+
+/* ---------- Вспомогательная панель справа от демо (Figma xMQ3ZEN4AUINgwjVoxR8hS 18715:93398) ---------- */
+:root { --head-h: 80px; --sys-w: 300px; --sys-gap: 16px; --demo-left: 4px; }
+/* 300×900, встаёт справа от сцены и масштабируется вместе с ней — transform задаёт app.js */
+.sys {
+  position: fixed; top: 0; left: 0; width: var(--sys-w); height: 900px; overflow-y: auto; transform-origin: 0 0;
+  display: flex; flex-direction: column; justify-content: space-between; gap: 12px;
+  background: #fff; font-family: "Inter", sans-serif; font-size: 14px; letter-spacing: -.1974px; line-height: normal; color: #000;
+}
+.sys__top { display: flex; flex-direction: column; gap: 6px; }
+.sys__devices { display: flex; gap: 4px; padding-left: 6px; }
+.sys-device { width: 40px; height: 20px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: #fff; box-shadow: 0 0 6px rgba(0, 0, 0, .1); }
+.sys-device:disabled { cursor: default; } /* пока есть только монитор 1600×900 */
+.sys-device.is-on { background: #05121e; cursor: default; } /* extra/item_selected_color */
+.sys-device img { display: block; }
+.sys__size { display: flex; height: 20px; align-items: center; gap: 6px; padding-left: 6px; font-size: 12px; letter-spacing: -.1692px; color: #8991a9; }
+.sys-card { display: flex; flex-direction: column; gap: 6px; padding: 6px; border-radius: 8px; background: #f3f5f7; } /* background/contrast_background-color */
+.sys-card--scen { gap: 2px; }
+.sys-group { padding: 12px 6px 6px; font-size: 14px; letter-spacing: -.1974px; text-transform: uppercase; color: #000; } /* заголовок группы сценариев */
+.sys-options { display: flex; flex-direction: column; gap: 2px; padding: 4px 6px; border-radius: 8px; background: #fff; }
+.sys-radio { display: flex; align-items: flex-start; text-align: left; }
+.sys-sub { display: flex; flex-direction: column; gap: 2px; padding-left: 16px; } /* вилка: подсценарии с отступом 16 */
+.sys-radio__box { width: 20px; height: 24px; flex: none; display: flex; align-items: center; justify-content: center; }
+.sys-radio__box::before { content: ""; box-sizing: border-box; width: 12px; height: 12px; border: 1px solid #d2d6da; border-radius: 6px; } /* border/unaccented_border-color */
+.sys-radio.is-on { cursor: default; }
+.sys-radio.is-on .sys-radio__box::before { border: 0; background: url("assets/img/radio-on.svg") no-repeat; }
+.sys-radio__text { padding: 3px 0 4px; color: #8991a9; white-space: nowrap; } /* components/toggle/text-color_switcher */
+.sys-radio.is-on .sys-radio__text { color: #000; }
+/* наведение (Figma nuC4KFMiS36uDWDUp9wKGl 1628:6492): контур — background/contrast/primary_color, текст подчёркнут; выбранный пункт не реагирует */
+.sys-radio:not(.is-on):hover .sys-radio__box::before { border-color: #f6733c; }
+.sys-radio:not(.is-on):hover .sys-radio__text { text-decoration: underline; }
+.sys-links { display: flex; flex-direction: column; gap: 4px; padding: 2px 6px; }
+.sys-link { display: flex; align-items: center; gap: 6px; color: #8991a9; text-decoration: none; } /* text/label_text-color */
+.sys-link .ico { color: #8991a9; padding-bottom: 1px; }
+.sys-link span:last-child { padding: 3px 0 4px; }
+.sys-link:hover span:last-child, .sys-team__link:hover { text-decoration: underline from-font; text-underline-position: from-font; }
+.sys-team { display: flex; align-items: flex-start; gap: 8px; padding: 8px 6px; border-radius: 8px; background: #fff; }
+.sys-team__label { flex: none; width: 54px; color: #8991a9; }
+.sys-team__info { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.sys-team__name { color: #000; }
+.sys-team__link { color: #313e78; text-decoration: none; } /* text/secondary_text-color */
+
+/* ---------- Шапка страницы демо ---------- */
+/* 1916×80 (ширина сцены + зазор + панель), масштабируется вместе со сценой — transform задаёт app.js */
+.demo-head { position: fixed; z-index: 2; top: 0; left: 0; width: calc(1600px + var(--sys-gap) + var(--sys-w)); height: var(--head-h); transform-origin: 0 0; padding: 14px 16px 0 10px; font-family: "Inter", sans-serif; }
+.demo-head__link { display: inline-flex; align-items: center; gap: 16px; padding-left: 4px; color: inherit; text-decoration: none; }
+.demo-head__back { flex: none; width: 9.23px; height: 16px; }
+.demo-head__title { margin: 0; font-size: 24px; line-height: 28px; font-weight: 600; letter-spacing: -.3384px; color: #000; white-space: nowrap; }
+.demo-head__ver { margin-left: 4px; font-weight: 500; color: #8991a9; }
+.demo-head__sub { margin-top: 9px; padding-left: 29.23px; font-size: 15px; line-height: 18px; letter-spacing: -.2115px; color: #666; white-space: nowrap; }

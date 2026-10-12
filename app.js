@@ -80,7 +80,7 @@
     title: s.title, short: s.short, icon: null, head: s.submenu.headLabel ? null : s.submenu.head ?? s.title, showHead: true, cols: s.submenu.cols.map((c) => c.slice()),
   }]));
 
-  // Виды панели (окно «Меню» → «Вид панели»): широкий аккордеон и три вида узкого.
+  // Виды панели (окно «Меню» → «Состояние панели»): широкий аккордеон и три вида узкого.
   const PANEL_VIEWS = [
     { id: 'wide', title: 'Широкая' },
     { id: 'labels', title: 'Узкая с названиями' },
@@ -128,15 +128,49 @@
   const pageMain = $('#pageMain');
   const pageSkeleton = $('#pageSkeleton');
 
-  // Сцена 1600×900 вписывается в окно браузера с сохранением пропорций.
+  // Сцена 1600×900 вписывается в область слева от вспомогательной панели с сохранением пропорций.
+  const viewport = $('.viewport');
   let scale = 1;
+  // Сцена прижата влево под шапкой демо, вспомогательная панель — справа от неё на ту же высоту.
+  const sysPanel = $('.sys');
+  const demoHead = $('.demo-head');
+
+  // Сценарии во вспомогательной панели: выбранный записывается в data-scenario у сцены, подсценарий вилки — в data-variant.
+  // Выбор сценария с вилкой включает его первый подсценарий; у выбранного подсценария отмечен и сам сценарий.
+  const sysRadios = [...sysPanel.querySelectorAll('.sys-radio')];
+  sysPanel.querySelector('[role="radiogroup"]').addEventListener('click', (e) => {
+    const radio = e.target.closest('.sys-radio');
+    if (!radio || radio.classList.contains('is-on')) return;
+    const scenario = radio.dataset.scenario;
+    const variant = radio.dataset.variant || sysRadios.find((r) => r.dataset.scenario === scenario && r.dataset.variant)?.dataset.variant;
+    for (const r of sysRadios) {
+      const on = r.dataset.scenario === scenario && (!r.dataset.variant || r.dataset.variant === variant);
+      r.classList.toggle('is-on', on);
+      r.setAttribute('aria-checked', on);
+    }
+    stage.dataset.scenario = scenario;
+    if (variant) stage.dataset.variant = variant;
+    else delete stage.dataset.variant;
+    // каждый сценарий начинается с исходных вкладок; в «Добавлении вкладки» — одна «Главный», виджета вкладок нет
+    closeTabsWin();
+    selectTabs(false);
+    resetTabs(radio.dataset.scenario.startsWith('tab-'));
+  });
   function fitStage() {
-    const w = document.documentElement.clientWidth;
-    const h = document.documentElement.clientHeight;
-    scale = Math.min(w / 1600, h / 900);
-    stage.style.transform = `translate(${(w - 1600 * scale) / 2}px, ${(h - 900 * scale) / 2}px) scale(${scale})`;
+    const css = getComputedStyle(document.documentElement);
+    const px = (name) => parseFloat(css.getPropertyValue(name));
+    // шапка, сцена и панель масштабируются как одно целое: (1600 + зазор + панель) × (шапка + 900)
+    const left = px('--demo-left');
+    const head = px('--head-h');
+    const w = viewport.clientWidth - left;
+    const h = viewport.clientHeight;
+    scale = Math.max(0.1, Math.min(w / (1600 + px('--sys-gap') + px('--sys-w')), h / (head + 900)));
+    const top = head * scale;
+    demoHead.style.transform = `scale(${scale})`;
+    stage.style.transform = `translate(${left}px, ${top}px) scale(${scale})`;
+    sysPanel.style.transform = `translate(${left + (1600 + px('--sys-gap')) * scale}px, ${top}px) scale(${scale})`;
   }
-  new ResizeObserver(fitStage).observe(document.documentElement);
+  new ResizeObserver(fitStage).observe(viewport);
   fitStage();
 
   // Прямоугольник элемента в координатах сцены.
@@ -181,11 +215,22 @@
            <span class="acc-cmd acc-cmd--dots" role="button" aria-label="Ещё"><span class="ico"></span></span>
          </span>`);
       btn.type = 'button';
-      // Вторая строка — выбранный пункт подменю (видна только в раскрытом аккордеоне).
-      const subRow = el('button', 'acc-item__sub', '<span class="acc-item__sub-title"></span>');
+      // Вторая строка — выбранный пункт подменю (видна только в раскрытом аккордеоне). Раздел и пункт — один блок
+      // (Figma 16016:174944): общий фон у обёртки, ховер и команды ✎ ⋮ — у каждой строки свои.
+      const subRow = el('button', 'acc-item__sub', `<span class="acc-item__sub-title"></span>
+         <span class="acc-cmds">
+           <span class="acc-cmd" role="button" aria-label="Настроить"><span class="ico"></span></span>
+           <span class="acc-cmd acc-cmd--dots" role="button" aria-label="Ещё"><span class="ico"></span></span>
+         </span>`);
       subRow.type = 'button';
-      subRow.addEventListener('click', () => btn.click());
-      li.append(btn, subRow);
+      subRow.addEventListener('click', (e) => {
+        const cmd = e.target.closest('.acc-cmd');
+        if (cmd) { if (!cmd.classList.contains('acc-cmd--dots')) openEditor(sec.id); return; }
+        btn.click();
+      });
+      const group = el('div', 'acc-item__group');
+      group.append(btn, subRow);
+      li.append(group);
       list.append(li);
 
       let timer = null;
@@ -199,8 +244,18 @@
       });
       li.addEventListener('mouseleave', () => {
         clearTimeout(timer);
-        li.classList.remove('is-hover', 'is-delay');
+        li.classList.remove('is-hover', 'is-delay', 'is-sub-hover');
       });
+      // переход между строками блока: подсветка и команды переезжают, задержка команд — заново
+      const hoverRow = (sub) => {
+        if (li.classList.contains('is-sub-hover') === sub) return;
+        li.classList.toggle('is-sub-hover', sub);
+        li.classList.remove('is-delay');
+        clearTimeout(timer);
+        timer = setTimeout(() => li.classList.add('is-delay'), COMMANDS_DELAY);
+      };
+      btn.addEventListener('mouseenter', () => hoverRow(false));
+      subRow.addEventListener('mouseenter', () => hoverRow(true));
       btn.addEventListener('click', (e) => {
         // ✎ открывает редактор подменю; ⋮ — поведение по клику пока не задано.
         const cmd = e.target.closest('.acc-cmd');
@@ -500,7 +555,7 @@
     document.addEventListener('mouseup', up);
   }
 
-  // Всплывающие списки внутри окон («Вид панели», «Иконка»).
+  // Всплывающие списки внутри окон («Состояние панели», «Иконка»).
   function closePopups() { closeDropdown(); closeIconMenu(); closeTabMenus(); }
 
   // ---------- Окно «Меню» ----------
@@ -540,7 +595,7 @@
   // Значки ховера загружаем заранее, иначе при первом наведении круг на миг пустой.
   for (const n of ['collapse', 'expand']) new Image().src = `assets/img/burger-${n}.svg`;
 
-  // Выпадающий список «Вид панели»: всегда открывается на одном месте — первый пункт встаёт на место ссылки.
+  // Выпадающий список «Состояние панели»: всегда открывается на одном месте — первый пункт встаёт на место ссылки.
   function openDropdown() {
     dropdownList.innerHTML = '';
     PANEL_VIEWS.forEach((v) => {
@@ -669,15 +724,22 @@
     `<div class="rp-cat${kind === 'child' ? ' rp-cat--child' : ''}${kind === 'selected' ? ' is-selected' : ''}">` +
     `<span class="ico rp-cat__arrow">${ARROWS[kind] ?? ''}</span><span class="rp-cat__name">${name}</span><span class="rp-cat__count">${count}</span></div>`).join('');
 
-  // Карточки на картинке превью (координаты из макета 16041:48565): [x, y, ширина, высота, большая — с «+»].
+  // Карточки на картинке превью (координаты из макета 16041:48565): [x, y, ширина, высота, большая — с «+», действие].
   const SHOP_WIDGETS = [
     [12, 35, 75.5, 32], [95.5, 35, 75.5, 32], [179, 35, 75.5, 32], [262.5, 35, 75.5, 32], // секции
-    [12, 108, 326, 52, true], // вкладки
+    [12, 108, 326, 52, true, 'tabs'], // вкладки
     [12, 247, 326, 50, true], [12, 372, 326, 202, true], [12, 634, 326, 50, true], // наценка, номенклатура, остаток
     [12, 759, 326, 202, true], // отчеты
   ];
-  $('#rpShopPv').insertAdjacentHTML('beforeend', SHOP_WIDGETS.map(([x, y, w, h, big]) =>
-    `<div class="rp-wz" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px">${big ? '<span class="ico24 rp-wz__plus">&#xEAE9;</span>' : ''}</div>`).join(''));
+  $('#rpShopPv').insertAdjacentHTML('beforeend', SHOP_WIDGETS.map(([x, y, w, h, big, act]) =>
+    `<div class="rp-wz"${act ? ` data-act="${act}"` : ''} style="left:${x}px;top:${y}px;width:${w}px;height:${h}px">${big ? '<span class="ico24 rp-wz__plus">&#xEAE9;</span>' : ''}</div>`).join(''));
+  // Сценарий «Из магазина» (Figma 18797:65742): клик по «Вкладкам» закрывает магазин, виджет вкладок встаёт на своё место
+  // с новой пустой вкладкой (addBlankTab). Пока виджет на странице, второй не добавляется.
+  $('#rpShopPv').addEventListener('click', (e) => {
+    if (!e.target.closest('.rp-wz[data-act="tabs"]') || stage.classList.contains('tabs-added')) return;
+    closeRp();
+    addBlankTab();
+  });
 
   // «Настройки»: переключатель «Информеры» и выпадающие списки «На странице / В окне».
   // Выключенные «Информеры» прячут кнопки телефона и чата в колонке информеров (styles.css, .no-informers).
@@ -695,7 +757,7 @@
   const NOTICE_MODES = ['На странице', 'В окне'];
   let rpMenuLink = null;
 
-  // Как «Вид панели» в окне «Меню»: выбранный пункт встаёт на место ссылки.
+  // Как «Состояние панели» в окне «Меню»: выбранный пункт встаёт на место ссылки.
   function openRpMenu(link) {
     rpMenuLink = link;
     rpMenuList.innerHTML = '';
@@ -718,6 +780,24 @@
     link.addEventListener('click', () => (rpMenuLink === link ? closeRpMenu() : openRpMenu(link)));
   }
   $('#rpMenuClose').addEventListener('click', closeRpMenu);
+
+  // «⋮»: меню действий (статика с ховером), крестик меню — ровно поверх «⋮» (крестик: right −14, top 8, 28×28).
+  const rpMore = $('#rpMore');
+  const rpMoreMenu = $('#rpMoreMenu');
+  function openRpMore() {
+    rpMoreMenu.hidden = false;
+    rpMore.classList.add('is-active');
+    const r = stageRect(rpMore);
+    rpMoreMenu.style.left = Math.round(r.left + r.width / 2 - rpMoreMenu.offsetWidth) + 'px';
+    rpMoreMenu.style.top = Math.round(r.top + r.height / 2 - 8 - 14) + 'px';
+  }
+  function closeRpMore() { rpMoreMenu.hidden = true; rpMore.classList.remove('is-active'); }
+  rpMore.addEventListener('click', () => (rpMoreMenu.hidden ? openRpMore() : closeRpMore()));
+  $('#rpMoreClose').addEventListener('click', closeRpMore);
+  stage.addEventListener('mousedown', (e) => {
+    if (!rpMoreMenu.hidden && !e.target.closest('#rpMoreMenu, #rpMore')) closeRpMore();
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !rpMoreMenu.hidden) closeRpMore(); });
 
   // ---------- Редактор подменю ----------
   // ✎ (команда пункта или плавающая кнопка подменю) закрывает подменю и открывает окно редактора:
@@ -951,7 +1031,7 @@
 
   // ---------- Виджет «Вкладки» на Главной (Figma xMQ3ZEN4AUINgwjVoxR8hS 18731:100134) ----------
   // Клик по вкладке переключает содержимое дашборда и выделяет виджет (рамка + тулбар «+ ⚙ ⋯»), клик мимо снимает
-  // выделение. Двойной клик — переименование на месте; вкладки перетаскиваются мышью. pane — что показывает вкладка:
+  // выделение. Второй клик по активной вкладке — переименование на месте; вкладки перетаскиваются мышью. pane — что показывает вкладка:
   // 'main' — дашборд Главной, 'managers' — «Для менеджеров», 'empty' — пустая ячейка (новые и дублированные вкладки).
   // После перезагрузки страницы всё возвращается к исходному.
   let tabs = [{ id: 1, title: 'Главный', pane: 'main' }, { id: 2, title: 'Для менеджеров', pane: 'managers' }];
@@ -977,6 +1057,27 @@
     }
     const pane = findTab(activeTab).pane;
     for (const p of pageMain.querySelectorAll('.dash')) p.hidden = p.dataset.pane !== pane;
+  }
+
+  // single — сценарии «Добавление вкладки»: только «Главный», виджет вкладок скрыт до добавления вкладки (.tabs-added).
+  function resetTabs(single) {
+    tabs = [{ id: 1, title: 'Главный', pane: 'main' }];
+    if (!single) tabs.push({ id: 2, title: 'Для менеджеров', pane: 'managers' });
+    activeTab = 1;
+    nextTabId = 3;
+    stage.classList.toggle('tabs-added', !single);
+    renderTabs();
+  }
+
+  // «С чистого листа» в сценариях «Добавление вкладки» (Figma 18797:65818): появляется виджет вкладок с новой
+  // пустой вкладкой «Страница N», она активна, виджет выделен.
+  function addBlankTab() {
+    const id = nextTabId++;
+    tabs.push({ id, title: `Страница ${tabs.length + 1}`, pane: 'empty' });
+    activeTab = id;
+    stage.classList.add('tabs-added');
+    renderTabs();
+    selectTabs(true);
   }
 
   function setActiveTab(id) {
@@ -1030,17 +1131,16 @@
 
   tabsW.addEventListener('mousedown', (e) => {
     if (e.target.closest('.is-editing, .tabs-w__bar')) return;
+    // второй клик по активной вкладке (виджет уже выделен) — переименование на месте
+    const wasSelected = tabsW.classList.contains('is-selected');
     selectTabs(true);
     const tab = e.target.closest('.pg-tab');
     if (!tab) return;
     const id = +tab.dataset.id;
+    const rename = wasSelected && id === activeTab;
     startReorder(e, tab, 'x', (moved) => {
-      if (moved) { renderTabs(); renderTabsWin(); } else setActiveTab(id);
+      if (moved) { renderTabs(); renderTabsWin(); } else if (rename) startTabRename(tab, e.clientX, e.clientY); else setActiveTab(id);
     });
-  });
-  tabsW.addEventListener('dblclick', (e) => {
-    const tab = e.target.closest('.pg-tab');
-    if (tab) startTabRename(tab);
   });
 
   // Клик мимо виджета, его меню и окна снимает выделение; пока открыто окно «Вкладки», виджет остаётся выделенным.
@@ -1056,15 +1156,30 @@
   }
 
   // ----- переименование на месте (двойной клик): Enter или уход фокуса — применить, Esc — отменить -----
-  function startTabRename(tabEl) {
+  // Без выделения текста: каретка встаёт в точку клика (x, y), а если клик мимо текста — в конец названия.
+  function startTabRename(tabEl, x, y) {
     const t = findTab(+tabEl.dataset.id);
     const text = $('.pg-tab__text', tabEl);
     closeTabMenus();
     text.classList.add('is-editing');
     text.contentEditable = 'plaintext-only';
     text.focus();
-    const range = document.createRange();
-    range.selectNodeContents(text);
+    let range = null;
+    if (document.caretPositionFromPoint) {
+      const p = document.caretPositionFromPoint(x, y);
+      if (p && text.contains(p.offsetNode)) {
+        range = document.createRange();
+        range.setStart(p.offsetNode, p.offset);
+      }
+    } else if (document.caretRangeFromPoint) {
+      const r = document.caretRangeFromPoint(x, y);
+      if (r && text.contains(r.startContainer)) range = r;
+    }
+    if (!range) {
+      range = document.createRange();
+      range.selectNodeContents(text);
+    }
+    range.collapse(false);
     const s = getSelection();
     s.removeAllRanges();
     s.addRange(range);
@@ -1093,7 +1208,8 @@
     closeTabMenus();
     tabAddMenu.hidden = false;
     trigger.classList.add('is-active');
-    const r = stageRect(trigger);
+    // у ссылки «+вкладка» меню встаёт по её иконке, а не по центру всей ссылки
+    const r = stageRect(trigger.querySelector(':scope > .ico') || trigger);
     tabAddMenu.style.left = Math.round(r.left + r.width / 2 - 20 - 12) + 'px';
     tabAddMenu.style.top = Math.round(over ? r.top + r.height / 2 - 8 - 14 : r.top + r.height + 4) + 'px';
     tabAddMenu.trigger = trigger;
@@ -1110,7 +1226,7 @@
   function closeTabMenus() {
     tabAddMenu.hidden = true;
     tabDotsMenu.hidden = true;
-    for (const b of document.querySelectorAll('.tabs-w__btn.is-active, .tw-plus.is-active')) b.classList.remove('is-active');
+    for (const b of document.querySelectorAll('.tabs-w__btn.is-active:not(#tabsGear), .tw-plus.is-active, .inf-plus.is-active, .pg-link.is-active')) b.classList.remove('is-active');
   }
   const tabMenuOpen = () => !tabAddMenu.hidden || !tabDotsMenu.hidden;
 
@@ -1119,14 +1235,35 @@
   $('#tabsGear').addEventListener('click', () => { closeTabMenus(); openTabsWin('list'); });
   $('#tabAddClose').addEventListener('click', closeTabMenus);
   $('#tabDotsClose').addEventListener('click', closeTabMenus);
-  $('#tabAddBlank').addEventListener('click', () => { closeTabMenus(); openTabsWin('new'); });
+  // Сценарий «Из тулбара»: плюс в колонке информеров, «+» меню ровно поверх него.
+  $('#infPlus').addEventListener('click', (e) => (tabAddMenu.hidden ? openAddMenu(e.currentTarget, true) : closeTabMenus()));
+  // Сценарий «Из шапки дашборда»: ссылка «+вкладка» справа в шапке, «+» меню ровно поверх её «+».
+  $('#dashAddTab').addEventListener('click', (e) => (tabAddMenu.hidden ? openAddMenu(e.currentTarget, true) : closeTabMenus()));
+  // Сценарий «Из шапки конструктора»: та же ссылка слева от «Язык RU».
+  $('#ctorAddTab').addEventListener('click', (e) => (tabAddMenu.hidden ? openAddMenu(e.currentTarget, true) : closeTabMenus()));
+  // пока виджета вкладок нет (одна вкладка), «С чистого листа» сразу добавляет вкладку (addBlankTab)
+  $('#tabAddBlank').addEventListener('click', () => {
+    closeTabMenus();
+    if (stage.dataset.scenario === 'tab-ctor-head') addBlankTabWin();
+    else if (!stage.classList.contains('tabs-added')) addBlankTab();
+    else openTabsWin('new');
+  });
+  // Сценарий «Из шапки конструктора»: вкладка «Страница N» создаётся сразу и открывается в окне «Вкладки» на экране вкладки.
+  // ↺ окна убирает и её (снимок — до добавления).
+  function addBlankTabWin() {
+    const snap = tw ? null : tabsSnapshot();
+    addBlankTab();
+    openTabsWin('list');
+    if (snap) tw.start = snap;
+    showTabEdit(activeTab);
+  }
   tabDotsMenu.addEventListener('click', (e) => {
     const act = e.target.closest('[data-act]')?.dataset.act;
     if (act === 'add') openAddMenu($('#tabsPlus'));
     else if (act === 'settings') { closeTabMenus(); openTabsWin('list'); }
   });
   stage.addEventListener('mousedown', (e) => {
-    if (!tabMenuOpen() || e.target.closest('#tabAddMenu, #tabDotsMenu, #tabsPlus, #tabsDots, #twPlus')) return;
+    if (!tabMenuOpen() || e.target.closest('#tabAddMenu, #tabDotsMenu, #tabsPlus, #tabsDots, #twPlus, #infPlus, #dashAddTab, #ctorAddTab')) return;
     closeTabMenus();
   });
 
@@ -1159,6 +1296,7 @@
       tabsWin.style.top = Math.round(Math.max(0, r.top)) + 'px';
     }
     selectTabs(true);
+    $('#tabsGear').classList.add('is-active'); // пока окно открыто, ⚙ подсвечена
     if (screen === 'new') showTabEdit(null);
     else showTabList();
   }
@@ -1167,7 +1305,13 @@
     closeTabMenus();
     smeConfirm.hidden = true;
     tabsWin.hidden = true;
+    $('#tabsGear').classList.remove('is-active');
     tw = null;
+    // виджет не может состоять из одной вкладки: если осталась одна, после закрытия окна (✓ или ✕) он исчезает
+    if (tabs.length < 2 && stage.classList.contains('tabs-added')) {
+      selectTabs(false);
+      stage.classList.remove('tabs-added');
+    }
   }
 
   function showTabList() {
@@ -1205,7 +1349,7 @@
       const cmds = el('span', 'tw-row__cmds',
         `<button class="tw-row__cmd" type="button" data-cmd="edit" aria-label="Настроить"><span class="ico24">&#xEAA9;</span></button>
          <button class="tw-row__cmd" type="button" data-cmd="copy" aria-label="Дублировать"><span class="ico24">&#xE669;</span></button>` +
-        (i > 0 ? '<button class="tw-row__cmd tw-row__cmd--del" type="button" data-cmd="delete" aria-label="Удалить"><span class="ico24">&#xE65C;</span></button>' : ''));
+        (i > 0 ? '<button class="tw-row__cmd tw-row__cmd--del" type="button" data-cmd="delete" aria-label="Удалить"><span class="ico24">&#xEB72;</span></button>' : ''));
       row.append(text, cmds);
       twList.append(row);
     });
@@ -1537,7 +1681,8 @@
   const THEMES = [
     { id: 'blue', acc: null, marker: '#0c94ff', accent2: '#cc3d00', bg: 'linear-gradient(#f2f9ff, #f8f8f8 27.546%)', vars: light('#e8f1fb', '#eef5fd'), pv: { ...PV_LIGHT, sel: '#eef5fd' } },
     { id: 'pink', acc: null, marker: '#ff4567', accent2: '#f6733c', bg: 'linear-gradient(#fff2f4, #f8f8f8 27.546%)', vars: light('#fbe9ed', '#fdf1f3'), pv: { ...PV_LIGHT, sel: '#fdf1f3' } },
-    { id: 'dark', acc: '#2c3e50', marker: '#0c94ff', accent2: '#cc3d00', vars: {}, pv: PV_DARK },
+    // под ЦУ — свой фон (Figma 16288:199296)
+    { id: 'dark', acc: '#2c3e50', marker: '#0c94ff', accent2: '#cc3d00', vars: { '--cu-bg': '#ecedee' }, pv: PV_DARK },
     { id: 'gray-blue', acc: '#e9e9e9', marker: '#357ed0', accent2: '#cc3d00', vars: { ...GRAY, '--acc-item-hover': '#f2f2f2', '--acc-item-selected': '#dedede', '--acc-burger-hover': '#dedede', '--acc-bird-hover': '#dedede' }, pv: PV_GRAY },
     { id: 'night', acc: '#050620', marker: '#71d186', accent2: '#f6733c',
       vars: { '--acc-item-hover': '#222b47', '--acc-item-selected': '#161e34', '--acc-cmd-dots': '#6b7c99', '--acc-burger-hover': '#161e34', '--acc-bird-hover': '#222b47', '--submenu-bg': '#222b47', '--submenu-item-hover': '#2f3a5a' },
@@ -1599,8 +1744,8 @@
     if (own.bg) { e.bg = bgCss(own.bg); e.pvBg = bgPreview(own.bg); }
     if (own.acc) {
       e.acc = toCss(own.acc);
-      // свой фон — страница светлая: тёмные карточки темы «на всю страницу» не берём
-      const page = own.bg ? {} : Object.fromEntries(Object.entries(t.vars).filter(([k]) => k.startsWith('--c-')));
+      // свой фон — страница светлая: тёмные карточки темы «на всю страницу» и фон под ЦУ не берём
+      const page = own.bg ? {} : Object.fromEntries(Object.entries(t.vars).filter(([k]) => k.startsWith('--c-') || k === '--cu-bg'));
       e.vars = { ...page, ...accVars(own.acc, own.marker ? own.marker.hex : t.marker) };
       // превью: цвета текста и иконок аккордеона под его новый фон
       e.pv = !e.vars['--acc-text'] ? PV_DARK : e.vars['--acc-text'] === '#000' ? { ...PV_LIGHT, sel: e.vars['--acc-item-selected'] } : PV_GRAY;

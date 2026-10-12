@@ -8,8 +8,16 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <!-- Шапка страницы демо: название сценария, версия, статус согласования -->
+  <header class="demo-head">
+    <a class="demo-head__link" href="https://axure.tensor.ru/StandardsV8/guidelines.html">
+      <img class="demo-head__back" src="assets/img/back-arrow.svg" width="7.5" height="13" alt="">
+      <h1 class="demo-head__title">Настройка интерфейса в конструкторе <span class="demo-head__ver">27.1100</span></h1>
+    </a>
+    <div class="demo-head__sub">Запущено согласование 30.09.26</div>
+  </header>
   <div class="viewport">
-    <div class="stage" id="stage">
+    <div class="stage tabs-added" id="stage" data-scenario="demo">
 
       <!-- Шапка конструктора -->
       <header class="ctor-header">
@@ -55,6 +63,8 @@
         </div>
 
         <div class="ctor-header__right">
+          <!-- Сценарий «Из шапки конструктора»: ссылка «+вкладка» слева от языка через 12px, остаётся и после добавления вкладки -->
+          <button class="pg-link ctor-add-tab" type="button" id="ctorAddTab"><span class="ico">&#xEB25;</span><span class="pg-link__text">вкладка</span></button>
           <button class="pill-group lang-btn" type="button">Язык RU</button>
           <button class="done-btn" type="button" aria-label="Сохранить"><span class="ico ico--20">&#xE75E;</span></button>
           <button class="close-btn" type="button" aria-label="Закрыть"><img src="assets/img/close-header.svg" width="28" height="28" alt=""></button>
@@ -83,14 +93,27 @@
 
           <!-- Главная -->
           <section class="page" id="pageMain">
-            <div class="pg-head"><div class="pg-search">Найти</div></div>
+            <div class="pg-head">
+              <div class="pg-search">Найти</div>
+              <!-- Сценарий «Из шапки дашборда»: ссылка «+вкладка» (Figma nuC4KFMiS36uDWDUp9wKGl 17890:7577, label-кнопка) -->
+              <div class="pg-head__right">
+                <button class="pg-link" type="button" id="dashAddTab"><span class="ico">&#xEB25;</span><span class="pg-link__text">вкладка</span></button>
+                <!-- Подсценарий «С фильтрами»: фильтры справа от ссылки (Figma xMQ3ZEN4AUINgwjVoxR8hS 19325:47991), статика -->
+                <div class="pg-filters">
+                  <span class="pg-filter">Январь</span>
+                  <button class="pg-filter-btn" type="button" aria-label="Фильтры"><span class="ico">&#xE94C;</span></button>
+                </div>
+              </div>
+            </div>
             <!-- Виджет «Вкладки» (Figma xMQ3ZEN4AUINgwjVoxR8hS 18731:100134): вкладки рисует app.js -->
             <div class="tabs-w" id="tabsWidget">
               <div class="pg-tabs" id="tabsList"></div>
-              <div class="tabs-w__bar" id="tabsBar">
-                <button class="tabs-w__btn" type="button" id="tabsPlus" aria-label="Добавить вкладку"><span class="ico24">&#xE95D;</span></button>
-                <button class="tabs-w__btn" type="button" id="tabsGear" aria-label="Настроить вкладки"><span class="ico24">&#xE75D;</span></button>
-                <button class="tabs-w__btn" type="button" id="tabsDots" aria-label="Ещё"><span class="ico24">&#xEAB4;</span></button>
+              <div class="tabs-w__toolbar">
+                <div class="tabs-w__bar" id="tabsBar">
+                  <button class="tabs-w__btn" type="button" id="tabsPlus" aria-label="Добавить вкладку"><span class="ico24">&#xE95D;</span></button>
+                  <button class="tabs-w__btn" type="button" id="tabsGear" aria-label="Настроить вкладки"><span class="ico24">&#xE75D;</span></button>
+                  <button class="tabs-w__btn" type="button" id="tabsDots" aria-label="Ещё"><span class="ico24">&#xEAB4;</span></button>
+                </div>
               </div>
             </div>
             <div class="dash" data-pane="main">
@@ -309,6 +332,8 @@
             <div class="informers__top">
               <span class="informers__fio">СС<img src="assets/img/cu/fio-dot.svg" width="5.058" height="5.058" alt=""></span>
               <span class="informers__btn"><span class="ico">&#xE747;</span></span>
+              <!-- сценарий «Из тулбара»: плюс вместо кнопки выше (Figma 16065:104154, Ghost 24 — nuC4KFMiS36uDWDUp9wKGl 17890:9866), открывает меню «+ вкладка» -->
+              <button class="inf-plus" type="button" id="infPlus" aria-label="Добавить вкладку"><span class="ico24">&#xE95D;</span></button>
             </div>
             <div class="informers__bottom">
               <span class="informers__shot"><img src="assets/img/cu/informers-sprite.png" style="top: -2231.25%" alt=""></span>
@@ -403,14 +428,15 @@
       <!-- Правая панель -->
       <aside class="right-panel">
         <div class="right-panel__cmds">
-          <button class="rp-btn rp-btn--accent" type="button" aria-label="Магазин" data-rp="shop"><span class="ico24">&#xEADD;</span></button>
-          <button class="rp-btn" type="button" aria-label="Данные" data-rp="data"><span class="ico rp-ico21">&#xEBBC;</span></button>
-          <button class="rp-btn" type="button" aria-label="Слои" data-rp="layers"><span class="ico rp-ico21">&#xEBF9;</span></button>
+          <button class="rp-btn rp-btn--accent" type="button" aria-label="Магазин" data-rp="shop"><span class="ico24">&#xEADD;</span><span class="click-pin" aria-hidden="true"><img src="assets/img/click-cursor.svg" width="16" height="16" alt=""></span></button>
+          <button class="rp-btn" type="button" aria-label="Данные" data-rp="data"><span class="rp-svg rp-svg--data"></span></button>
+          <button class="rp-btn" type="button" aria-label="Слои" data-rp="layers"><span class="rp-svg rp-svg--layers"></span></button>
           <button class="rp-btn" type="button" aria-label="Фильтр" data-rp="filter"><span class="ico24">&#xE94C;</span></button>
-          <button class="rp-btn" type="button" aria-label="Поиск" data-rp="search"><span class="ico24">&#xEAA7;</span></button>
+          <!-- лупа в макете (Figma 16041:45395) — с толстой ручкой, как в cbuc-icons: в нашем cbuc-icons24 она другая и крупнее -->
+          <button class="rp-btn" type="button" aria-label="Поиск" data-rp="search"><span class="ico ico--20">&#xEAA7;</span></button>
           <button class="rp-btn" type="button" aria-label="Настройки" data-rp="settings"><span class="ico24">&#xEAA9;</span></button>
         </div>
-        <button class="rp-more" type="button" aria-label="Ещё"><span class="ico ico--20">&#xE9D9;</span></button>
+        <button class="rp-more" type="button" id="rpMore" aria-label="Ещё"><span class="ico ico--20">&#xE9D9;</span></button>
         <div class="right-panel__spacer"></div>
         <button class="rp-help" type="button" aria-label="Помощь"><img src="assets/img/help.svg" width="12" height="16" alt=""></button>
       </aside>
@@ -518,6 +544,18 @@
       </section>
 
       <!-- Выпадающий список «На странице / В окне» (окно «Настройки») -->
+      <!-- Меню «⋮» правой панели (Figma vUgZuefpqUuaG2j0DDnEZf 16550:155703): пункты только с ховером, без действий; крестик — поверх «⋮» -->
+      <div class="mw-menu rp-more-menu" id="rpMoreMenu" hidden>
+        <div class="mw-menu__list">
+          <div class="mw-menu__item rp-more-item"><span class="ico24">&#xE9DD;</span><span class="mw-menu__text">Сохранить на диск</span></div>
+          <div class="mw-menu__item rp-more-item"><span class="ico24">&#xE669;</span><span class="mw-menu__text">Копировать</span></div>
+          <div class="mw-menu__item rp-more-item"><span class="ico24">&#xE628;</span><span class="mw-menu__text">Скачать</span></div>
+          <div class="mw-menu__item rp-more-item"><span class="ico24">&#xEA30;</span><span class="mw-menu__text">Загрузить</span></div>
+          <div class="mw-menu__item rp-more-item"><span class="ico24">&#xE631;</span><span class="mw-menu__text">Опубликовать</span><span class="rp-more-item__arrow"><span class="ico">&#xE9AB;</span></span></div>
+          <div class="mw-menu__item rp-more-item"><span class="ico24">&#xE67D;</span><span class="mw-menu__text">История изменений</span></div>
+        </div>
+        <button class="mw-menu__close" type="button" id="rpMoreClose" aria-label="Закрыть"><img src="assets/img/close-menu.svg" width="12" height="12" alt=""></button>
+      </div>
       <div class="mw-menu rp-menu" id="rpMenu" hidden>
         <div class="mw-menu__list" id="rpMenuList"></div>
         <button class="mw-menu__close" type="button" id="rpMenuClose" aria-label="Закрыть"><img src="assets/img/close-menu.svg" width="12" height="12" alt=""></button>
@@ -538,7 +576,7 @@
         </div>
         <div class="set-win__body">
           <div class="mw-prop">
-            <span class="mw-prop__name">Вид панели</span>
+            <span class="mw-prop__name">Состояние панели</span>
             <button class="mw-link" type="button" id="mwNarrowLink"></button>
           </div>
           <div class="mw-prop">
@@ -551,7 +589,7 @@
         </div>
       </section>
 
-      <!-- Выпадающий список «Вид панели» -->
+      <!-- Выпадающий список «Состояние панели» -->
       <div class="mw-menu" id="mwMenu" hidden>
         <div class="mw-menu__list" id="mwMenuList"></div>
         <button class="mw-menu__close" type="button" id="mwMenuClose" aria-label="Закрыть"><img src="assets/img/close-menu.svg" width="12" height="12" alt=""></button>
@@ -844,6 +882,51 @@
       </div>
     </div>
   </div>
+  <!-- Вспомогательная панель справа от демо (Figma xMQ3ZEN4AUINgwjVoxR8hS 18715:93398): устройство, сценарии, ссылки -->
+  <aside class="sys" aria-label="Сценарии демо">
+    <div class="sys__top">
+      <div class="sys__devices">
+        <button class="sys-device" type="button" aria-label="Ноутбук" disabled><img src="assets/img/sys-laptop.svg" width="16" height="16" alt=""></button>
+        <button class="sys-device is-on" type="button" aria-label="Монитор" aria-pressed="true"><img src="assets/img/sys-monitor.svg" width="16" height="16" alt=""></button>
+      </div>
+      <div class="sys__size"><span>1600х900</span><span>монитор</span></div>
+      <!-- Сценарии: выбран может быть только один на всю панель; выбранный — в data-scenario у #stage.
+           Вилка (как «Пользователь» → «С главной / Из настроек», Figma 18715:93398): подсценарий — в data-variant у #stage,
+           при выборе сценария включается первый подсценарий -->
+      <div class="sys-card sys-card--scen" role="radiogroup" aria-label="Сценарий">
+        <div class="sys-options">
+          <button class="sys-radio is-on" type="button" role="radio" aria-checked="true" data-scenario="demo"><span class="sys-radio__box"></span><span class="sys-radio__text">Общее демо</span></button>
+        </div>
+        <div class="sys-group">Добавление вкладки</div>
+        <div class="sys-options">
+          <button class="sys-radio" type="button" role="radio" aria-checked="false" data-scenario="tab-toolbar"><span class="sys-radio__box"></span><span class="sys-radio__text">Из тулбара</span></button>
+          <button class="sys-radio" type="button" role="radio" aria-checked="false" data-scenario="tab-dash-head"><span class="sys-radio__box"></span><span class="sys-radio__text">Из шапки дашборда</span></button>
+          <div class="sys-sub">
+            <button class="sys-radio" type="button" role="radio" aria-checked="false" data-scenario="tab-dash-head" data-variant="no-filters"><span class="sys-radio__box"></span><span class="sys-radio__text">Без фильтров</span></button>
+            <button class="sys-radio" type="button" role="radio" aria-checked="false" data-scenario="tab-dash-head" data-variant="filters"><span class="sys-radio__box"></span><span class="sys-radio__text">С фильтрами</span></button>
+          </div>
+          <button class="sys-radio" type="button" role="radio" aria-checked="false" data-scenario="tab-ctor-head"><span class="sys-radio__box"></span><span class="sys-radio__text">Из шапки конструктора</span></button>
+          <button class="sys-radio" type="button" role="radio" aria-checked="false" data-scenario="tab-shop"><span class="sys-radio__box"></span><span class="sys-radio__text">Из магазина</span></button>
+        </div>
+      </div>
+    </div>
+    <div class="sys-card">
+      <div class="sys-links">
+        <a class="sys-link" href="https://www.figma.com/proto/KY2gK7VQ4zhcgXpJhoIhao/%D0%9D%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B8-%D0%B8%D0%BD%D1%82%D0%B5%D1%80%D1%84%D0%B5%D0%B9%D1%81%D0%B0?node-id=371-54342&amp;p=f&amp;viewport=83%2C-2273%2C0.42&amp;t=6iJnmJhQ3qHOKjv9-8&amp;scaling=min-zoom&amp;content-scaling=fixed&amp;starting-point-node-id=371%3A54342&amp;page-id=292%3A18752&amp;hide-ui=1" target="_blank" rel="noopener"><span class="ico">&#xE63C;</span><span>Чистое небо - Кононов Влад</span></a>
+        <a class="sys-link" href="https://www.figma.com/proto/9eLwMJLQCwT0xHKviN2j1P/%D0%9D%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B0-%D0%B0%D0%BA%D0%BA%D0%BE%D1%80%D0%B4%D0%B5%D0%BE%D0%BD%D0%B0-%D0%B2-%D0%BA%D0%BE%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BA%D1%82%D0%BE%D1%80%D0%B5?node-id=15961-69245&amp;t=s00ww53K0w0788Dp-0&amp;scaling=min-zoom&amp;content-scaling=fixed&amp;starting-point-node-id=15961%3A69245&amp;page-id=15961%3A68013&amp;hide-ui=1" target="_blank" rel="noopener"><span class="ico">&#xE63C;</span><span>Настройка аккордеона</span></a>
+      </div>
+      <div class="sys-team">
+        <span class="sys-team__label">Design</span>
+        <div class="sys-team__info">
+          <span class="sys-team__name">Смирнова Мария</span>
+          <a class="sys-team__link" href="https://project.sbis.ru/shared/disk/b5420018-3bcf-4a21-943d-7e19e3e7273a" target="_blank" rel="noopener">Описание</a>
+          <a class="sys-team__link" href="https://online.sbis.ru/opendoc.html?guid=01a0b8a6-0896-7495-b6ef-bb87253c728a&amp;client=3" target="_blank" rel="noopener">Разработка макета</a>
+        </div>
+      </div>
+      <div class="sys-team"><span class="sys-team__label">Develop</span></div>
+    </div>
+  </aside>
+
   <script src="app.js"></script>
 </body>
 </html>
