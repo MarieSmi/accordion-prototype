@@ -496,7 +496,7 @@
   const windows = {}; // имя → { win, btn, onOpen, onClose }
   let openWin = null;
 
-  // Одновременно открыто одно окно на сцене: «Меню», «Логотип», окна правой панели, «Тема», выбор цвета, «Фон», «Вкладки».
+  // Одновременно открыто одно окно на сцене: «Меню», «Логотип», окна правой панели, «Тема», выбор цвета, «Фон», «Вкладки», меню «Язык».
   // Каждое окно перед открытием закрывает остальные (своё закрывать не нужно — его закрывающая функция ничего не сломает).
   function closeOtherWindows() {
     setWindow(null);
@@ -505,6 +505,7 @@
     closeColorWin();
     closeBgWin();
     if (tw) closeTabsWin();
+    closeLangMenu();
   }
 
   function registerWindow(name, { win, btn, onOpen = () => {}, onClose = () => {} }) {
@@ -643,6 +644,7 @@
     '<div class="lang-menu__more"><img src="assets/img/lang-more.svg" width="32" height="10" alt="Ещё"></div>';
 
   function openLangMenu() {
+    closeOtherWindows(); // меню «Язык» — как окно: открыто одно
     langMenu.hidden = false;
     langBtn.classList.add('is-active');
     const btn = stageRect(langBtn);
@@ -1586,6 +1588,8 @@
   const plusList = $('#plusMenuList');
   const plusSearch = $('#plusMenuSearch');
   const smePlus = $('.sme-plus', editor);
+  const accPlus = $('.acc-plus');
+  let plusOwner = smePlus; // кнопка, открывшая меню: «+» редактора или «+» шапки аккордеона
 
   function renderPlusMenu() {
     const q = plusSearch.value.trim().toLowerCase();
@@ -1597,7 +1601,8 @@
       if (onClick) r.addEventListener('click', onClick);
       plusList.append(r);
     };
-    if (!q) row('', '<span class="ico pm-ico">&#xEADD;</span><span>Добавить виджет</span>');
+    // У «+» шапки аккордеона строки «Добавить виджет» нет.
+    if (!q && plusOwner === smePlus) row('', '<span class="ico pm-ico">&#xEADD;</span><span>Добавить виджет</span>');
     for (const n of PLUS_TREE) {
       if (n.sep) { if (!q) plusList.append(el('div', 'pm-sep')); continue; }
       const kids = (n.items || []).filter(match);
@@ -1605,7 +1610,7 @@
       const arrow = n.kind === 'folder' ? '' : (n.open || (q && kids.length)) ? '' : '';
       row('', `<span class="ico pm-ico">${arrow}</span><span>${n.title}</span>`,
         n.kind === 'group' ? () => { n.open = !n.open; renderPlusMenu(); } : null);
-      if (n.open || (q && kids.length)) for (const t of (q ? kids : n.items)) row('pm-row--page', `<span>${t}</span>`, () => addPage(t));
+      if (n.open || (q && kids.length)) for (const t of (q ? kids : n.items)) row('pm-row--page', `<span>${t}</span>`, () => (plusOwner === smePlus ? addPage(t) : closePlusMenu()));
     }
   }
 
@@ -1616,13 +1621,14 @@
     commit(draft);
   }
 
-  function openPlusMenu() {
-    stopTitleEdit(true);
+  function openPlusMenu(owner) {
+    if (owner === smePlus) stopTitleEdit(true);
+    plusOwner = owner;
     plusSearch.value = '';
     renderPlusMenu();
     plusMenu.hidden = false;
-    smePlus.classList.add('is-active');
-    const r = stageRect(smePlus);
+    owner.classList.add('is-active');
+    const r = stageRect(owner);
     // 9 — верхний отступ меню, 14 — половина строки поиска.
     plusMenu.style.left = Math.round(Math.min(r.left, 1600 - plusMenu.offsetWidth)) + 'px';
     plusMenu.style.top = Math.round(Math.max(0, Math.min(r.top + r.height / 2 - 9 - 14, 900 - plusMenu.offsetHeight))) + 'px';
@@ -1630,14 +1636,15 @@
   }
   function closePlusMenu() {
     plusMenu.hidden = true;
-    smePlus.classList.remove('is-active');
+    plusOwner.classList.remove('is-active');
   }
 
-  smePlus.addEventListener('click', () => (plusMenu.hidden ? openPlusMenu() : closePlusMenu()));
+  smePlus.addEventListener('click', () => (plusMenu.hidden ? openPlusMenu(smePlus) : closePlusMenu()));
+  accPlus.addEventListener('click', () => (plusMenu.hidden ? openPlusMenu(accPlus) : closePlusMenu()));
   $('#plusMenuClose').addEventListener('click', closePlusMenu);
   plusSearch.addEventListener('input', renderPlusMenu);
   stage.addEventListener('mousedown', (e) => {
-    if (plusMenu.hidden || e.target.closest('#plusMenu') || e.target.closest('.sme-plus')) return;
+    if (plusMenu.hidden || e.target.closest('#plusMenu') || e.target.closest('.sme-plus, .acc-plus')) return;
     closePlusMenu();
   }, true);
 
@@ -2077,6 +2084,8 @@
     sw.className = 'swatch' + (img ? ' is-img' : b.kind === 'color' && b.a < 100 ? ' is-alpha' : '');
     sw.style.setProperty('--c', img ? `url(${BG_IMGS[b.i]})` : custom.bg ? bgPreview(b) : t.bg ?? DEFAULT_BG);
     stage.classList.toggle('is-bg-img', img);
+    // аккордеон белый 70%, как задаёт картинка (не перекрашен), — его забеление входит в общий слой под контентом (styles.css)
+    stage.classList.toggle('is-acc-veil', img && custom.acc?.hex === '#ffffff' && custom.acc.a === 70);
     if (!img) { for (const p of ['--bg-img', '--bg-op', '--bg-filter', '--bg-tint']) stage.style.removeProperty(p); return; }
     const f = b.fx;
     // температура: тёплый или холодный оттенок поверх картинки (soft-light)
