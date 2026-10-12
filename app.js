@@ -1002,7 +1002,7 @@
       title: sec.title, icon: sec.customIcon ?? null, head: sec.submenu.headLabel ? null : sec.submenu.head ?? sec.title, showHead: !sec.submenu.noHead,
       cols: sec.submenu.cols.map((c) => c.slice()),
     };
-    ed = { sec, draft, hist: [cloneDraft(draft)], at: 0, selected: null };
+    ed = { sec, draft, hist: [cloneDraft(draft)], at: 0, selected: null, base: PRISTINE[id] }; // base — к чему возвращает «Вернуть исходное»
     smeConfirm.hidden = true;
     renderEditor();
     shield.hidden = false;
@@ -1029,9 +1029,17 @@
     if (stage.dataset.scenario === 'submenu-editor') openEditorOnly();
   }
 
-  // Сценарий «Редактор подменю»: на сцене только редактор «Бизнеса» по центру; после ✓/✕ он открывается снова.
+  // Группа «Редактор подменю»: на сцене только редактор «Документов» по центру; после ✓/✕ он открывается снова.
+  // «С нуля» — подменю без пунктов (только заголовок), его ✓ не трогает «Документы» в аккордеоне; «Готовое подменю» — как есть.
+  const editorFromScratch = () => stage.dataset.scenario === 'submenu-editor' && stage.dataset.variant === 'scratch';
   function openEditorOnly() {
-    openEditor('business');
+    openEditor('docs');
+    if (editorFromScratch()) {
+      ed.draft.cols = [[]];
+      ed.hist = [cloneDraft(ed.draft)];
+      ed.base = cloneDraft(ed.draft);
+      renderEditor();
+    }
     editor.style.left = Math.round((1600 - editor.offsetWidth) / 2) + 'px';
     editor.style.top = Math.round((900 - editor.offsetHeight) / 2) + 'px';
   }
@@ -1082,7 +1090,7 @@
     });
     smeUndo.disabled = ed.at === 0;
     smeRedo.disabled = ed.at === ed.hist.length - 1;
-    smeReset.disabled = draftKey(draft) === draftKey(PRISTINE[ed.sec.id]);
+    smeReset.disabled = draftKey(draft) === draftKey(ed.base);
   }
 
   // Изменение черновика — новый шаг истории (шаги «вперёд» отбрасываются).
@@ -1125,6 +1133,7 @@
 
   // Применение черновика: аккордеон и подменю раздела перерисовываются с новым названием и списком.
   function saveEditor() {
+    if (editorFromScratch()) { closeEditor(); return; }
     const { sec, draft } = ed;
     const pristine = PRISTINE[sec.id];
     // Открытый пункт подменю ищем по самому пункту — после удалений ключ «колонка:строка» мог сдвинуться.
@@ -1192,7 +1201,7 @@
 
   smeUndo.addEventListener('click', () => goHistory(-1));
   smeRedo.addEventListener('click', () => goHistory(1));
-  smeReset.addEventListener('click', () => commit(cloneDraft(PRISTINE[ed.sec.id])));
+  smeReset.addEventListener('click', () => commit(cloneDraft(ed.base)));
   $('#smeDone').addEventListener('click', saveEditor);
   $('#smeClose').addEventListener('click', () => {
     if (draftKey(ed.draft) === draftKey(ed.hist[0])) closeEditor();
