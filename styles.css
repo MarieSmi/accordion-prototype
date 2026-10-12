@@ -50,7 +50,7 @@
   --win-shadow: 0 0 46px rgba(0, 0, 0, .12), 0 0 15px rgba(0, 0, 0, .12); /* shadow_a */
   --label: #656c87;            /* icon/secondary_icon-color */
   --link: #2562aa;             /* text/link_text-color */
-  --link-hover: #153f6f;       /* text/link_hover_text-color */
+  --link-hover: #153f6f;       /* text/link_hover_text-color (Figma xMQ3ZEN4AUINgwjVoxR8hS 19307:42711) */
   --readonly: #ccc;            /* text/readonly_text-color */
   --switcher-text: #8991a9;    /* components/toggle/text-color_switcher */
   --border: #d2d6da;           /* border/unaccented_border-color */
@@ -112,7 +112,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 .viewport { position: fixed; inset: 0; overflow: hidden; }
 .stage {
   position: absolute; left: 0; top: 0; width: 1600px; height: 900px;
-  background: var(--ctor-bg); overflow: hidden;
+  background: var(--ctor-bg); overflow: hidden; border-radius: 8px; /* скругление только у окна редактора, у контента углов нет */
   transform-origin: 0 0;
   box-shadow: 0 8px 40px rgba(0, 0, 0, .12);
 }
@@ -168,7 +168,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 /* ---------- Аккордеон ---------- */
 .accordion {
   position: absolute; left: 9px; top: 45px; width: calc(var(--acc-gap) - 1px); bottom: 0; /* 220 / узкий 56 — от --acc-gap */
-  background: var(--acc-bg); border-top-left-radius: 8px;
+  background: var(--acc-bg);
   display: flex; flex-direction: column; color: var(--acc-text);
 }
 /* Светлый текст на тёмном фоне выглядит жирнее, чем в Figma — компенсируем тонким начертанием (Inter переменной толщины) */
@@ -337,7 +337,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 .stage.is-resizing { transition: --mid .3s cubic-bezier(.4, 0, .2, 1), --center .3s cubic-bezier(.4, 0, .2, 1), --acc-gap .3s cubic-bezier(.4, 0, .2, 1), --mid-full .3s cubic-bezier(.4, 0, .2, 1); }
 .stage.is-resizing .accordion { overflow: hidden; } /* пока ширина меняется, пункты обрезаются по краю */
 .accordion { left: calc(9px + var(--align-shift)); z-index: 1; } /* поверх области контента */
-.content { position: absolute; left: 8px; top: 45px; width: 1539px; height: 855px; overflow: hidden; background: var(--content-bg); border-top-right-radius: 8px; display: flex; }
+.content { position: absolute; left: 8px; top: 45px; width: 1539px; height: 855px; overflow: hidden; background: var(--content-bg); display: flex; }
 /* «Растянуть»: под аккордеоном, как раньше, фон конструктора; «По центру» / «Слева» — по бокам фон страницы */
 .stage:not(.is-aligned) .content { background: linear-gradient(var(--acc-under), var(--acc-under)) 0 0 / var(--acc-gap) 100% no-repeat, var(--content-bg); }
 .content__mid { flex: none; width: var(--mid); margin-left: calc(var(--acc-gap) + var(--align-shift)); overflow: hidden; }
@@ -436,6 +436,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 .pg-tab { display: flex; flex-direction: column; justify-content: center; padding: 3px 12px 0; position: relative; font-size: 15px; letter-spacing: -.2115px; color: var(--c-name); white-space: nowrap; }
 .pg-tab.is-active { color: var(--accent2); font-weight: 600; }
 .pg-tab.is-active::after { content: ""; position: absolute; left: 12px; right: 12px; bottom: 0; height: 3px; border-radius: 4px; background: var(--accent2); }
+.pg-tab:not(.is-active):hover::after { content: ""; position: absolute; left: 12px; right: 12px; bottom: 0; height: 3px; border-radius: 4px; background: #e5e7eb; } /* extra/marker_hover_color (Figma xMQ3ZEN4AUINgwjVoxR8hS 16016:204167) */
 /* ширина вкладки — по жирному начертанию, чтобы не прыгала при выборе */
 .pg-tab__text { display: inline-grid; }
 .pg-tab__text::after { content: attr(data-text); font-weight: 600; height: 0; visibility: hidden; }
@@ -602,8 +603,10 @@ ul { list-style: none; margin: 0; padding: 0; }
 .rp-btn { width: 44px; height: 48px; padding: 12px 10px; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: background-color .12s; }
 .rp-btn:hover { background: var(--rp-hover); }
 .rp-btn--accent .ico24 { color: var(--rp-accent); }
-/* «Данные» и «Слои» есть только в шрифте cbuc-icons (в cbuc-icons24 глифы пустые); размер подобран, чтобы выглядели как 24px-иконки */
-.rp-ico21 { font-size: 21px; width: 24px; height: 24px; }
+/* «Данные» и «Слои»: в cbuc-icons24 глифов нет — контуры из макета (Figma xMQ3ZEN4AUINgwjVoxR8hS 16041:45391, 16041:45392), цвет как у иконок */
+.rp-svg { width: 24px; height: 24px; background: var(--icon); -webkit-mask: var(--m) center / 24px no-repeat; mask: var(--m) center / 24px no-repeat; }
+.rp-svg--data { --m: url("assets/img/rp-data.svg"); }
+.rp-svg--layers { --m: url("assets/img/rp-layers.svg"); }
 .rp-more { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background-color .12s; }
 /* «⋮» — кнопка Ghost: при наведении фон pale_color rgba(51,51,51,.05), иконка #575757 (Figma 17890:9932) */
 .rp-more:hover { background: rgba(51, 51, 51, .05); }
@@ -721,11 +724,11 @@ ul { list-style: none; margin: 0; padding: 0; }
 .rp-card__title { height: 24px; display: flex; align-items: center; font-size: 12px; font-weight: 600; letter-spacing: -.1692px; text-transform: uppercase; }
 .rp-props { display: flex; flex-direction: column; gap: 8px; }
 .rp-prop { height: 24px; display: flex; align-items: center; gap: 8px; }
-.rp-prop__label { flex: none; width: 60px; font-size: 14px; letter-spacing: -.1974px; color: var(--label); white-space: nowrap; }
+/* подписи — как ссылки и поля: строка 24px, текст на 1px выше центра (textWrap pb-px), чтобы всё стояло на одной базовой линии */
+.rp-prop__label { flex: none; width: 60px; height: 24px; display: flex; align-items: center; padding-bottom: 1px; font-size: 14px; letter-spacing: -.1974px; color: var(--label); white-space: nowrap; }
 .rp-prop__label--82 { width: 82px; }
 .rp-prop__label--soft { width: auto; color: #8991a9; }
 .rp-link { height: 24px; padding-bottom: 1px; font-size: 14px; letter-spacing: -.1974px; color: var(--link); transition: color .12s; }
-.rp-link:hover { color: var(--link-hover); }
 .rp-gap { width: 56px; height: 24px; display: flex; align-items: center; gap: 6px; border-bottom: 1px solid var(--border); font-size: 14px; letter-spacing: -.1974px; }
 .rp-gap img { flex: none; display: block; }
 
@@ -818,15 +821,16 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 
 /* свойства */
 .mw-prop { display: flex; align-items: flex-start; gap: 8px; }
-.mw-prop__name { width: 140px; height: 24px; flex: none; display: flex; align-items: center; font-size: 14px; letter-spacing: -.1974px; color: var(--label); }
+.mw-prop__name { width: 140px; height: 24px; flex: none; display: flex; align-items: center; padding-bottom: 1px; font-size: 14px; letter-spacing: -.1974px; color: var(--label); }
 .mw-link { height: 24px; padding-bottom: 1px; font-size: 14px; letter-spacing: -.1974px; color: var(--link); }
 .mw-link { transition: color .12s; }
-.mw-link:hover, .lw-link:hover { color: var(--link-hover); text-decoration: underline; text-underline-offset: 2px; }
+/* все ссылки одинаковые (Figma xMQ3ZEN4AUINgwjVoxR8hS 19307:42711): при наведении — link_hover и подчёркивание по параметрам шрифта */
+.rp-link:hover, .mw-link:hover, .lw-link:hover, .bg-link:hover { color: var(--link-hover); text-decoration: underline from-font; text-underline-position: from-font; text-decoration-skip-ink: none; }
 .mw-radios { display: flex; flex-direction: column; }
 .mw-radio { display: flex; align-items: flex-start; text-align: left; }
 .mw-radio__box { height: 24px; display: flex; align-items: center; padding-right: 4px; }
 .mw-radio__box::before { content: ""; width: 12px; height: 12px; border: 1px solid var(--border); border-radius: 6px; box-sizing: border-box; }
-.mw-radio__text { padding: 2px 0 1px; font-size: 14px; line-height: 1.4; letter-spacing: -.1974px; color: var(--switcher-text); }
+.mw-radio__text { padding: 1.5px 0 2.5px; font-size: 14px; line-height: 20px; letter-spacing: -.1974px; color: var(--switcher-text); }
 .mw-radio.is-on { cursor: default; }
 .mw-radio.is-on .mw-radio__box::before { border: 0; background: url("assets/img/radio-on.svg") no-repeat; }
 .mw-radio.is-forced .mw-radio__box::before { background-image: url("assets/img/radio-on-2.svg"); }
@@ -835,7 +839,7 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .mw-radio:disabled .mw-radio__box::before { height: 13px; border: 0; background: url("assets/img/radio-disabled.svg") no-repeat; }
 .mw-radio:disabled .mw-radio__text { color: var(--readonly); }
 
-/* выпадающий список «Вид панели» */
+/* выпадающий список «Состояние панели» */
 .mw-menu { position: absolute; z-index: 30; width: 244px; }
 .mw-menu__list {
   display: flex; flex-direction: column; gap: 6px; padding: 12px 8px;
@@ -1147,8 +1151,7 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .tab-add__sep::before { content: ""; flex: 1; height: 1px; background: rgba(0, 0, 0, .04); } /* extra/separator_color */
 .tab-add .icon-menu__item + .icon-menu__item { margin-top: 6px; }
 .tab-add__sep + .icon-menu__item { margin-top: 0; }
-.icon-menu__item.is-static { cursor: default; }
-.icon-menu__item.is-static:hover { background: none; }
+.icon-menu__item.is-static { cursor: default; } /* только наведение, клик ничего не делает */
 .tab-add__ico16 { width: 24px; height: 24px; flex: none; display: flex; align-items: center; justify-content: center; margin-right: 8px; }
 .tab-add__ico16 .ico { color: var(--label); }
 .tab-add__more { margin-left: 6px; color: var(--label); }
@@ -1359,7 +1362,7 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .bg-row { display: flex; align-items: center; height: 24px; margin-top: 8px; font-size: 14px; letter-spacing: -.1974px; }
 .bg-pic__card .bg-row:first-of-type { margin-top: 0; }
 .bg-row__label { flex: none; width: 111px; color: #8991a9; white-space: nowrap; }
-.bg-link { color: #2562aa; cursor: default; }
+.bg-link { color: var(--link); cursor: default; transition: color .12s; }
 .bg-link-ico { margin-left: 10px; width: 24px; height: 24px; font-size: 16px; color: #333; }
 .bg-fx { display: flex; flex-direction: column; gap: 8px; }
 .bg-fx .bg-row { margin-top: 0; }

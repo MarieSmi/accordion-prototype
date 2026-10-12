@@ -80,7 +80,7 @@
     title: s.title, short: s.short, icon: null, head: s.submenu.headLabel ? null : s.submenu.head ?? s.title, showHead: true, cols: s.submenu.cols.map((c) => c.slice()),
   }]));
 
-  // Виды панели (окно «Меню» → «Вид панели»): широкий аккордеон и три вида узкого.
+  // Виды панели (окно «Меню» → «Состояние панели»): широкий аккордеон и три вида узкого.
   const PANEL_VIEWS = [
     { id: 'wide', title: 'Широкая' },
     { id: 'labels', title: 'Узкая с названиями' },
@@ -500,7 +500,7 @@
     document.addEventListener('mouseup', up);
   }
 
-  // Всплывающие списки внутри окон («Вид панели», «Иконка»).
+  // Всплывающие списки внутри окон («Состояние панели», «Иконка»).
   function closePopups() { closeDropdown(); closeIconMenu(); closeTabMenus(); }
 
   // ---------- Окно «Меню» ----------
@@ -540,7 +540,7 @@
   // Значки ховера загружаем заранее, иначе при первом наведении круг на миг пустой.
   for (const n of ['collapse', 'expand']) new Image().src = `assets/img/burger-${n}.svg`;
 
-  // Выпадающий список «Вид панели»: всегда открывается на одном месте — первый пункт встаёт на место ссылки.
+  // Выпадающий список «Состояние панели»: всегда открывается на одном месте — первый пункт встаёт на место ссылки.
   function openDropdown() {
     dropdownList.innerHTML = '';
     PANEL_VIEWS.forEach((v) => {
@@ -695,7 +695,7 @@
   const NOTICE_MODES = ['На странице', 'В окне'];
   let rpMenuLink = null;
 
-  // Как «Вид панели» в окне «Меню»: выбранный пункт встаёт на место ссылки.
+  // Как «Состояние панели» в окне «Меню»: выбранный пункт встаёт на место ссылки.
   function openRpMenu(link) {
     rpMenuLink = link;
     rpMenuList.innerHTML = '';
@@ -1110,7 +1110,7 @@
   function closeTabMenus() {
     tabAddMenu.hidden = true;
     tabDotsMenu.hidden = true;
-    for (const b of document.querySelectorAll('.tabs-w__btn.is-active, .tw-plus.is-active')) b.classList.remove('is-active');
+    for (const b of document.querySelectorAll('.tabs-w__btn.is-active:not(#tabsGear), .tw-plus.is-active')) b.classList.remove('is-active');
   }
   const tabMenuOpen = () => !tabAddMenu.hidden || !tabDotsMenu.hidden;
 
@@ -1159,6 +1159,7 @@
       tabsWin.style.top = Math.round(Math.max(0, r.top)) + 'px';
     }
     selectTabs(true);
+    $('#tabsGear').classList.add('is-active'); // пока окно открыто, ⚙ подсвечена
     if (screen === 'new') showTabEdit(null);
     else showTabList();
   }
@@ -1167,6 +1168,7 @@
     closeTabMenus();
     smeConfirm.hidden = true;
     tabsWin.hidden = true;
+    $('#tabsGear').classList.remove('is-active');
     tw = null;
   }
 
