@@ -1640,11 +1640,11 @@
 
   renderTabs();
 
-  // ---------- Выбор иконки раздела (Figma 44fX18O5Huk4hmoaANMNIC 10506:57779, без выбора цвета) ----------
+  // ---------- Выбор иконки раздела (Figma 44fX18O5Huk4hmoaANMNIC 10506:57779; кружок цвета — 10506:66144, пока без выбора) ----------
   // Открывается по клику на иконку в шапке редактора, встаёт под ней. Выбранная иконка — в черновик (с отменой),
   // в аккордеон — по ✓. Вкладки справа прокручивают к группе; у последних вкладок групп в макете нет.
   const ICON_GROUPS = [
-    { tab: '\uE68D', title: null, icons: [null, 'E758', 'E90F', 'E61F', 'EAF8', ['cbuc', 'EA38'], 'E95B', 'EAA0', 'E9B1'] },
+    { tab: '\uE68D', title: null, icons: ['E758', 'E90F', 'E61F', 'EAF8', ['cbuc', 'EA38'], 'E95B', 'EAA0', 'E9B1'] },
     { tab: '\uE931', title: 'Люди', icons: ['E9A7', 'E92D', 'E92E', 'E92F', 'E926', 'E6A9', 'E6AA', 'E6AB', 'E6AC', 'E6AD', 'E6AE', 'E6AF',
       'E6B0', 'E6B1', 'E6B2', 'E6B3', 'E6B4', 'E6B5', 'E6B6', 'E6B7', 'E6B8', 'E6B9', 'E6BA', 'E6BB', 'E6BC', 'E6BD', 'E6BE', 'EB6F'] },
     { tab: '\uE940', title: 'Статусы пользователя', icons: ['EB3E', 'EAAA', 'EA1C', 'EA1F', 'E96A', 'E949', 'E94A', 'E94B', 'E931', 'E932',
@@ -1654,8 +1654,8 @@
       'EA93', 'EA38', 'EA35', 'EA06', 'EA0D', 'E9CD', 'E9BB', 'E98E', 'E981', 'E95B', 'E6D6', 'E6D7', 'E6A3', 'E695', 'E696', 'E641', 'E66F'] },
   ].map((g) => ({
     ...g,
-    // строка — символ cbuc-icons24; [шрифт, код] — символ другого шрифта; null — пустая иконка
-    icons: g.icons.map((i) => (i == null ? null : Array.isArray(i)
+    // строка — символ cbuc-icons24; [шрифт, код] — символ другого шрифта
+    icons: g.icons.map((i) => (Array.isArray(i)
       ? { font: i[0], ch: String.fromCharCode(parseInt(i[1], 16)) }
       : { font: 'cbuc24', ch: String.fromCharCode(parseInt(i, 16)) })),
   }));
@@ -1675,15 +1675,10 @@
       if (g.title) group.append(el('div', 'icon-pick__title', g.title));
       const grid = el('div', 'icon-pick__grid');
       for (const ic of g.icons) {
-        const b = el('button', 'icon-pick__btn',
-          ic ? `<span class="${ic.font === 'cbuc' ? 'ico' : 'ico24'}">${ic.ch}</span>` : '<span class="ico24">&#xE66C;</span>');
+        const b = el('button', 'icon-pick__btn', `<span class="${ic.font === 'cbuc' ? 'ico' : 'ico24'}">${ic.ch}</span>`);
         b.type = 'button';
-        // Пустая иконка (✕) в «недавних» — как в макете, неактивна.
-        if (!ic) b.disabled = true;
-        else {
-          if (cur && cur.font === ic.font && cur.ch === ic.ch) b.classList.add('is-current');
-          b.addEventListener('click', () => { closeIconPick(); commit({ ...cloneDraft(ed.draft), icon: ic }); });
-        }
+        if (cur && cur.font === ic.font && cur.ch === ic.ch) b.classList.add('is-current');
+        b.addEventListener('click', () => { closeIconPick(); commit({ ...cloneDraft(ed.draft), icon: ic }); });
         grid.append(b);
       }
       group.append(grid);
