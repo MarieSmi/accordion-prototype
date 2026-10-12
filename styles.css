@@ -196,8 +196,8 @@ ul { list-style: none; margin: 0; padding: 0; }
 .acc-header__row:hover .acc-logo { -webkit-text-stroke-color: var(--acc-item-hover); }
 .acc-plus { margin-left: auto; width: 28px; height: 28px; border-radius: 14px; display: flex; align-items: center; justify-content: center; transition: background-color .12s; }
 .acc-plus .ico { color: var(--acc-plus); }
-.acc-plus:hover { background: var(--acc-plus-hover-bg); }
-.acc-plus:hover .ico { color: var(--acc-plus-hover); }
+.acc-plus:hover, .acc-plus.is-active { background: var(--acc-plus-hover-bg); }
+.acc-plus:hover .ico, .acc-plus.is-active .ico { color: var(--acc-plus-hover); }
 
 .acc-group { display: flex; align-items: center; gap: 10px; padding: 0 12px 0 14px; }
 .acc-burger { position: relative; padding: 6px; display: flex; border-radius: 50%; }
@@ -1476,7 +1476,15 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
   content: ''; position: absolute; inset: -40px; z-index: -1; pointer-events: none;
   background: var(--bg-tint, linear-gradient(transparent, transparent)), var(--bg-img) center / cover; background-blend-mode: soft-light, normal; opacity: var(--bg-op, 1); filter: var(--bg-filter, none);
 }
-.stage.is-bg-img .content__mid, .stage.is-bg-img .content__side { background: rgba(255, 255, 255, .7); }
+/* Забеление 70% — одним слоем под серединой и информерами (и под аккордеоном, пока он белый 70%, .is-acc-veil): у отдельных
+   полупрозрачных подложек при масштабировании сцены на стыках (дробные пиксели) проступали светлые полосы. */
+.stage.is-bg-img .content::after {
+  content: ''; position: absolute; top: 0; bottom: 0; z-index: -1; pointer-events: none; background: rgba(255, 255, 255, .7);
+  left: calc(var(--acc-gap) + var(--align-shift)); width: calc(var(--mid) + 322px);
+}
+.stage.is-bg-img.is-acc-veil .content::after { left: calc(1px + var(--align-shift)); width: calc(var(--acc-gap) + var(--mid) + 321px); }
+/* аккордеон лежит на общем забелении; раскрытая по ховеру панель — поверх середины, ей нужна своя подложка */
+.stage.is-bg-img.is-acc-veil .accordion:not(.is-panel-open) { background: none; }
 
 /* ---------- Вспомогательная панель справа от демо (Figma xMQ3ZEN4AUINgwjVoxR8hS 18715:93398) ---------- */
 :root { --head-h: 80px; --sys-w: 300px; --sys-gap: 16px; --demo-left: 4px; }
