@@ -476,6 +476,47 @@
     kindsBox.append(kind);
   }
 
+  // ---------- Сводная «Виды пунктов» ----------
+  // Отличающиеся пункты подменю: заголовки и пункты 1-го и 2-го уровня в своих состояниях (ховер показан постоянно).
+  // Справа от каждой строки — подпись состояния. Живые ховеры тоже работают, кликов нет.
+  const secById = (id) => SECTIONS.find((s) => s.id === id);
+  const wideHead = (id, st) => `<button class="sm-head${st}" type="button">${headIconHTML(secById(id))}<span class="sm-head__title">${secById(id).title}</span></button>`;
+  const ITEM_KINDS = [
+    { label: 'Заголовок с иконкой раздела', rows: [
+      ['обычный', wideHead('contacts', '')], ['наведение', wideHead('contacts', ' is-hover')]] },
+    { label: 'Заголовок с фото', rows: [['обычный', wideHead('profile', '')]] },
+    { label: 'Заголовок с датой', rows: [['обычный', wideHead('calendar', '')]] },
+    { label: 'Заголовок-подпись', rows: [['без ховера и клика', `<div class="sm-head">${headIconHTML(secById('accounting'))}<span class="sm-head__title">Учет</span></div>`]] },
+    { label: 'Заголовок узкого подменю', kind: 'narrow', rows: [
+      ['обычный', '<button class="sm-head" type="button"><span class="sm-head__title">Контакты</span></button>'],
+      ['наведение', '<button class="sm-head is-hover" type="button"><span class="sm-head__title">Контакты</span></button>']] },
+    { label: 'Пункт первого уровня', rows: [
+      ['обычный', '<button class="sm-item" type="button">Продажи/CRM</button>'],
+      ['наведение', '<button class="sm-item is-hover" type="button">Продажи/CRM</button>'],
+      ['выбранный', '<button class="sm-item is-current" type="button">Продажи/CRM</button>']] },
+    { label: 'Пункт второго уровня', rows: [
+      ['обычный', '<button class="sm-item sm-item--sub" type="button">Документы</button>'],
+      ['наведение', '<button class="sm-item sm-item--sub is-hover" type="button">Документы</button>'],
+      ['выбранный', '<button class="sm-item sm-item--sub is-current" type="button">Документы</button>']] },
+  ];
+  const itemKindsBox = $('#itemKinds');
+  for (const k of ITEM_KINDS) {
+    const box = el('div', `submenu submenu--${k.kind || 'wide'}`);
+    const panel = el('div', 'submenu__panel');
+    const states = el('div', 'item-kind__states');
+    for (const [state, html] of k.rows) {
+      const row = html.includes('sm-head') ? el('div', 'submenu__head', html) : el('div', 'submenu__cols', `<div class="submenu__col">${html}</div>`);
+      panel.append(row);
+      states.append(el('div', 'item-kind__state', state));
+    }
+    box.append(panel);
+    const kind = el('div', 'kind', `<div class="kind__label">${k.label}</div>`);
+    const body = el('div', 'item-kind');
+    body.append(box, states);
+    kind.append(body);
+    itemKindsBox.append(kind);
+  }
+
   // ---------- Позиционирование контента (переключатель в шапке) ----------
   // «Растянуть» — контент на всю рабочую область; «По центру» / «Слева» — блок 1238
   // (аккордеон + контент + информеры + ЦУ) по центру области 1538 или у её левого края.
