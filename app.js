@@ -1022,6 +1022,7 @@
     stopTitleEdit(false);
     closeIconPick();
     closePlusMenu();
+    itemEdit = null;
     smeConfirm.hidden = true;
     editor.hidden = true;
     shield.hidden = true;
@@ -1071,6 +1072,61 @@
     return tb;
   }
 
+  // Тулбар текста на время переименования виджета (Figma 44fX18O5Huk4hmoaANMNIC 10467:56588, без удаления):
+  // ‹ — закончить правку; стиль, «Т» и цвет — пока только наведение. Нажатие в тулбаре не уводит фокус из текста.
+  function textToolbar() {
+    const tb = el('div', 'sme-tb sme-tb--text');
+    tb.addEventListener('mousedown', (e) => e.preventDefault());
+    const btn = (cls, html, label) => {
+      const b = el('button', 'sme-tb__btn' + (cls ? ' ' + cls : ''), html);
+      b.type = 'button';
+      b.setAttribute('aria-label', label);
+      tb.append(b);
+      return b;
+    };
+    btn('', '<span class="ico24">&#xE9A9;</span>', 'Назад').addEventListener('click', () => stopItemEdit(true));
+    btn('sme-tb__style', 'Заголовок 4<span class="ico">&#xE9AA;</span>', 'Стиль текста');
+    btn('', '<span class="ico24">&#xEAC9;</span>', 'Начертание');
+    btn('sme-tb__color', '<span class="sme-tb__swatch"></span>', 'Цвет текста');
+    return tb;
+  }
+
+  // Двойной клик по тексту виджета — переименование на месте: каретка там, куда кликнули (мимо текста — в конец),
+  // текст не выделяется. Enter или клик мимо — применить, Esc — отменить.
+  let itemEdit = null; // { w, text, key }
+  function startItemEdit(w, x, y) {
+    const text = $('.sme-w__text', w);
+    itemEdit = { w, text, key: w.dataset.key };
+    $('.sme-tb', w)?.replaceWith(textToolbar());
+    text.contentEditable = 'plaintext-only';
+    text.focus();
+    let range = document.caretRangeFromPoint?.(x, y);
+    if (!range || !text.contains(range.startContainer)) {
+      range = document.createRange();
+      range.selectNodeContents(text);
+    }
+    range.collapse(false);
+    const s = getSelection();
+    s.removeAllRanges();
+    s.addRange(range);
+  }
+  function stopItemEdit(apply) {
+    if (!itemEdit) return;
+    const { text, key } = itemEdit;
+    itemEdit = null;
+    const value = text.textContent.replace(/s+/g, ' ').trim();
+    const draft = cloneDraft(ed.draft);
+    if (key === 'head') draft.head = value;
+    else {
+      const [ci, ii] = key.split(':').map(Number);
+      draft.cols[ci][ii] = { ...draft.cols[ci][ii], title: value };
+    }
+    if (apply && value && draftKey(draft) !== draftKey(ed.draft)) {
+      commit(draft);
+      select(key); // после правки виджет остаётся выделенным
+    } else renderEditor();
+  }
+
   function renderEditor() {
     const { draft, selected } = ed;
     if (!smeTitle.classList.contains('is-editing')) smeTitle.textContent = draft.title;
@@ -1081,7 +1137,7 @@
     const widget = (key, title, sub) => {
       const w = el('div', 'sme-w' + (sub ? ' sme-w--sub' : '') + (key === selected ? ' is-selected' : ''));
       w.dataset.key = key;
-      w.append(document.createTextNode(title), mk('top'), mk('bottom'));
+      w.append(el('span', 'sme-w__text', title), mk('top'), mk('bottom'));
       if (key === selected) w.append(toolbar());
       return w;
     };
@@ -1228,11 +1284,27 @@
   // Клик по виджету выделяет его, клик мимо (в окне или за ним) — снимает выделение.
   editor.addEventListener('mousedown', (e) => {
     if (!ed || e.target.closest('.sme-mk')) return;
+    if (itemEdit) {
+      if (itemEdit.text.contains(e.target) || e.target.closest('.sme-tb--text')) return;
+      stopItemEdit(true);
+    }
     const w = e.target.closest('.sme-w');
+    // второе нажатие двойного клика по тексту — переименование (без выделения слова)
+    if (w && e.detail === 2 && e.target.closest('.sme-w__text') && !e.target.closest('.sme-tb')) {
+      e.preventDefault();
+      select(w.dataset.key);
+      startItemEdit($(`.sme-w[data-key="${w.dataset.key}"]`, smeCard), e.clientX, e.clientY);
+      return;
+    }
     if (w) select(w.dataset.key);
     else select(null);
   });
-  shield.addEventListener('mousedown', () => ed && select(null));
+  shield.addEventListener('mousedown', () => { if (!ed) return; stopItemEdit(true); select(null); });
+  smeCard.addEventListener('keydown', (e) => {
+    if (!itemEdit) return;
+    if (e.key === 'Enter') { e.preventDefault(); stopItemEdit(true); }
+    else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); stopItemEdit(false); }
+  });
   $('.sme-head', editor).addEventListener('mousedown', (e) => startDrag(e, editor));
 
   smeUndo.addEventListener('click', () => goHistory(-1));
@@ -1837,7 +1909,7 @@
   }, true);
 
   document.addEventListener('keydown', (e) => {
-    if (!ed || smeTitle.classList.contains('is-editing') || e.target === plusSearch) return;
+    if (!ed || smeTitle.classList.contains('is-editing') || itemEdit || e.target === plusSearch) return;
     if (!iconPick.hidden) {
       if (e.key === 'Escape') { e.stopImmediatePropagation(); closeIconPick(); }
       return;

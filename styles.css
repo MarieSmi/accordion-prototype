@@ -1155,6 +1155,14 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .sme-tb__btn:hover { background: var(--pill-hover); }
 .sme-tb__btn .ico24 { padding-bottom: 1px; }
 .sme-tb__btn--del .ico24 { color: #c2140a; } /* icon/danger_icon-color */
+/* тулбар текста (Figma 44fX18O5Huk4hmoaANMNIC 10467:56588): ‹, стиль ⌄, «Т», цвет 20px */
+.sme-tb--text { border-radius: 6px; }
+.sme-tb__style { min-height: 32px; gap: 2px; padding: 0 6px; font-size: 15px; color: #000; }
+.sme-tb__style .ico { color: #ccc; } /* icon/unaccented_icon-color */
+.sme-tb__color { width: 36px; justify-content: center; }
+.sme-tb__swatch { width: 20px; height: 20px; border-radius: 24px; background: #000; border: 1px solid var(--swatch-border); }
+.sme-w__text { min-width: 1px; outline: none; white-space: pre; }
+.sme-w__text[contenteditable="plaintext-only"] { cursor: text; }
 
 /* меню «+» редактора (Figma 9eLwMJLQCwT0xHKviN2j1P 16090:257796); ховер строк — list hover #ebf4ff (nuC4KFMiS36uDWDUp9wKGl 25581:1272) */
 .plus-menu {
