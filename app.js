@@ -155,6 +155,7 @@
     closeTabsWin();
     selectTabs(false);
     resetTabs(radio.dataset.scenario.startsWith('tab-'));
+    resetHistory(); // смена сценария — не правка: история начинается заново
   });
   function fitStage() {
     const css = getComputedStyle(document.documentElement);
@@ -495,6 +496,17 @@
   const windows = {}; // имя → { win, btn, onOpen, onClose }
   let openWin = null;
 
+  // Одновременно открыто одно окно на сцене: «Меню», «Логотип», окна правой панели, «Тема», выбор цвета, «Фон», «Вкладки».
+  // Каждое окно перед открытием закрывает остальные (своё закрывать не нужно — его закрывающая функция ничего не сломает).
+  function closeOtherWindows() {
+    setWindow(null);
+    closeRp();
+    closeThemePanel();
+    closeColorWin();
+    closeBgWin();
+    if (tw) closeTabsWin();
+  }
+
   function registerWindow(name, { win, btn, onOpen = () => {}, onClose = () => {} }) {
     windows[name] = { win, btn, onOpen, onClose };
     btn.addEventListener('click', () => setWindow(openWin === name && !openFrom ? null : name));
@@ -508,7 +520,7 @@
   // встаёт углом на угол шапки аккордеона (отступы 12 и 7 от птички), кнопка в шапке не подсвечена.
   let openFrom = null;
   function setWindow(name, from = null) {
-    if (name) { closeRp(); closeThemePanel(); closeColorWin(); }
+    if (name) closeOtherWindows();
     if (openWin) {
       const w = windows[openWin];
       w.win.hidden = true;
@@ -678,7 +690,7 @@
     const win = $('#rp-' + name);
     closeRp();
     if (!win) return;
-    setWindow(null);
+    closeOtherWindows();
     closeSubmenu();
     rpOpen = name;
     const btn = rpBtn(name);
@@ -828,8 +840,7 @@
   function openEditor(id) {
     const sec = SECTIONS.find((s) => s.id === id);
     closeSubmenu();
-    setWindow(null);
-    closeRp();
+    closeOtherWindows();
     cancelLeave();
     setPanelOpen(false);
     const draft = {
@@ -1288,7 +1299,7 @@
 
   function openTabsWin(screen) {
     if (!tw) {
-      setWindow(null);
+      closeOtherWindows();
       tw = { start: tabsSnapshot() };
       tabsWin.hidden = false;
       const r = stageRect(tabsW);
@@ -1856,10 +1867,7 @@
   }
 
   function openThemePanel() {
-    setWindow(null);
-    closeColorWin();
-    closeBgWin();
-    closeRp();
+    closeOtherWindows();
     themePanel.hidden = false;
     themeBtn.classList.add('is-active');
   }
@@ -1938,10 +1946,7 @@
     cwReset.disabled = JSON.stringify(c) === JSON.stringify(cwOrig);
   }
   function openColorWin(key) {
-    setWindow(null);
-    closeRp();
-    closeThemePanel();
-    closeBgWin();
+    closeOtherWindows();
     closePopups();
     cwKey = key;
     $('#cwTitle').textContent = CW_TITLES[key];
@@ -1963,7 +1968,10 @@
   });
   $('#cwPresets').addEventListener('click', (e) => {
     const sw = e.target.closest('.cw-sw');
-    if (sw) cwSet(sw.dataset.hex ? { hex: sw.dataset.hex, a: 100 } : { hex: null, a: 0 });
+    if (!sw) return;
+    // выбор цвета из палитры применяет его и сразу закрывает окно
+    cwSet(sw.dataset.hex ? { hex: sw.dataset.hex, a: 100 } : { hex: null, a: 0 });
+    closeColorWin();
   });
   cwHex.addEventListener('input', () => {
     const v = '#' + cwHex.value.trim().replace(/^#/, '');
@@ -2112,16 +2120,14 @@
   }
 
   function openBgWin() {
-    setWindow(null);
-    closeRp();
-    closeThemePanel();
-    closeColorWin();
+    closeOtherWindows();
     closePopups();
     closePic();
     bgRender(true);
-    const r = stageRect($('#bgSwatch'));
+    // окно встаёт левым краем по левому краю кнопки «Фон», верх — по верху шапки
+    const r = stageRect(bgBtn);
     bgWin.hidden = false;
-    bgWin.style.left = Math.round(r.left - 23) + 'px';
+    bgWin.style.left = Math.round(r.left) + 'px';
     bgWin.style.top = '0';
     bgBtn.classList.add('is-active');
   }
@@ -2139,13 +2145,13 @@
     if (!sw) return;
     setBg(sw.dataset.grad ? { kind: 'grad', c: sw.dataset.grad } : { kind: 'color', hex: sw.dataset.hex, a: 100 });
   });
-  // клик по картинке — применить и открыть «Картинку» (настройки сбрасываются для новой картинки)
+  // клик по картинке — поставить её фоном (настройки сбрасываются для новой картинки); карандаш на картинке — ещё и открыть «Картинку»
   $('#bgCat').addEventListener('click', (e) => {
     const tile = e.target.closest('.bg-tile');
     if (!tile) return;
     const i = +tile.dataset.img;
     if (!(custom.bg?.kind === 'img' && custom.bg.i === i)) setBg({ kind: 'img', i, fx: { ...FX_DEFAULT } });
-    openPic();
+    if (e.target.closest('.bg-tool')) openPic();
   });
   bgHex.addEventListener('input', () => {
     const v = '#' + bgHex.value.trim().replace(/^#/, '');
@@ -2188,7 +2194,101 @@
   });
   $('#bgFx').addEventListener('focusout', () => { if (custom.bg?.kind === 'img') fxRender(); });
 
+  // ---------- Отмена / повтор в шапке конструктора ----------
+  // История — снимки всего, что пользователь меняет на странице: вид аккордеона, логотип, позиционирование, «Информеры»,
+  // тема и свои цвета / фон, вкладки, разделы (после ✓ редактора подменю). Шаг записывается после действия пользователя
+  // (клик, отпускание ползунка, Enter / Esc, уход фокуса); ввод в поля — одним шагом после паузы.
+  // Новый шаг отбрасывает шаги «вперёд». Пока открыт редактор подменю, шапка под его подложкой — у него своя история.
+  const undoBtn = $('#undoBtn'), redoBtn = $('#redoBtn');
+  const INPUT_PAUSE = 500;
+  let hist = [], histAt = 0, inputTimer = null;
+
+  // Только изменения: свёрнут ли аккордеон, какая вкладка активна, что выделено и какие окна открыты — не пишется.
+  const snapshot = () => JSON.stringify({
+    submenuTrigger: settings.submenuTrigger,
+    logo, align: state.align, informers: state.informers, themeId, userTheme,
+    tabs, tabsAdded: stage.classList.contains('tabs-added'),
+    sections: SECTIONS.map((s) => ({ title: s.title, short: s.short, customIcon: s.customIcon ?? null,
+      head: s.submenu.head ?? null, noHead: !!s.submenu.noHead, cols: s.submenu.cols })),
+  });
+
+  function renderHistory() {
+    undoBtn.disabled = histAt === 0;
+    redoBtn.disabled = histAt === hist.length - 1;
+  }
+  function resetHistory() {
+    hist = [snapshot()];
+    histAt = 0;
+    renderHistory();
+  }
+  function record() {
+    clearTimeout(inputTimer);
+    const snap = snapshot();
+    if (snap === hist[histAt]) return;
+    hist = hist.slice(0, histAt + 1);
+    hist.push(snap);
+    histAt = hist.length - 1;
+    renderHistory();
+  }
+
+  function restore(snap) {
+    const s = JSON.parse(snap);
+    if (tw) closeTabsWin();
+    closePopups();
+    closeSubmenu();
+    // открытие подменю (окно «Меню»); вид панели — свёрнута / раскрыта / узкая — не трогаем
+    settings.submenuTrigger = s.submenuTrigger;
+    applyView();
+    renderWin();
+    setLogo(s.logo);
+    setAlign(s.align);
+    if (s.informers !== state.informers) informers.click();
+    // тема: системная или пользовательская со своими цветами и фоном; открытые окна цвета и фона — по новым цветам
+    userTheme = s.userTheme;
+    applyTheme(s.themeId);
+    if (!colorWin.hidden) cwRender(true);
+    if (!bgWin.hidden) {
+      if (custom.bg?.kind === 'img') { $('#bgPicPv').style.setProperty('--img', `url(${BG_IMGS[custom.bg.i]})`); fxRender(); }
+      else closePic();
+      bgRender(true);
+    }
+    // вкладки
+    // активная вкладка остаётся, если она есть в восстановленных
+    tabs = s.tabs;
+    if (!findTab(activeTab)) activeTab = tabs[0].id;
+    stage.classList.toggle('tabs-added', s.tabsAdded);
+    if (!s.tabsAdded) selectTabs(false);
+    renderTabs();
+    // разделы; открытый пункт подменю, которого больше нет, снимается
+    SECTIONS.forEach((sec, i) => {
+      const d = s.sections[i];
+      Object.assign(sec, { title: d.title, short: d.short, customIcon: d.customIcon });
+      Object.assign(sec.submenu, { head: d.head ?? undefined, noHead: d.noHead, cols: d.cols });
+    });
+    const { section, item } = state.page;
+    if (section && item != null && !subItem(SECTIONS.find((x) => x.id === section), item)) state.page.item = null;
+    renderAccordion();
+  }
+
+  function goGlobal(step) {
+    record(); // недописанный ввод — отдельным шагом
+    const at = histAt + step;
+    if (at < 0 || at >= hist.length) return;
+    histAt = at;
+    restore(hist[at]);
+    renderHistory();
+  }
+  undoBtn.addEventListener('click', () => goGlobal(-1));
+  redoBtn.addEventListener('click', () => goGlobal(1));
+
+  // Перехват на фазе погружения: обработчики, останавливающие событие, не мешают записи; запись — после них.
+  const later = () => setTimeout(record);
+  for (const type of ['click', 'pointerup', 'focusout']) document.addEventListener(type, later, true);
+  document.addEventListener('keyup', (e) => { if (e.key === 'Enter' || e.key === 'Escape' || e.key === 'Delete') later(); }, true);
+  document.addEventListener('input', () => { clearTimeout(inputTimer); inputTimer = setTimeout(record, INPUT_PAUSE); }, true);
+
   applyTheme(themeId);
   renderAccordion();
   applyView();
+  resetHistory();
 })();

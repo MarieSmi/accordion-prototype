@@ -54,8 +54,8 @@
               <button class="tb-btn" type="button"><span class="ico">&#xEAB4;</span></button>
             </div>
             <div class="pill-group pill-group--r12">
-              <button class="tb-btn" type="button"><span class="ico">&#xE6CF;</span></button>
-              <button class="tb-btn" type="button"><span class="ico">&#xE6CA;</span></button>
+              <button class="tb-btn" type="button" id="undoBtn" aria-label="Отменить" disabled><span class="ico">&#xE6CF;</span></button>
+              <button class="tb-btn" type="button" id="redoBtn" aria-label="Повторить" disabled><span class="ico">&#xE6CA;</span></button>
               <button class="tb-btn" type="button"><span class="ico">&#xE629;</span></button>
               <button class="tb-btn tb-btn--zoom" type="button">100%</button>
             </div>
@@ -841,12 +841,12 @@
           <div class="cw-card bg-cat" id="bgCat"></div>
         </div>
         <div class="cw-body bg-pic">
-          <div class="cw-card bg-pic__card">
+          <div class="cw-card bg-pic__card bg-pic__info">
             <div class="bg-pic__pv" id="bgPicPv">
               <span class="bg-tool"><span class="ico">&#xE660;</span></span><span class="bg-tool"><span class="ico">&#xE95F;</span></span>
             </div>
-            <div class="bg-row"><span class="bg-row__label">Отображение</span><span class="bg-link">Кадрировать</span><span class="bg-link-ico ico">&#xE660;</span></div>
-            <div class="bg-row"><span class="bg-row__label">Стиль</span><span class="bg-link">Оригинал картинки</span></div>
+            <div class="bg-row"><span class="bg-row__label">Отображение</span><span class="bg-row__val"><span class="bg-link">Кадрировать</span><span class="bg-link-ico ico">&#xE660;</span></span></div>
+            <div class="bg-row"><span class="bg-row__label">Стиль</span><span class="bg-row__val"><span class="bg-link">Оригинал картинки</span></span></div>
           </div>
           <div class="cw-card bg-pic__card bg-fx" id="bgFx"></div>
         </div>
