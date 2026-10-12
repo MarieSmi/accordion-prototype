@@ -1008,7 +1008,10 @@
       <!-- Сценарий «Виды пунктов»: сводная отличающихся пунктов подменю (заголовки, 1-й и 2-й уровень) в их состояниях; наполняет app.js -->
       <section class="kinds kinds--items" id="itemKinds" aria-label="Виды пунктов"></section>
       <!-- Сценарий «Редактор подменю»: только редактор подменю «Документы» на фоне конструктора; после ✓/✕ открывается заново -->
-      <div class="kinds" id="editorOnly"></div>
+      <div class="kinds editor-only" id="editorOnly">
+        <div class="editor-only__runtime"><div class="kind"><div class="kind__label">Рантайм</div><div id="runtimePreview"></div></div></div>
+        <div class="kind editor-only__design"><div class="kind__label">Дизайнтайм</div></div>
+      </div>
     </div>
   </div>
   <!-- Вспомогательная панель справа от демо (Figma xMQ3ZEN4AUINgwjVoxR8hS 18715:93398): устройство, сценарии, ссылки -->

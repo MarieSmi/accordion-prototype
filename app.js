@@ -1032,6 +1032,7 @@
   // Группа «Редактор подменю»: на сцене только редактор «Документов» по центру; после ✓/✕ он открывается снова.
   // «С нуля» — подменю без пунктов (только заголовок), его ✓ не трогает «Документы» в аккордеоне; «Готовое подменю» — как есть.
   const editorFromScratch = () => stage.dataset.scenario === 'submenu-editor' && stage.dataset.variant === 'scratch';
+  const runtimePreview = $('#runtimePreview');
   function openEditorOnly() {
     openEditor('docs');
     if (editorFromScratch()) {
@@ -1040,8 +1041,10 @@
       ed.base = cloneDraft(ed.draft);
       renderEditor();
     }
-    editor.style.left = Math.round((1600 - editor.offsetWidth) / 2) + 'px';
-    editor.style.top = Math.round((900 - editor.offsetHeight) / 2) + 'px';
+    // редактор — в правой половине, под подписью «Дизайнтайм»
+    const design = $('.editor-only__design');
+    editor.style.left = design.offsetLeft - 10 + 'px';
+    editor.style.top = design.offsetTop + 32 + 'px';
   }
   function setEditorOnly(on) {
     if (on) openEditorOnly();
@@ -1091,6 +1094,26 @@
     smeUndo.disabled = ed.at === 0;
     smeRedo.disabled = ed.at === ed.hist.length - 1;
     smeReset.disabled = draftKey(draft) === draftKey(ed.base);
+    if (stage.dataset.scenario === 'submenu-editor') renderRuntime();
+  }
+
+  // Слева от редактора в группе «Редактор подменю» — то же подменю в рантайме (широкое, как по клику в аккордеоне),
+  // собранное из черновика: обновляется с каждой правкой. Ховеры работают, кликов нет.
+  function renderRuntime() {
+    const { sec, draft } = ed;
+    const box = el('div', 'submenu submenu--wide' + (draft.cols.length > 1 ? ' submenu--multi' : ''));
+    const panel = el('div', 'submenu__panel');
+    if (draft.head == null) panel.append(el('div', 'submenu__head', `<div class="sm-head">${headIconHTML(sec)}${headTitleHTML(sec, sec.submenu.head || draft.title)}</div>`));
+    else if (draft.showHead) panel.append(el('div', 'submenu__head', `<button class="sm-head" type="button">${headIconHTML({ ...sec, customIcon: draft.icon })}${headTitleHTML(sec, draft.head)}</button>`));
+    const cols = el('div', 'submenu__cols');
+    for (const col of draft.cols) {
+      const c = el('div', 'submenu__col');
+      for (const it of col) c.append(el('button', 'sm-item' + (it.level === 2 ? ' sm-item--sub' : ''), itemHTML(it)));
+      cols.append(c);
+    }
+    panel.append(cols);
+    box.append(panel);
+    runtimePreview.replaceChildren(box);
   }
 
   // Изменение черновика — новый шаг истории (шаги «вперёд» отбрасываются).

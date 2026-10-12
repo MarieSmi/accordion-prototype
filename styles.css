@@ -891,6 +891,11 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .stage[data-scenario="submenu-editor"] #editorOnly { display: flex; }
 /* «Редактор подменю»: редактор и его всплывашки — поверх фона сценария */
 .stage[data-scenario="submenu-editor"] .sm-editor { z-index: 46; }
+/* слева рантайм, справа дизайнтайм (сам редактор лежит поверх, под подписью) — по обе стороны от середины сцены */
+.editor-only { padding-top: 120px; }
+.editor-only > * { flex: 1; }
+.editor-only__runtime { display: flex; justify-content: flex-end; padding-right: 40px; }
+.editor-only__design { padding-left: 40px; }
 .stage[data-scenario="submenu-editor"] :is(.plus-menu, .icon-pick) { z-index: 47; }
 .stage[data-scenario="submenu-editor"] .confirm-layer { z-index: 48; }
 .kind { display: flex; flex-direction: column; gap: 12px; }
