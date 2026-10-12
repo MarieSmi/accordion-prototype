@@ -839,7 +839,11 @@ ul { list-style: none; margin: 0; padding: 0; }
 .sm-count { padding: 0 3px; font-size: 14px; letter-spacing: -.1974px; color: var(--sm-count, #7694b8); } /* text/navigation_unaccented_text-color */
 .sm-count:last-child { padding-right: 1px; }
 .sm-count--accent { color: var(--sm-count-accent, var(--accent)); } /* text/navigation_primary_text-color */
+/* стрелка — в своей капсуле 31×26 у правого края пункта; при наведении на пункт капсула отдельно, цветом фона подменю
+   (Figma 34284:5444, background/navigation_counter_on_menu_hover_background-color) */
+.sm-right--arrow { margin: 0 -8px 0 auto; padding: 5px 11.5px; border-radius: 14px; transition: background-color .12s; }
 .sm-right--arrow img { display: block; width: 8px; height: 16px; }
+.sm-item:hover .sm-right--arrow, button.sm-head:hover .sm-right--arrow { background: var(--submenu-bg); }
 .sm-right--plus .ico { color: var(--acc-icon); }
 .sm-item:hover { background: var(--submenu-item-hover); }
 .sm-item.is-current { background: var(--submenu-item-hover); }
