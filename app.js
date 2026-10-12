@@ -477,31 +477,22 @@
   }
 
   // ---------- Сводная «Виды пунктов» ----------
-  // Отличающиеся пункты подменю: заголовки и пункты 1-го и 2-го уровня в своих состояниях (ховер показан постоянно).
-  // Справа от каждой строки — подпись состояния. Живые ховеры тоже работают, кликов нет.
+  // Отличающиеся пункты подменю по группам; справа от каждой строки — подпись варианта. Ховеры работают, кликов нет.
   const secById = (id) => SECTIONS.find((s) => s.id === id);
-  const wideHead = (id, st) => `<button class="sm-head${st}" type="button">${headIconHTML(secById(id))}<span class="sm-head__title">${secById(id).title}</span></button>`;
+  const wideHead = (id) => `<button class="sm-head" type="button">${headIconHTML(secById(id))}<span class="sm-head__title">${secById(id).title}</span></button>`;
   const ITEM_KINDS = [
-    { label: 'Заголовок с иконкой раздела', rows: [
-      ['обычный', wideHead('contacts', '')], ['наведение', wideHead('contacts', ' is-hover')]] },
-    { label: 'Заголовок с фото', rows: [['обычный', wideHead('profile', '')]] },
-    { label: 'Заголовок с датой', rows: [['обычный', wideHead('calendar', '')]] },
-    { label: 'Заголовок-подпись', rows: [['без ховера и клика', `<div class="sm-head">${headIconHTML(secById('accounting'))}<span class="sm-head__title">Учет</span></div>`]] },
-    { label: 'Заголовок узкого подменю', kind: 'narrow', rows: [
-      ['обычный', '<button class="sm-head" type="button"><span class="sm-head__title">Контакты</span></button>'],
-      ['наведение', '<button class="sm-head is-hover" type="button"><span class="sm-head__title">Контакты</span></button>']] },
-    { label: 'Пункт первого уровня', rows: [
-      ['обычный', '<button class="sm-item" type="button">Продажи/CRM</button>'],
-      ['наведение', '<button class="sm-item is-hover" type="button">Продажи/CRM</button>'],
-      ['выбранный', '<button class="sm-item is-current" type="button">Продажи/CRM</button>']] },
-    { label: 'Пункт второго уровня', rows: [
-      ['обычный', '<button class="sm-item sm-item--sub" type="button">Документы</button>'],
-      ['наведение', '<button class="sm-item sm-item--sub is-hover" type="button">Документы</button>'],
-      ['выбранный', '<button class="sm-item sm-item--sub is-current" type="button">Документы</button>']] },
+    { label: 'Иконка / фото / дата', rows: [
+      ['иконка', wideHead('contacts')], ['фото', wideHead('profile')], ['дата', wideHead('calendar')]] },
+    { label: 'С действием / без действия', rows: [
+      ['с действием', wideHead('contacts')],
+      ['без действия', `<div class="sm-head">${headIconHTML(secById('accounting'))}<span class="sm-head__title">Учет</span></div>`]] },
+    { label: 'Уровень вложенности', rows: [
+      ['первый', '<button class="sm-item" type="button">Продажи/CRM</button>'],
+      ['второй', '<button class="sm-item sm-item--sub" type="button">Документы</button>']] },
   ];
   const itemKindsBox = $('#itemKinds');
   for (const k of ITEM_KINDS) {
-    const box = el('div', `submenu submenu--${k.kind || 'wide'}`);
+    const box = el('div', 'submenu submenu--wide');
     const panel = el('div', 'submenu__panel');
     const states = el('div', 'item-kind__states');
     for (const [state, html] of k.rows) {

@@ -883,10 +883,8 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .item-kind { display: flex; align-items: flex-start; gap: 12px; }
 .kinds--items .submenu__panel { padding: 6px 0; min-width: 0; width: 230px; }
 .kinds--items .submenu__head { padding: 0 6px 0 4px; }
-.kinds--items .submenu--narrow .submenu__head { padding: 0 6px; }
 .item-kind__states { display: flex; flex-direction: column; gap: 2px; padding-top: 6px; }
 .item-kind__state { height: 30px; display: flex; align-items: center; font-size: 14px; letter-spacing: -.1974px; color: #8991a9; white-space: nowrap; }
-.sm-item.is-hover, button.sm-head.is-hover .sm-head__title { background: var(--submenu-item-hover); } /* ховер, показанный постоянно */
 .submenu__float { position: absolute; right: -32px; top: 4px; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
 .float-btn { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--float-btn-bg); box-shadow: 1px 1px 6px rgba(0, 0, 0, .1); transition: background-color .12s; }
 .float-btn:hover { background: rgba(170, 170, 170, .85); }
