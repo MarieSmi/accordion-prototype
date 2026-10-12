@@ -128,15 +128,27 @@
   const pageMain = $('#pageMain');
   const pageSkeleton = $('#pageSkeleton');
 
-  // Сцена 1600×900 вписывается в окно браузера с сохранением пропорций.
+  // Сцена 1600×900 вписывается в область слева от вспомогательной панели с сохранением пропорций.
+  const viewport = $('.viewport');
   let scale = 1;
+  // Сцена прижата влево под шапкой демо, вспомогательная панель — справа от неё на ту же высоту.
+  const sysPanel = $('.sys');
+  const demoHead = $('.demo-head');
   function fitStage() {
-    const w = document.documentElement.clientWidth;
-    const h = document.documentElement.clientHeight;
-    scale = Math.min(w / 1600, h / 900);
-    stage.style.transform = `translate(${(w - 1600 * scale) / 2}px, ${(h - 900 * scale) / 2}px) scale(${scale})`;
+    const css = getComputedStyle(document.documentElement);
+    const px = (name) => parseFloat(css.getPropertyValue(name));
+    // шапка, сцена и панель масштабируются как одно целое: (1600 + зазор + панель) × (шапка + 900)
+    const left = px('--demo-left');
+    const head = px('--head-h');
+    const w = viewport.clientWidth - left;
+    const h = viewport.clientHeight;
+    scale = Math.max(0.1, Math.min(w / (1600 + px('--sys-gap') + px('--sys-w')), h / (head + 900)));
+    const top = head * scale;
+    demoHead.style.transform = `scale(${scale})`;
+    stage.style.transform = `translate(${left}px, ${top}px) scale(${scale})`;
+    sysPanel.style.transform = `translate(${left + (1600 + px('--sys-gap')) * scale}px, ${top}px) scale(${scale})`;
   }
-  new ResizeObserver(fitStage).observe(document.documentElement);
+  new ResizeObserver(fitStage).observe(viewport);
   fitStage();
 
   // Прямоугольник элемента в координатах сцены.
