@@ -632,6 +632,34 @@
     closeDropdown();
   });
 
+  // ---------- Меню «Язык» (Figma 16065:176561) ----------
+  // Кнопка «Язык RU» в шапке открывает меню языков. Пока только ховеры: клик по языку и «•••» ничего не делают.
+  // Строка выбранного языка встаёт на высоту кнопки, ✕ меню — ровно поверх ✕ шапки конструктора (как на макете экрана).
+  const LANGS = [['RU', 'Русский'], ['EN', 'English'], ['KK', 'Қазақша'], ['FR', 'Français'], ['UZ', 'Oʻzbek'], ['AR', 'اللغة العربية'], ['HE', 'עִברִי']];
+  const langBtn = $('#langBtn');
+  const langMenu = $('#langMenu');
+  $('#langMenuList').innerHTML = LANGS.map(([code, name], i) =>
+    `<div class="mw-menu__item${i === 0 ? ' is-on' : ''}"><span class="mw-menu__dot"></span><span class="lang-menu__code">${code}</span><span class="mw-menu__text">${name}</span></div>`).join('') +
+    '<div class="lang-menu__more"><img src="assets/img/lang-more.svg" width="32" height="10" alt="Ещё"></div>';
+
+  function openLangMenu() {
+    langMenu.hidden = false;
+    langBtn.classList.add('is-active');
+    const btn = stageRect(langBtn);
+    const close = stageRect($('.ctor-header .close-btn'));
+    // правый край меню — по центру ✕ шапки (✕ меню: right −14, 28px); 8 — верхний отступ списка, 16 — половина строки
+    langMenu.style.left = Math.round(close.left + close.width / 2 - langMenu.offsetWidth) + 'px';
+    langMenu.style.top = Math.round(btn.top + btn.height / 2 - 8 - 16) + 'px';
+  }
+  function closeLangMenu() { langMenu.hidden = true; langBtn.classList.remove('is-active'); }
+
+  langBtn.addEventListener('click', () => (langMenu.hidden ? openLangMenu() : closeLangMenu()));
+  $('#langMenuClose').addEventListener('click', closeLangMenu);
+  stage.addEventListener('mousedown', (e) => {
+    if (!langMenu.hidden && !e.target.closest('#langMenu, #langBtn')) closeLangMenu();
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !langMenu.hidden) closeLangMenu(); });
+
   // ---------- Окно «Логотип» ----------
   // Логотип — иконка вместо птички в шапке аккордеона. «Загрузка» подставляет случайную иконку из набора.
   const LOGOS = ['leaf', 'sun', 'drop', 'hex', 'star'].map((n) => `assets/img/logos/${n}.svg`);
@@ -1799,9 +1827,9 @@
       '</span>';
   }
 
-  // Кружки темы: цвет аккордеона (прозрачный — шахматка), акцент 1, акцент 2.
-  const swatchList = (t) => [t.acc, t.marker, t.accent2];
-  const COLOR_KEYS = ['acc', 'marker', 'accent2'];
+  // Кружки темы: цвет аккордеона (прозрачный — шахматка), «Акцентный» (рыжий, accent2), «Акцентный 2» (синий, marker).
+  const swatchList = (t) => [t.acc, t.accent2, t.marker];
+  const COLOR_KEYS = ['acc', 'accent2', 'marker'];
   // Кружок в шапке: «нет цвета» — перечёркнутый, полупрозрачный — шахматка; клик открывает окно выбора цвета.
   const headSwatch = (c, key) => {
     const alpha = c && /^rgba/.test(c);
@@ -1815,7 +1843,7 @@
   const tpUserGrid = $('#tpUserGrid');
   const tileHTML = (id, t, e = effColors(t, {})) =>
     `<button class="tp-tile" type="button" data-theme="${id}"><span class="tp-tile__wrap">` +
-    `<span class="tp-tile__sw">${[e.acc, e.marker, e.accent2].map((c) => (c ? `<i${/^rgba/.test(c) ? ' class="is-alpha"' : ''} style="--c:${c}"></i>` : '<i class="is-none"></i>')).join('')}</span>` +
+    `<span class="tp-tile__sw">${[e.acc, e.accent2, e.marker].map((c) => (c ? `<i${/^rgba/.test(c) ? ' class="is-alpha"' : ''} style="--c:${c}"></i>` : '<i class="is-none"></i>')).join('')}</span>` +
     `<span class="tp-tile__pv">${pvHTML(t, e)}</span>` +
     '<span class="tp-tile__check"><span class="ico24">&#xE616;</span></span></span></button>';
   tpGrid.innerHTML = THEMES.map((t) => tileHTML(t.id, t)).join('');
@@ -1860,7 +1888,7 @@
     const e = effColors(t);
     for (const p of THEME_PROPS) stage.style.removeProperty(p);
     for (const [p, v] of Object.entries(themeVars(t, e))) stage.style.setProperty(p, v);
-    $('#themeSwatches').innerHTML = [e.acc, e.marker, e.accent2].map((c, i) => headSwatch(c, COLOR_KEYS[i])).join('');
+    $('#themeSwatches').innerHTML = [e.acc, e.accent2, e.marker].map((c, i) => headSwatch(c, COLOR_KEYS[i])).join('');
     paintBg(t);
     // по наведению — кнопка «Настроить» (Figma 16360:50515); клик — расширенные настройки
     $('#tpBig').innerHTML = pvHTML(t, e) + '<span class="tp-setup"><span class="ico24">&#xE660;</span>Настроить</span>';
@@ -1909,7 +1937,7 @@
   // Окно выбора цвета (Figma 19278:31867, ховер 16369:59560, поле цвета 16385:66609): открывается по клику на кружок темы в шапке.
   // Цвет применяется к странице сразу и делает тему пользовательской; ✓ и ✕ закрывают окно и оставляют выбранное,
   // ↺ возвращает всё как было при открытии окна (тему, пользовательскую тему и цвет).
-  const CW_TITLES = { acc: 'Меню навигации', marker: 'Акцентный', accent2: 'Акцентный 2' };
+  const CW_TITLES = { acc: 'Меню навигации', accent2: 'Акцентный', marker: 'Акцентный 2' };
   const CW_ACC = [null, '#f0f0f0', '#f6eaf0', '#e9e9e9', '#d8e1e2', '#2c3e50', '#502c2c', '#402c50', '#323232', '#050620'];
   const CW_ACCENT = ['#943253', '#f16767', '#f6733c', '#e5cb45', '#009918', '#0c94ff', '#326194', '#4c3294', '#943288', '#999999',
     '#ffe3ec', '#ffe5e3', '#fff1e3', '#fffbe3', '#e3ffe8', '#e3faff', '#e3f1ff', '#eae3ff', '#ffe3fa', '#ededed'];
@@ -1954,9 +1982,10 @@
       `<button class="cw-sw${h ? '' : ' is-none'}" type="button" data-hex="${h ?? ''}"${h ? ` style="--c:${h}"` : ''} aria-label="${h ?? 'Без цвета'}"></button>`).join('');
     cwOrig = cwCurrent();
     cwSnap = JSON.stringify({ themeId, userTheme });
-    const first = stageRect($('#themeSwatches .swatch'));
+    // окно — над своим кружком: левый край на 23px левее нажатого кружка
+    const sw = stageRect($(`#themeSwatches .swatch[data-key="${key}"]`));
     colorWin.hidden = false;
-    colorWin.style.left = Math.round(first.left - 23) + 'px';
+    colorWin.style.left = Math.round(Math.min(sw.left - 23, 1600 - colorWin.offsetWidth)) + 'px';
     colorWin.style.top = '0';
     cwRender(true);
   }
@@ -2143,7 +2172,9 @@
   $('#bgPresets').addEventListener('click', (e) => {
     const sw = e.target.closest('.cw-sw');
     if (!sw) return;
+    // заготовленный цвет или градиент применяется и сразу закрывает окно; картинка — нет (у неё есть настройки)
     setBg(sw.dataset.grad ? { kind: 'grad', c: sw.dataset.grad } : { kind: 'color', hex: sw.dataset.hex, a: 100 });
+    closeBgWin();
   });
   // клик по картинке — поставить её фоном (настройки сбрасываются для новой картинки); карандаш на картинке — ещё и открыть «Картинку»
   $('#bgCat').addEventListener('click', (e) => {

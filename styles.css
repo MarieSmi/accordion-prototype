@@ -57,7 +57,7 @@
   --accent: #f6733c;           /* background/contrast/primary_color */
   --accent-bg: #fff8f5;        /* background/primary_background-color */
   --accent-active-bg: #ffe6db; /* background/primary_active_background-color */
-  --menu-item-hover: #f5f5f5;  /* нет в макете — подобран */
+  --menu-item-hover: #f3f4f8;  /* components/dropdownpopup/item_hover_background-color_menu (Figma nuC4KFMiS36uDWDUp9wKGl 18013:12953) */
 
   /* редактор подменю */
   --editor-bg: #eceaf5;          /* components/constructor/simplifiedconstructor_background-color */
@@ -157,7 +157,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 .tp-tile__sw i.is-alpha { background-size: auto, 6px 6px; }
 
 .lang-btn { height: 30px; padding: 0 10px; align-items: center; transition: background-color .12s; }
-.lang-btn:hover { background: var(--pill-hover); }
+.lang-btn:hover, .lang-btn.is-active { background: var(--pill-hover); }
 
 .done-btn { width: 32px; height: 32px; border-radius: 50%; background: var(--success); display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 0 3px rgba(0, 0, 0, .1)); transition: filter .12s; }
 .done-btn .ico { color: #fff; }
@@ -917,6 +917,8 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .mw-menu__dot { height: 32px; display: flex; align-items: center; padding-right: 2px; flex: none; }
 .mw-menu__dot::before { content: ""; width: 12px; height: 12px; }
 .mw-menu__item.is-on .mw-menu__dot::before { background: url("assets/img/menu-dot.svg") no-repeat; }
+/* ховер невыбранного пункта: пустой кружок на месте маркера (Figma 18013:12953) */
+.mw-menu__item:not(.is-on):hover .mw-menu__dot::before { background: url("assets/img/menu-dot-hover.svg") no-repeat; }
 .mw-menu__text { flex: 1 0 0; min-width: 0; min-height: 32px; display: flex; align-items: center; padding-top: 1px; font-size: 16px; letter-spacing: -.2256px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mw-menu__close {
   position: absolute; right: -14px; top: 8px; width: 28px; height: 28px; border-radius: 50%;
@@ -925,6 +927,16 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 }
 .mw-menu__close:hover { background: rgba(170, 170, 170, .85); }
 .mw-menu__close img { display: block; }
+
+/* меню «Язык» (Figma 16065:176561): 180px, отступы 8, между строками 2; код языка 24px — Inter Semibold 15 #8991a9 */
+.mw-menu.lang-menu { width: 180px; }
+.lang-menu .mw-menu__list { gap: 2px; padding: 8px; align-items: stretch; }
+.lang-menu .mw-menu__item { align-items: center; height: 32px; cursor: default; }
+.lang-menu__code { flex: none; width: 24px; margin-right: 4px; font-size: 15px; font-weight: 600; letter-spacing: -.2115px; color: #8991a9; font-variant-numeric: lining-nums tabular-nums; }
+.lang-menu .mw-menu__text { padding-top: 0; }
+.lang-menu__more { align-self: center; padding: 4px 10px; }
+.lang-menu__more img { display: block; transition: filter .12s; }
+.lang-menu__more:hover img { filter: brightness(.9); }
 
 /* ---------- Окно «Логотип» ---------- */
 .lw-blocks { display: flex; flex-direction: column; gap: 4px; }
