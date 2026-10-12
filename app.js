@@ -1292,6 +1292,21 @@
     if (!ed || e.target.closest('.sme-mk')) return;
     if (itemEdit) {
       if (itemEdit.text.contains(e.target) || e.target.closest('.sme-tb--text')) return;
+      // клик по рамке виджета мимо текста правку не заканчивает: каретка — к ближайшему месту в тексте (мимо — в конец)
+      if (itemEdit.w.contains(e.target)) {
+        e.preventDefault();
+        const { text } = itemEdit;
+        let range = document.caretRangeFromPoint?.(e.clientX, e.clientY);
+        if (!range || !text.contains(range.startContainer)) {
+          range = document.createRange();
+          range.selectNodeContents(text);
+          range.collapse(e.clientX < text.getBoundingClientRect().left);
+        }
+        const s = getSelection();
+        s.removeAllRanges();
+        s.addRange(range);
+        return;
+      }
       stopItemEdit(true);
     }
     const w = e.target.closest('.sme-w');
