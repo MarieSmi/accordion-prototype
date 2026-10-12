@@ -897,7 +897,7 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .editor-only > * { flex: 1; }
 .editor-only__runtime { display: flex; justify-content: flex-end; padding-right: 40px; }
 .editor-only__design { padding-left: 40px; }
-.editor-only__runtime:has(#runtimePreview:empty) { visibility: hidden; } /* пустое подменю в рантайме не показывается */
+.editor-only .submenu.is-empty .submenu__panel { width: 230px; height: 120px; } /* пустое подменю в рантайме — пустая панель */
 /* заглушка пустого подменю в редакторе — «+» как у «Виджет» в пустом дашборде */
 .sme-stub { flex: 1; height: 120px; display: flex; align-items: center; justify-content: center; border-radius: 8px; }
 .sme-stub .ico24 { width: 66px; height: 54px; display: flex; align-items: center; justify-content: center; border-radius: 8px; color: var(--accent2);

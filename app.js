@@ -1180,9 +1180,15 @@
     }
     panel.append(cols);
     box.append(panel);
-    // пустое подменю в рантайме не показывается
-    if (panel.querySelector('.sm-head, .sm-item')) runtimePreview.replaceChildren(box);
-    else runtimePreview.replaceChildren();
+    // пустое подменю — пустая панель
+    box.classList.toggle('is-empty', !panel.querySelector('.sm-head, .sm-item'));
+    runtimePreview.replaceChildren(box);
+    // заголовок многоколоночного — по ширине первой колонки, как в аккордеоне
+    const headBtn = $('.sm-head', box);
+    if (draft.cols.length > 1 && headBtn) {
+      const col = $('.submenu__col', box);
+      headBtn.style.width = (col.offsetLeft + col.offsetWidth - headBtn.offsetLeft) + 'px';
+    }
   }
 
   // Изменение черновика — новый шаг истории (шаги «вперёд» отбрасываются).
