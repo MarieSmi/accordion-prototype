@@ -886,9 +886,9 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .submenu--narrow .kind-cal, .submenu--panel .kind-cal { margin-left: 6px; } /* без отступа под иконку, как у пунктов */
 .kind-cal__day.is-today { color: #1e90ff; } /* сегодня — синим, как в подменю аккордеона */
 
-/* сводная «Виды подменю»: на всю сцену поверх всего, фон как у конструктора; подменю в потоке, без кликов */
+/* сводная «Виды подменю и пунктов»: на всю сцену поверх всего, фон как у конструктора; подменю в потоке, без кликов */
 .kinds { display: none; position: absolute; inset: 0; z-index: 45; align-items: flex-start; gap: 48px; padding: 48px; background: var(--ctor-bg); }
-.stage[data-scenario="submenu-kinds"] #submenuKinds, .stage[data-scenario="submenu-items"] #itemKinds,
+.stage[data-scenario="submenu-kinds"] #submenuKinds,
 .stage[data-scenario="submenu-editor"] #editorOnly { display: flex; }
 /* «Редактор подменю»: редактор и его всплывашки — поверх фона сценария */
 .stage[data-scenario="submenu-editor"] .sm-editor { z-index: 46; }
@@ -903,11 +903,11 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .kind { display: flex; flex-direction: column; gap: 12px; }
 .kind__label { font-size: 16px; font-weight: 600; letter-spacing: -.2256px; color: #000; } /* подпись на светлом фоне конструктора */
 .kinds .submenu { position: static; }
-/* «Виды пунктов»: карточки в несколько рядов; у каждой — короткая панель подменю и подписи состояний вровень со строками */
-.kinds--items { flex-wrap: wrap; align-content: flex-start; gap: 40px 48px; }
+/* пункты — колонкой справа от подменю; у каждой — короткая панель подменю и подписи состояний вровень со строками */
+.kinds__items { display: flex; flex-direction: column; gap: 40px; }
 .item-kind { display: flex; align-items: flex-start; gap: 12px; }
-.kinds--items .submenu__panel { padding: 6px 0; min-width: 0; width: 230px; }
-.kinds--items .submenu__head { padding: 0 6px 0 4px; }
+.kinds__items .submenu__panel { padding: 6px 0; min-width: 230px; } /* не уже 230, шире — если пункту с элементом справа не хватает места */
+.kinds__items .submenu__head { padding: 0 6px 0 4px; }
 .item-kind__states { display: flex; flex-direction: column; gap: 2px; padding-top: 6px; }
 .item-kind__state { height: 30px; display: flex; align-items: center; font-size: 14px; letter-spacing: -.1974px; color: #8991a9; white-space: nowrap; }
 .submenu__float { position: absolute; right: -32px; top: 4px; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }

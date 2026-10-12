@@ -1005,10 +1005,9 @@
           <div class="ins-main ins-main--acc"></div>
         </div>
       </section>
-      <!-- Сценарий «Виды подменю»: сводная статичных подменю (Контакты, Бизнес, Календарь) на фоне конструктора, только ховеры; наполняет app.js -->
-      <section class="kinds" id="submenuKinds" aria-label="Виды подменю"></section>
-      <!-- Сценарий «Виды пунктов»: сводная отличающихся пунктов подменю (заголовки, 1-й и 2-й уровень) в их состояниях; наполняет app.js -->
-      <section class="kinds kinds--items" id="itemKinds" aria-label="Виды пунктов"></section>
+      <!-- Сценарий «Виды подменю и пунктов»: статичные подменю (Контакты, Бизнес, Календарь) и справа колонкой — отличающиеся пункты
+           подменю (заголовки, уровни, элементы справа) на фоне конструктора, только ховеры; наполняет app.js -->
+      <section class="kinds" id="submenuKinds" aria-label="Виды подменю и пунктов"></section>
       <!-- Сценарий «Редактор подменю»: только редактор подменю «Документы» на фоне конструктора; после ✓/✕ открывается заново -->
       <div class="kinds editor-only" id="editorOnly">
         <div class="editor-only__runtime"><div class="kind"><div class="kind__label">Рантайм</div><div id="runtimePreview"></div></div></div>
@@ -1062,8 +1061,7 @@
     <div class="sys-card sys-card--scen sys-card--bottom" role="radiogroup" aria-label="Сценарий: подменю">
       <div class="sys-group">Подменю</div>
       <div class="sys-options">
-        <button class="sys-radio" type="button" role="radio" aria-checked="false" data-scenario="submenu-kinds"><span class="sys-radio__box"></span><span class="sys-radio__text">Виды подменю</span></button>
-        <button class="sys-radio" type="button" role="radio" aria-checked="false" data-scenario="submenu-items"><span class="sys-radio__box"></span><span class="sys-radio__text">Виды пунктов</span></button>
+        <button class="sys-radio" type="button" role="radio" aria-checked="false" data-scenario="submenu-kinds"><span class="sys-radio__box"></span><span class="sys-radio__text">Виды подменю и пунктов</span></button>
       </div>
       <!-- «Редактор подменю»: оба сценария — один data-scenario, отличаются data-variant (scratch — пока пустой фрейм, ready — готовое «Документы») -->
       <div class="sys-group">Редактор подменю</div>

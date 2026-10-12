@@ -461,7 +461,7 @@
     syncAccordion();
   }
 
-  // ---------- Сводная «Виды подменю» ----------
+  // ---------- Сводная «Виды подменю и пунктов»: подменю ----------
   // Статичные подменю из аккордеона (вид раскрытого аккордеона: с иконкой раздела): ховеры пунктов работают, кликов нет.
   const KINDS = [
     ['contacts', 'Одноколоночное'],
@@ -488,7 +488,7 @@
     kindsBox.append(kind);
   }
 
-  // ---------- Сводная «Виды пунктов» ----------
+  // ---------- Сводная «Виды подменю и пунктов»: пункты ----------
   // Отличающиеся пункты подменю по группам; справа от каждой строки — подпись варианта. Ховеры работают, кликов нет.
   const secById = (id) => SECTIONS.find((s) => s.id === id);
   const wideHead = (id) => `<button class="sm-head" type="button">${headIconHTML(secById(id))}<span class="sm-head__title">${secById(id).title}</span></button>`;
@@ -507,7 +507,7 @@
       ['стрелка', `<button class="sm-item" type="button">${itemHTML(sub('Скрипты', 1, 'arrow'))}</button>`],
       ['плюс', `<button class="sm-item" type="button">${itemHTML(sub('Заметки', 1, 'plus'))}</button>`]] },
   ];
-  const itemKindsBox = $('#itemKinds');
+  const itemKindsBox = kindsBox.appendChild(el('div', 'kinds__items')); // колонкой справа от видов подменю
   for (const k of ITEM_KINDS) {
     const box = el('div', 'submenu submenu--wide');
     const panel = el('div', 'submenu__panel');
