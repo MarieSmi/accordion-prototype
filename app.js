@@ -1046,7 +1046,7 @@
     }
     // редактор — в правой половине, под подписью «Дизайнтайм»
     const design = $('.editor-only__design');
-    editor.style.left = design.offsetLeft - 10 + 'px';
+    editor.style.left = $('.kind__label', design).offsetLeft + 'px'; // левый край окна — по подписи «Дизайнтайм»
     editor.style.top = design.offsetTop + 32 + 'px';
   }
   function setEditorOnly() {
