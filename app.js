@@ -66,7 +66,7 @@
         [sub('Обращения'), sub('Список', 2), sub('Клиенты', 2), sub('По видам', 2), sub('Инциденты')],
       ] } },
     { id: 'calendar', title: 'Календарь', short: 'Кален-рь', calendar: true,
-      submenu: { cols: [[sub('Ежедневник'), sub('Табель'), sub('Встречи'), sub('Куда уходит время'), sub('Помещения')]] } },
+      submenu: { cols: [[sub('Ежедневник'), sub('Планировщик'), sub('Табель'), sub('Встречи'), sub('Куда уходит время'), sub('Помещения')]] } },
     { id: 'profile', title: 'Сдобников С.В.', short: 'Сдобников', photo: 'assets/img/avatar-sdobnikov.png',
       submenu: { cols: [[sub('Инструкции'), sub('Зарплата'), sub('KPI'), sub('OKR'), sub('Мотивация'), sub('Мои планы'),
         sub('Документы'), sub('Настройки')]] } },
@@ -138,9 +138,9 @@
   // Сценарии во вспомогательной панели: выбранный записывается в data-scenario у сцены, подсценарий вилки — в data-variant.
   // Выбор сценария с вилкой включает его первый подсценарий; у выбранного подсценария отмечен и сам сценарий.
   const sysRadios = [...sysPanel.querySelectorAll('.sys-radio')];
-  sysPanel.querySelector('[role="radiogroup"]').addEventListener('click', (e) => {
+  sysPanel.addEventListener('click', (e) => {
     const radio = e.target.closest('.sys-radio');
-    if (!radio || radio.classList.contains('is-on')) return;
+    if (!radio || radio.disabled || radio.classList.contains('is-on')) return;
     const scenario = radio.dataset.scenario;
     const variant = radio.dataset.variant || sysRadios.find((r) => r.dataset.scenario === scenario && r.dataset.variant)?.dataset.variant;
     for (const r of sysRadios) {
@@ -431,6 +431,47 @@
     layer.innerHTML = '';
     state.openSection = null;
     syncAccordion();
+  }
+
+  // ---------- Сводная «Виды подменю» ----------
+  // Статичные подменю из аккордеона (вид раскрытого аккордеона: с иконкой раздела): ховеры пунктов работают, кликов нет.
+  const KINDS = [
+    ['contacts', 'Одноколоночное'],
+    ['business', 'Многоколоночное'],
+    ['calendar', 'С виджетом'],
+  ];
+  function calendarWidgetHTML() {
+    // Figma 9eLwMJLQCwT0xHKviN2j1P 16104:266292: «Месяц» со стрелками, дни недели, 6 недель; соседние месяцы серые, сб и вс — акцентным
+    const now = new Date();
+    const month = new Date(now.getFullYear(), now.getMonth(), 1).toLocaleDateString('ru-RU', { month: 'long' });
+    const start = new Date(now.getFullYear(), now.getMonth(), 1 - (new Date(now.getFullYear(), now.getMonth(), 1).getDay() + 6) % 7);
+    const cells = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'].map((d) => `<span class="kind-cal__wd">${d}</span>`);
+    for (let i = 0; i < 42; i++) {
+      const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+      const cls = (d.getMonth() !== now.getMonth() ? ' is-other' : '') + (i % 7 > 4 ? ' is-weekend' : '')
+        + (d.toDateString() === now.toDateString() ? ' is-today' : '');
+      cells.push(`<span class="kind-cal__day${cls}">${d.getDate()}</span>`);
+    }
+    return `<div class="kind-cal"><div class="kind-cal__head"><span class="kind-cal__arr"></span><span class="kind-cal__month">${month[0].toUpperCase() + month.slice(1)}</span><span class="kind-cal__arr"></span></div><div class="kind-cal__grid">${cells.join('')}</div></div>`;
+  }
+  const kindsBox = $('#submenuKinds');
+  for (const [id, label] of KINDS) {
+    const sec = SECTIONS.find((s) => s.id === id);
+    const box = el('div', 'submenu submenu--wide' + (sec.submenu.cols.length > 1 ? ' submenu--multi' : ''));
+    const panel = el('div', 'submenu__panel');
+    panel.append(el('div', 'submenu__head', `<button class="sm-head" type="button">${headIconHTML(sec)}<span class="sm-head__title">${sec.submenu.head || sec.title}</span></button>`));
+    const cols = el('div', 'submenu__cols');
+    for (const col of sec.submenu.cols) {
+      const c = el('div', 'submenu__col');
+      for (const it of col) c.append(el('button', 'sm-item' + (it.level === 2 ? ' sm-item--sub' : ''), it.title));
+      cols.append(c);
+    }
+    panel.append(cols);
+    if (id === 'calendar') panel.insertAdjacentHTML('beforeend', calendarWidgetHTML());
+    box.append(panel);
+    const kind = el('div', 'kind', `<div class="kind__label">${label}</div>`);
+    kind.append(box);
+    kindsBox.append(kind);
   }
 
   // ---------- Позиционирование контента (переключатель в шапке) ----------

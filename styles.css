@@ -857,6 +857,26 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .submenu--narrow .sm-item, .submenu--panel .submenu__cols .sm-item { padding: 0 10px; }
 .submenu--narrow .sm-item--sub, .submenu--panel .sm-item--sub { padding-left: 20px; }
 
+/* сводная «Виды подменю»: на всю сцену поверх всего, фон как у конструктора; подменю в потоке, без кликов */
+.kinds { display: none; position: absolute; inset: 0; z-index: 45; align-items: flex-start; gap: 48px; padding: 48px; background: var(--ctor-bg); }
+.stage[data-scenario="submenu-kinds"] .kinds { display: flex; }
+.kind { display: flex; flex-direction: column; gap: 12px; }
+.kind__label { font-size: 16px; font-weight: 600; letter-spacing: -.2256px; color: #000; } /* подпись на светлом фоне конструктора */
+.kinds .submenu { position: static; }
+/* виджет «Календарь» (Figma 9eLwMJLQCwT0xHKviN2j1P 16104:266292): 204×226, ячейки 28, шапка 28, дни недели 30 */
+.kind-cal { box-sizing: border-box; width: 204px; padding-left: 8px; margin: 6px 3px 0 38px; color: var(--acc-text); letter-spacing: -.1974px; }
+.kind-cal__head { height: 28px; width: 196px; display: flex; align-items: center; justify-content: space-between; padding: 0 33px; font-size: 15px; }
+.kind-cal__month { flex: 1; text-align: center; }
+.kind-cal__arr { font: 12px/12px "cbuc-icons"; color: rgba(255, 255, 255, .4); }
+.kind-cal__grid { width: 196px; display: grid; grid-template-columns: repeat(7, 28px); grid-template-rows: 30px repeat(6, 28px); font-size: 14px; text-align: center; }
+.kind-cal__grid > span { display: flex; align-items: center; justify-content: center; }
+.kind-cal__wd { font-size: 15px; color: rgba(255, 255, 255, .4); padding-bottom: 2px; }
+.kind-cal__day { border-radius: 14px; }
+.kind-cal__day:hover { background: var(--submenu-item-hover); }
+.kind-cal__day.is-other { color: rgba(255, 255, 255, .5); }
+.kind-cal__day.is-weekend { color: var(--accent); }
+.kind-cal__day.is-today { color: #1e90ff; } /* сегодня — синим, как в подменю аккордеона */
+
 .submenu__float { position: absolute; right: -32px; top: 4px; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
 .float-btn { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--float-btn-bg); box-shadow: 1px 1px 6px rgba(0, 0, 0, .1); transition: background-color .12s; }
 .float-btn:hover { background: rgba(170, 170, 170, .85); }
@@ -1509,6 +1529,8 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .sys__size { display: flex; height: 20px; align-items: center; gap: 6px; padding-left: 6px; font-size: 12px; letter-spacing: -.1692px; color: #8991a9; }
 .sys-card { display: flex; flex-direction: column; gap: 6px; padding: 6px; border-radius: 8px; background: #f3f5f7; } /* background/contrast_background-color */
 .sys-card--scen { gap: 2px; }
+.sys > .sys__top { margin-bottom: auto; } /* всё свободное место — между сценариями и «Подменю» */
+.sys-card--bottom { margin: 0 0 -6px; } /* вплотную над карточкой со ссылками: общий зазор панели 12 − 6 = 6 */
 .sys-group { padding: 12px 6px 6px; font-size: 14px; letter-spacing: -.1974px; text-transform: uppercase; color: #000; } /* заголовок группы сценариев */
 .sys-options { display: flex; flex-direction: column; gap: 2px; padding: 4px 6px; border-radius: 8px; background: #fff; }
 .sys-radio { display: flex; align-items: flex-start; text-align: left; }

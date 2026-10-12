@@ -1003,6 +1003,8 @@
           <div class="ins-main ins-main--acc"></div>
         </div>
       </section>
+      <!-- Сценарий «Виды подменю»: сводная статичных подменю (Контакты, Бизнес, Календарь) на фоне конструктора, только ховеры; наполняет app.js -->
+      <section class="kinds" id="submenuKinds" aria-label="Виды подменю"></section>
     </div>
   </div>
   <!-- Вспомогательная панель справа от демо (Figma xMQ3ZEN4AUINgwjVoxR8hS 18715:93398): устройство, сценарии, ссылки -->
@@ -1045,6 +1047,14 @@
           <button class="sys-radio" type="button" role="radio" aria-checked="false" data-scenario="tab-ctor-head"><span class="sys-radio__box"></span><span class="sys-radio__text">Из шапки конструктора</span></button>
           <button class="sys-radio" type="button" role="radio" aria-checked="false" data-scenario="tab-shop"><span class="sys-radio__box"></span><span class="sys-radio__text">Из магазина</span></button>
         </div>
+      </div>
+    </div>
+    <!-- Сценарии внизу панели, над ссылками: тот же общий выбор одного сценария на всю панель -->
+    <div class="sys-card sys-card--scen sys-card--bottom" role="radiogroup" aria-label="Сценарий: подменю">
+      <div class="sys-group">Подменю</div>
+      <div class="sys-options">
+        <button class="sys-radio" type="button" role="radio" aria-checked="false" data-scenario="submenu-kinds"><span class="sys-radio__box"></span><span class="sys-radio__text">Виды подменю</span></button>
+        <button class="sys-radio" type="button" role="radio" aria-checked="false" data-scenario="submenu-items"><span class="sys-radio__box"></span><span class="sys-radio__text">Виды пунктов</span></button>
       </div>
     </div>
     <div class="sys-card">
