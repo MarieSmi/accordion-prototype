@@ -156,6 +156,7 @@
     selectTabs(false);
     resetTabs(radio.dataset.scenario.startsWith('tab-'));
     resetHistory(); // смена сценария — не правка: история начинается заново
+    setInside(scenario === 'editor-inside');
   });
   function fitStage() {
     const css = getComputedStyle(document.documentElement);
@@ -1063,8 +1064,9 @@
   });
   smeConfirm.addEventListener('click', (e) => {
     const answer = e.target.closest('[data-answer]')?.dataset.answer;
-    // Это же подтверждение спрашивает и окно «Вкладки».
+    // Это же подтверждение спрашивает и окно «Вкладки», и ✕ шапки конструктора в сценарии «Админка».
     if (tw) { answerTabsConfirm(answer); return; }
+    if (insideAsk) { answerInsideConfirm(answer); return; }
     if (answer === 'yes') saveEditor();
     else if (answer === 'no') closeEditor();
     else if (answer === 'cancel') smeConfirm.hidden = true;
@@ -1253,6 +1255,8 @@
     const r = stageRect(trigger.querySelector(':scope > .ico') || trigger);
     tabAddMenu.style.left = Math.round(r.left + r.width / 2 - 20 - 12) + 'px';
     tabAddMenu.style.top = Math.round(over ? r.top + r.height / 2 - 8 - 14 : r.top + r.height + 4) + 'px';
+    // вертикальная «+вкладка» в колонке информеров: меню закрывает ссылку целиком — «+» заголовка у её верхнего края
+    if (trigger.id === 'infAddTab') tabAddMenu.style.top = Math.round(stageRect(trigger).top + 6 - 8 - 14) + 'px';
     tabAddMenu.trigger = trigger;
   }
   // «⋯»: под кнопкой на 4px, иконка первого пункта — под кнопкой (8 — отступ списка, 12 — отступ пункта).
@@ -1276,8 +1280,10 @@
   $('#tabsGear').addEventListener('click', () => { closeTabMenus(); openTabsWin('list'); });
   $('#tabAddClose').addEventListener('click', closeTabMenus);
   $('#tabDotsClose').addEventListener('click', closeTabMenus);
-  // Сценарий «Из тулбара»: плюс в колонке информеров, «+» меню ровно поверх него.
+  // Сценарий «Плюс в тулбаре»: плюс в колонке информеров, «+» меню ровно поверх него.
   $('#infPlus').addEventListener('click', (e) => (tabAddMenu.hidden ? openAddMenu(e.currentTarget, true) : closeTabMenus()));
+  // Сценарий «+вкладка в тулбаре»: вертикальная ссылка в колонке информеров, «+» меню ровно поверх её «+».
+  $('#infAddTab').addEventListener('click', (e) => (tabAddMenu.hidden ? openAddMenu(e.currentTarget, true) : closeTabMenus()));
   // Сценарий «Из шапки дашборда»: ссылка «+вкладка» справа в шапке, «+» меню ровно поверх её «+».
   $('#dashAddTab').addEventListener('click', (e) => (tabAddMenu.hidden ? openAddMenu(e.currentTarget, true) : closeTabMenus()));
   // Сценарий «Из шапки конструктора»: та же ссылка слева от «Язык RU».
@@ -1594,6 +1600,7 @@
   function renderPlusMenu() {
     const q = plusSearch.value.trim().toLowerCase();
     const match = (t) => !q || t.toLowerCase().includes(q);
+    const fromEditor = plusOwner === smePlus;
     plusList.innerHTML = '';
     const row = (cls, html, onClick) => {
       const r = el('button', 'pm-row' + (cls ? ' ' + cls : ''), html);
@@ -1602,15 +1609,16 @@
       plusList.append(r);
     };
     // У «+» шапки аккордеона строки «Добавить виджет» нет.
-    if (!q && plusOwner === smePlus) row('', '<span class="ico pm-ico">&#xEADD;</span><span>Добавить виджет</span>');
+    if (!q && fromEditor) row('', '<span class="ico pm-ico">&#xEADD;</span><span>Добавить виджет</span>');
     for (const n of PLUS_TREE) {
       if (n.sep) { if (!q) plusList.append(el('div', 'pm-sep')); continue; }
       const kids = (n.items || []).filter(match);
       if (q && !match(n.title) && !kids.length) continue;
       const arrow = n.kind === 'folder' ? '' : (n.open || (q && kids.length)) ? '' : '';
+      // В меню «+» шапки аккордеона не кликаются страницы и пустые группы («Деньги», «Торги»).
       row('', `<span class="ico pm-ico">${arrow}</span><span>${n.title}</span>`,
-        n.kind === 'group' ? () => { n.open = !n.open; renderPlusMenu(); } : null);
-      if (n.open || (q && kids.length)) for (const t of (q ? kids : n.items)) row('pm-row--page', `<span>${t}</span>`, () => (plusOwner === smePlus ? addPage(t) : closePlusMenu()));
+        n.kind === 'group' && (fromEditor || n.items.length) ? () => { n.open = !n.open; renderPlusMenu(); } : null);
+      if (n.open || (q && kids.length)) for (const t of (q ? kids : n.items)) row('pm-row--page', `<span>${t}</span>`, fromEditor ? () => addPage(t) : null);
     }
   }
 
@@ -2326,6 +2334,57 @@
   for (const type of ['click', 'pointerup', 'focusout']) document.addEventListener(type, later, true);
   document.addEventListener('keyup', (e) => { if (e.key === 'Enter' || e.key === 'Escape' || e.key === 'Delete') later(); }, true);
   document.addEventListener('input', () => { clearTimeout(inputTimer); inputTimer = setTimeout(record, INPUT_PAUSE); }, true);
+
+  // ---------- Сценарий «Админка (Inside)» (Figma xMQ3ZEN4AUINgwjVoxR8hS 18428:12935) ----------
+  // Экран админки поверх конструктора. Превью красится токенами темы со сцены; логотип и надпись — как в аккордеоне.
+  // «Настроить» открывает конструктор (редактор), ✓ шапки — сохранить и вернуться, ✕ — вернуться; если были правки,
+  // сначала «Сохранить изменения?»: «Да» — как ✓, «Нет» — откатить правки этого захода, «Отмена» — остаться в редакторе.
+  const inside = $('#inside');
+  let insideSnap = null; // снимок при входе в редактор из админки; null — редактор открыт не из админки
+  let insideAsk = false; // подтверждение открыто ✕ шапки в сценарии «Админка»
+
+  function showInside() {
+    closeOtherWindows();
+    closeSubmenu();
+    $('#insidePvBird').innerHTML = logoHTML();
+    $('#insidePvLogo').innerHTML = $('#goHome').innerHTML;
+    insideSnap = null;
+    inside.hidden = false;
+  }
+  function setInside(on) {
+    insideAsk = false;
+    smeConfirm.hidden = true;
+    if (on) showInside();
+    else { inside.hidden = true; insideSnap = null; }
+  }
+  function answerInsideConfirm(answer) {
+    smeConfirm.hidden = true;
+    insideAsk = false;
+    if (answer === 'cancel') return;
+    if (answer === 'no') restore(insideSnap);
+    resetHistory();
+    showInside();
+  }
+
+  $('#insideSetup').addEventListener('click', () => {
+    inside.hidden = true;
+    resetHistory(); // отмена в редакторе — только в пределах этого захода
+    insideSnap = snapshot();
+  });
+  $('.ctor-header .done-btn').addEventListener('click', () => {
+    if (insideSnap === null) return;
+    record();
+    resetHistory();
+    showInside();
+  });
+  $('.ctor-header .close-btn').addEventListener('click', () => {
+    if (insideSnap === null) return;
+    record();
+    if (snapshot() === insideSnap) { resetHistory(); showInside(); return; }
+    closeOtherWindows();
+    insideAsk = true;
+    smeConfirm.hidden = false;
+  });
 
   applyTheme(themeId);
   renderAccordion();

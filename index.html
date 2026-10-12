@@ -332,8 +332,10 @@
             <div class="informers__top">
               <span class="informers__fio">СС<img src="assets/img/cu/fio-dot.svg" width="5.058" height="5.058" alt=""></span>
               <span class="informers__btn"><span class="ico">&#xE747;</span></span>
-              <!-- сценарий «Из тулбара»: плюс вместо кнопки выше (Figma 16065:104154, Ghost 24 — nuC4KFMiS36uDWDUp9wKGl 17890:9866), открывает меню «+ вкладка» -->
+              <!-- сценарий «Плюс в тулбаре»: плюс вместо кнопки выше (Figma 16065:104154, Ghost 24 — nuC4KFMiS36uDWDUp9wKGl 17890:9866), открывает меню «+ вкладка» -->
               <button class="inf-plus" type="button" id="infPlus" aria-label="Добавить вкладку"><span class="ico24">&#xE95D;</span></button>
+              <!-- сценарий «+вкладка в тулбаре»: та же ссылка, что в шапке дашборда, вертикально под кнопкой; открывает меню «+ вкладка» -->
+              <button class="pg-link inf-link" type="button" id="infAddTab"><span class="ico">&#xEB25;</span><span class="pg-link__text">вкладка</span></button>
             </div>
             <div class="informers__bottom">
               <span class="informers__shot"><img src="assets/img/cu/informers-sprite.png" style="top: -2231.25%" alt=""></span>
@@ -885,6 +887,98 @@
           <button class="icon-menu__item" type="button"><span class="ico24">&#xE90A;</span><span class="icon-menu__text">Из коллекции</span></button>
         </div>
       </div>
+
+      <!-- Сценарий «Админка (Inside)» (Figma xMQ3ZEN4AUINgwjVoxR8hS 18428:12935): экран 1600×843 поверх конструктора.
+           Фон — картинка, живая — середина: превью настроенного интерфейса (цвета и фон — токены темы со сцены), текст, «Настроить». -->
+      <section class="ins" id="inside" hidden aria-label="Админка">
+        <div class="ins__screen">
+          <img class="ins__bg" src="assets/img/inside/bg.png" width="1600" height="900" alt="">
+          <div class="ins__panel">
+            <div class="ins-head">
+              <span class="ins-head__logo"><img src="assets/img/inside/logo.svg" width="40" height="40" alt=""></span>
+              <span class="ins-head__name">Online</span>
+              <span class="ins-head__ver">26.4234</span>
+              <span class="ins-head__pub">Опубликовано для всех</span>
+              <span class="ins-head__save">Сохранить</span>
+            </div>
+            <div class="ins-body">
+              <ul class="ins-nav">
+                <li>Настройка</li>
+                <li class="is-on">Оформление</li>
+                <li class="ins-nav__sub">Приветствие<i class="ins-sw is-on"></i></li>
+                <li>Авторизация</li>
+                <li>Домены</li>
+                <li>Компоненты</li>
+                <li>Контекст данных</li>
+                <li>Тарифы</li>
+                <li>Роли</li>
+                <li>Оповещения</li>
+                <li>Компаньоны</li>
+                <li>Активность</li>
+                <li>Конфигурации</li>
+                <li>Манифест<i class="ins-sw"></i></li>
+              </ul>
+              <div class="ins-main">
+                <div class="ins-top">
+                  <!-- Превью 470×250 (Figma 18659:78067): аккордеон, страница, ЦУ -->
+                  <div class="ipv">
+                    <div class="ipv__acc">
+                      <div class="ipv__head"><span class="ipv__bird" id="insidePvBird"></span><span class="ipv__logo" id="insidePvLogo"></span></div>
+                      <div class="ipv__item"><i></i><b></b></div>
+                      <div class="ipv__item is-sel"><i></i><b></b></div>
+                      <div class="ipv__item"><i></i><b></b></div>
+                      <div class="ipv__item"><i></i><b></b></div>
+                      <div class="ipv__item"><i></i><b></b></div>
+                    </div>
+                    <div class="ipv__dash">
+                      <div class="ipv__page">
+                        <div class="ipv__row1"><i class="ipv__a1"></i><i class="ipv__search"></i></div>
+                        <div class="ipv__tabs"><span class="ipv__tab"><i></i><i class="ipv__dot"></i></span><span class="ipv__tab"><i></i></span><span class="ipv__tab ipv__tab--on"><i></i><i class="ipv__under"></i></span></div>
+                        <div class="ipv__card">
+                          <div class="ipv__line"><i class="ipv__sq"></i><span><span><i style="width:24.466px"></i><i style="width:17.192px"></i></span><i style="width:95.218px"></i><i style="width:57.528px"></i></span></div>
+                          <i class="ipv__sep"></i>
+                          <div class="ipv__line"><i class="ipv__sq"></i><span><span><i style="width:24.466px"></i><i style="width:17.192px"></i></span><i style="width:95.218px"></i><i style="width:57.528px"></i></span></div>
+                          <i class="ipv__sep"></i>
+                          <div class="ipv__line"><i class="ipv__sq"></i><span><span><i style="width:24.466px"></i><i style="width:17.192px"></i></span><i style="width:95.218px"></i><i style="width:57.528px"></i></span></div>
+                        </div>
+                      </div>
+                      <div class="ipv__rp"><span><i></i><i></i></span><span><i class="ipv__shop"></i><i></i><i></i><i class="ipv__lav"></i></span></div>
+                    </div>
+                    <div class="ipv__cu">
+                      <div class="ipv__note"><i class="ipv__cap"></i><i class="ipv__blk"></i></div>
+                      <div class="ipv__note"><i class="ipv__cap"></i><span class="ipv__sqs"><i></i><i></i><i></i></span></div>
+                      <div class="ipv__note"><i class="ipv__cap"></i><i class="ipv__blk"></i></div>
+                      <div class="ipv__note ipv__note--news"><i class="ipv__pic"></i><span><i></i><i></i><i class="ipv__end"></i></span></div>
+                    </div>
+                  </div>
+                  <div class="ins-intro">
+                    <div class="ins-intro__text">
+                      <p class="ins-intro__title">Настройте интерфейс Saby</p>
+                      <p class="ins-intro__sub">Выберите готовую тему или настройте внешний вид и расположение элементов интерфейса под свои задачи.</p>
+                    </div>
+                    <button class="ins-setup" type="button" id="insideSetup">Настроить<span class="ico">&#xE9AB;</span></button>
+                  </div>
+                </div>
+                <div class="ins-info">
+                  <div class="ins-info__item"><span class="ins-info__ico">&#xEBBB;</span><p class="ins-info__title">Оформление</p><p class="ins-info__sub">Настройте логотип, тему и фон приложения</p></div>
+                  <i class="ins-info__sep"></i>
+                  <div class="ins-info__item"><span class="ins-info__ico">&#xEBBA;</span><p class="ins-info__title">Компоновка</p><p class="ins-info__sub">Настройте меню, центр уведомлений и расположение страницы</p></div>
+                  <i class="ins-info__sep"></i>
+                  <div class="ins-info__item"><span class="ins-info__ico">&#xEBA0;</span><p class="ins-info__title">Язык</p><p class="ins-info__sub">Выберите язык интерфейса</p></div>
+                </div>
+              </div>
+            </div>
+            <div class="ins-side">
+              <span class="ins-side__close"><img src="assets/img/inside/close.svg" width="12" height="12" alt=""></span>
+              <span class="ins-side__lang">RU</span>
+              <span class="ins-side__cmd ico24">&#xE6A7;</span>
+              <span class="ins-side__cmd ico24">&#xE63C;</span>
+              <span class="ins-side__cmd ico24">&#xE9D9;</span>
+              <span class="ins-side__help"><img src="assets/img/inside/help.svg" width="16" height="16" alt=""></span>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   </div>
   <!-- Вспомогательная панель справа от демо (Figma xMQ3ZEN4AUINgwjVoxR8hS 18715:93398): устройство, сценарии, ссылки -->
@@ -897,14 +991,25 @@
       <div class="sys__size"><span>1600х900</span><span>монитор</span></div>
       <!-- Сценарии: выбран может быть только один на всю панель; выбранный — в data-scenario у #stage.
            Вилка (как «Пользователь» → «С главной / Из настроек», Figma 18715:93398): подсценарий — в data-variant у #stage,
-           при выборе сценария включается первый подсценарий -->
+           при выборе сценария включается первый подсценарий. disabled — сценарий пока не сделан -->
       <div class="sys-card sys-card--scen" role="radiogroup" aria-label="Сценарий">
         <div class="sys-options">
           <button class="sys-radio is-on" type="button" role="radio" aria-checked="true" data-scenario="demo"><span class="sys-radio__box"></span><span class="sys-radio__text">Общее демо</span></button>
         </div>
+        <div class="sys-group">Точка захода в редактор</div>
+        <div class="sys-options">
+          <button class="sys-radio" type="button" role="radio" aria-checked="false" data-scenario="editor-inside"><span class="sys-radio__box"></span><span class="sys-radio__text">Админка (Inside)</span></button>
+          <button class="sys-radio" type="button" role="radio" aria-checked="false" disabled data-scenario="editor-account"><span class="sys-radio__box"></span><span class="sys-radio__text">Аккаунт</span></button>
+          <button class="sys-radio" type="button" role="radio" aria-checked="false" disabled data-scenario="editor-user"><span class="sys-radio__box"></span><span class="sys-radio__text">Пользователь</span></button>
+          <div class="sys-sub">
+            <button class="sys-radio" type="button" role="radio" aria-checked="false" disabled data-scenario="editor-user" data-variant="main"><span class="sys-radio__box"></span><span class="sys-radio__text">С главной</span></button>
+            <button class="sys-radio" type="button" role="radio" aria-checked="false" disabled data-scenario="editor-user" data-variant="settings"><span class="sys-radio__box"></span><span class="sys-radio__text">Из настроек</span></button>
+          </div>
+        </div>
         <div class="sys-group">Добавление вкладки</div>
         <div class="sys-options">
-          <button class="sys-radio" type="button" role="radio" aria-checked="false" data-scenario="tab-toolbar"><span class="sys-radio__box"></span><span class="sys-radio__text">Из тулбара</span></button>
+          <button class="sys-radio" type="button" role="radio" aria-checked="false" data-scenario="tab-toolbar"><span class="sys-radio__box"></span><span class="sys-radio__text">Плюс в тулбаре</span></button>
+          <button class="sys-radio" type="button" role="radio" aria-checked="false" data-scenario="tab-toolbar-link"><span class="sys-radio__box"></span><span class="sys-radio__text">+вкладка в тулбаре</span></button>
           <button class="sys-radio" type="button" role="radio" aria-checked="false" data-scenario="tab-dash-head"><span class="sys-radio__box"></span><span class="sys-radio__text">Из шапки дашборда</span></button>
           <div class="sys-sub">
             <button class="sys-radio" type="button" role="radio" aria-checked="false" data-scenario="tab-dash-head" data-variant="no-filters"><span class="sys-radio__box"></span><span class="sys-radio__text">Без фильтров</span></button>
