@@ -5,8 +5,10 @@
   // Контент свёрстан целиком: середина (Главная / скелетон страницы раздела), справа информеры и ЦУ — одинаковые на всех страницах.
   const SKELETON_ROWS = 8;
 
-  // Пункт подменю: [заголовок, уровень (1|2)]
-  const sub = (title, level = 1) => ({ title, level });
+  // Пункт подменю: [заголовок, уровень (1|2), элемент справа]
+  // right (как в макете, Figma nuC4KFMiS36uDWDUp9wKGl 7706:22744; кликов нет): { count } — счётчик, { accent, count } — двойной
+  // (акцентный + обычный), 'arrow' — стрелка, 'plus' — плюс. submenu.headRight — то же у заголовка подменю.
+  const sub = (title, level = 1, right) => ({ title, level, ...(right && { right }) });
 
   // Разделы аккордеона. icon — символ шрифта Accordion-Font.
   // submenu.cols — колонки подменю; submenu.head — своя подпись заголовка подменю (по умолчанию — название раздела).
@@ -16,8 +18,8 @@
     { id: 'contacts', title: 'Контакты', short: 'Контакты', icon: '',
       submenu: { cols: [[sub('Группы'), sub('Каналы'), sub('Новости'), sub('Звонки'), sub('Почта'), sub('Обсуждения'), sub('Обращения'), sub('Заявки')]] } },
     { id: 'tasks', title: 'Задачи', short: 'Задачи', icon: '',
-      submenu: { head: 'Задачи на мне', cols: [
-        [sub('От меня', 2), sub('На контроле', 2), sub('По сотрудникам', 2), sub('Разобрать', 2),
+      submenu: { head: 'Задачи на мне', headRight: { count: '5' }, cols: [
+        [sub('От меня', 2, { count: '17' }), sub('На контроле', 2), sub('По сотрудникам', 2), sub('Разобрать', 2),
          sub('Доски'), sub('Проекты'), sub('Планы работ'), sub('Вехи и сроки'), sub('Кайдзен'), sub('Сбор отчетности')],
       ] } },
     { id: 'business', title: 'Бизнес', short: 'Бизнес', icon: '',
@@ -29,7 +31,7 @@
          sub('Маркетплейсы'), sub('Склад'), sub('Документы', 2), sub('Закупки/Расходы'), sub('Поставщики', 2), sub('Планы потребностей', 2), sub('Маркет')],
       ] } },
     { id: 'staff', title: 'Сотрудники', short: 'Сотр-ки', icon: '',
-      submenu: { cols: [
+      submenu: { headRight: 'arrow', cols: [
         [sub('Проверка'), sub('Штат'), sub('Мотивация'), sub('Схемы', 2), sub('KPI', 2), sub('OKR', 2),
          sub('Кадровый учет'), sub('ГПХ', 2), sub('Заявления', 2), sub('Воинский учет', 2), sub('События', 2),
          sub('Вакансии'), sub('Подписи'), sub('Курсы'), sub('Списки')],
@@ -39,9 +41,9 @@
       ] } },
     { id: 'docs', title: 'Документы', short: 'Док-ты', icon: '',
       submenu: { cols: [
-        [sub('Входящие'), sub('Договоры'), sub('Факторинг'), sub('ЕГАИС'), sub('Меркурий'), sub('Маркировка'),
-         sub('Прослеживаемость'), sub('Приказы / Извещения'), sub('Доверенности'), sub('Разобрать')],
-        [sub('Исходящие'), sub('Акты сверки'), sub('Инструкции'), sub('База знаний'), sub('База знаний'), sub('Заметки')],
+        [sub('Входящие', 1, { accent: '20', count: '20.7K' }), sub('Договоры'), sub('Факторинг'), sub('ЕГАИС'), sub('Меркурий'), sub('Маркировка'),
+         sub('Прослеживаемость'), sub('Приказы / Извещения'), sub('Доверенности'), sub('Разобрать', 1, { count: '62' })],
+        [sub('Исходящие'), sub('Акты сверки'), sub('Инструкции'), sub('База знаний'), sub('База знаний'), sub('Заметки', 1, 'plus')],
       ] } },
     { id: 'accounting', title: 'Учет', short: 'Учет', icon: '',
       submenu: { headLabel: true, cols: [
@@ -53,16 +55,16 @@
     { id: 'reports', title: 'Отчетность', short: 'Отчет-ть', icon: '',
       submenu: { cols: [[sub('Сдано | не сдано'), sub('Что сдавать'), sub('Доверенности'), sub('Аналитика')]] } },
     { id: 'companies', title: 'Компании', short: 'Комп-и', icon: '',
-      submenu: { cols: [[sub('Наши контрагенты')]] } },
+      submenu: { headRight: 'arrow', cols: [[sub('Наши контрагенты')]] } },
     { id: 'marketing', title: 'Маркетинг', short: 'Марке-нг', icon: '',
       submenu: { headLabel: true, cols: [
         [sub('Реклама'), sub('Реклама партнёров'), sub('Наши площадки'), sub('Реестр гостевого Wi-Fi'), sub('Сайты'),
-         sub('Короткие ссылки'), sub('Посты'), sub('Отзывы'), sub('Аудитории')],
+         sub('Короткие ссылки'), sub('Посты'), sub('Отзывы', 1, { accent: '10.1K', count: '5266' }), sub('Аудитории')],
         [sub('Источники продаж'), sub('Коллтрекинг'), sub('Рассылки'), sub('Автообзвоны'), sub('Опросы')],
       ] } },
     { id: 'contact-center', title: 'Контакт-центр', short: 'К-центр', icon: '',
       submenu: { cols: [
-        [sub('Чаты'), sub('Линии'), sub('Чат-боты'), sub('Почта компании'), sub('Телефония'), sub('Скрипты'), sub('Интенты')],
+        [sub('Чаты'), sub('Линии'), sub('Чат-боты'), sub('Почта компании'), sub('Телефония'), sub('Скрипты', 1, 'arrow'), sub('Интенты')],
         [sub('Обращения'), sub('Список', 2), sub('Клиенты', 2), sub('По видам', 2), sub('Инциденты')],
       ] } },
     { id: 'calendar', title: 'Календарь', short: 'Кален-рь', calendar: true,
@@ -344,6 +346,15 @@
   acc.addEventListener('mouseleave', scheduleLeave);
 
   // ---------- Подменю ----------
+  // Элемент справа у пункта и заголовка подменю: счётчик, двойной счётчик, стрелка или плюс (без кликов)
+  function rightHTML(r) {
+    if (!r) return '';
+    if (r === 'arrow') return '<span class="sm-right sm-right--arrow"><img src="assets/img/arrow-cut-forward.svg" width="8" height="16" alt=""></span>';
+    if (r === 'plus') return '<span class="sm-right sm-right--plus"><span class="ico">&#xEB25;</span></span>';
+    return `<span class="sm-right">${r.accent ? `<span class="sm-count sm-count--accent">${r.accent}</span>` : ''}<span class="sm-count">${r.count}</span></span>`;
+  }
+  const itemHTML = (it) => `<span class="sm-item__title">${it.title}</span>${rightHTML(it.right)}`;
+  const headTitleHTML = (sec, title) => `<span class="sm-head__title"><span class="sm-head__text">${title}</span>${rightHTML(sec.submenu.headRight)}</span>`;
   // Виджет «Календарь» под пунктами подменю Календаря — во всех видах подменю и в сводной
   function calendarWidgetHTML() {
     // Figma 9eLwMJLQCwT0xHKviN2j1P 16104:266292: «Месяц» со стрелками, дни недели, 6 недель; соседние месяцы серые, сб и вс — акцентным
@@ -379,8 +390,8 @@
       const headTitle = sec.submenu.head || sec.title;
       const label = sec.submenu.headLabel;
       const headBtn = el(label ? 'div' : 'button', 'sm-head', kind === 'wide'
-        ? `${headIconHTML(sec)}<span class="sm-head__title">${headTitle}</span>`
-        : `<span class="sm-head__title">${headTitle}</span>`);
+        ? `${headIconHTML(sec)}${headTitleHTML(sec, headTitle)}`
+        : headTitleHTML(sec, headTitle));
       if (!label) {
         headBtn.type = 'button';
         headBtn.addEventListener('click', () => navigate(sec.id, null));
@@ -394,7 +405,7 @@
       const c = el('div', 'submenu__col');
       col.forEach((it, ii) => {
         const key = `${ci}:${ii}`;
-        const b = el('button', 'sm-item' + (it.level === 2 ? ' sm-item--sub' : ''), it.title);
+        const b = el('button', 'sm-item' + (it.level === 2 ? ' sm-item--sub' : ''), itemHTML(it));
         b.type = 'button';
         if (state.page.section === sec.id && state.page.item === key) b.classList.add('is-current');
         b.addEventListener('click', () => navigate(sec.id, key));
@@ -461,11 +472,11 @@
     const sec = SECTIONS.find((s) => s.id === id);
     const box = el('div', 'submenu submenu--wide' + (sec.submenu.cols.length > 1 ? ' submenu--multi' : ''));
     const panel = el('div', 'submenu__panel');
-    panel.append(el('div', 'submenu__head', `<button class="sm-head" type="button">${headIconHTML(sec)}<span class="sm-head__title">${sec.submenu.head || sec.title}</span></button>`));
+    panel.append(el('div', 'submenu__head', `<button class="sm-head" type="button">${headIconHTML(sec)}${headTitleHTML(sec, sec.submenu.head || sec.title)}</button>`));
     const cols = el('div', 'submenu__cols');
     for (const col of sec.submenu.cols) {
       const c = el('div', 'submenu__col');
-      for (const it of col) c.append(el('button', 'sm-item' + (it.level === 2 ? ' sm-item--sub' : ''), it.title));
+      for (const it of col) c.append(el('button', 'sm-item' + (it.level === 2 ? ' sm-item--sub' : ''), itemHTML(it)));
       cols.append(c);
     }
     panel.append(cols);
@@ -489,6 +500,11 @@
     { label: 'Уровень вложенности', rows: [
       ['первый', '<button class="sm-item" type="button">Продажи/CRM</button>'],
       ['второй', '<button class="sm-item sm-item--sub" type="button">Документы</button>']] },
+    { label: 'Элемент справа', rows: [
+      ['счётчик', `<button class="sm-item" type="button">${itemHTML(sub('Разобрать', 1, { count: '62' }))}</button>`],
+      ['двойной счётчик', `<button class="sm-item" type="button">${itemHTML(sub('Входящие', 1, { accent: '20', count: '20.7K' }))}</button>`],
+      ['стрелка', `<button class="sm-item" type="button">${itemHTML(sub('Скрипты', 1, 'arrow'))}</button>`],
+      ['плюс', `<button class="sm-item" type="button">${itemHTML(sub('Заметки', 1, 'plus'))}</button>`]] },
   ];
   const itemKindsBox = $('#itemKinds');
   for (const k of ITEM_KINDS) {

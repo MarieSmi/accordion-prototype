@@ -833,6 +833,14 @@ ul { list-style: none; margin: 0; padding: 0; }
   white-space: nowrap; text-align: left; transition: background-color .12s;
 }
 .sm-item--sub { padding-left: 22px; }
+/* элемент справа (Figma nuC4KFMiS36uDWDUp9wKGl 7706:22744): счётчики 14px — акцентный и обычный, стрелка 8×16, плюс; прижат к правому краю */
+.sm-item__title, .sm-head__text { overflow: hidden; text-overflow: ellipsis; }
+.sm-right { margin-left: auto; padding-left: 12px; display: flex; align-items: center; flex: none; }
+.sm-count { padding: 0 3px; font-size: 14px; letter-spacing: -.1974px; color: var(--sm-count, #7694b8); } /* text/navigation_unaccented_text-color */
+.sm-count:last-child { padding-right: 1px; }
+.sm-count--accent { color: var(--sm-count-accent, var(--accent)); } /* text/navigation_primary_text-color */
+.sm-right--arrow img { display: block; width: 8px; height: 16px; }
+.sm-right--plus .ico { color: var(--acc-icon); }
 .sm-item:hover { background: var(--submenu-item-hover); }
 .sm-item.is-current { background: var(--submenu-item-hover); }
 .sm-head { height: 30px; width: 100%; display: flex; align-items: center; text-align: left; }
