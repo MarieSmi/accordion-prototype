@@ -1002,7 +1002,7 @@
       title: sec.title, icon: sec.customIcon ?? null, head: sec.submenu.headLabel ? null : sec.submenu.head ?? sec.title, showHead: !sec.submenu.noHead,
       cols: sec.submenu.cols.map((c) => c.slice()),
     };
-    ed = { sec, draft, hist: [cloneDraft(draft)], at: 0, selected: null };
+    ed = { sec, draft, hist: [cloneDraft(draft)], at: 0, selected: null, base: PRISTINE[id] }; // base — к чему возвращает «Вернуть исходное»
     smeConfirm.hidden = true;
     renderEditor();
     shield.hidden = false;
@@ -1026,22 +1026,30 @@
     editor.hidden = true;
     shield.hidden = true;
     ed = null;
-    if (editorOnlyReady()) openEditorOnly();
+    if (editorOnly()) openEditorOnly();
   }
 
   // Группа «Редактор подменю»: на сцене только редактор «Документов» по центру; после ✓/✕ он открывается снова.
-  // Редактор открыт только в «Готовом подменю»; «С нуля» — пока пустой фрейм (будет заглушка).
-  const editorOnlyReady = () => stage.dataset.scenario === 'submenu-editor' && stage.dataset.variant === 'ready';
+  // «С нуля» — тот же редактор без пунктов и заголовка: на белой карточке заглушка «+» (открывает меню «+»),
+  // его ✓ не трогает «Документы» в аккордеоне. «Готовое подменю» — подменю как есть.
+  const editorOnly = () => stage.dataset.scenario === 'submenu-editor';
+  const editorFromScratch = () => editorOnly() && stage.dataset.variant === 'scratch';
   const runtimePreview = $('#runtimePreview');
   function openEditorOnly() {
     openEditor('docs');
+    if (editorFromScratch()) {
+      Object.assign(ed.draft, { showHead: false, cols: [[]] });
+      ed.hist = [cloneDraft(ed.draft)];
+      ed.base = cloneDraft(ed.draft);
+      renderEditor();
+    }
     // редактор — в правой половине, под подписью «Дизайнтайм»
     const design = $('.editor-only__design');
     editor.style.left = design.offsetLeft - 10 + 'px';
     editor.style.top = design.offsetTop + 32 + 'px';
   }
   function setEditorOnly() {
-    if (editorOnlyReady()) openEditorOnly();
+    if (editorOnly()) openEditorOnly();
     else if (ed) closeEditor();
   }
 
@@ -1085,9 +1093,18 @@
       l.classList.toggle('has-selected', !!l.querySelector('.sme-w.is-selected'));
       smeCard.append(l);
     });
+    // пустое подменю — заглушка «+» на всю карточку
+    if (!smeCard.querySelector('.sme-w')) {
+      smeCard.innerHTML = '';
+      const stub = el('button', 'sme-stub', '<span class="ico24">&#xE6D3;</span>');
+      stub.type = 'button';
+      stub.setAttribute('aria-label', 'Добавить');
+      stub.addEventListener('click', () => smePlus.click());
+      smeCard.append(stub);
+    }
     smeUndo.disabled = ed.at === 0;
     smeRedo.disabled = ed.at === ed.hist.length - 1;
-    smeReset.disabled = draftKey(draft) === draftKey(PRISTINE[ed.sec.id]);
+    smeReset.disabled = draftKey(draft) === draftKey(ed.base);
     if (stage.dataset.scenario === 'submenu-editor') renderRuntime();
   }
 
@@ -1107,7 +1124,9 @@
     }
     panel.append(cols);
     box.append(panel);
-    runtimePreview.replaceChildren(box);
+    // пустое подменю в рантайме не показывается
+    if (panel.querySelector('.sm-head, .sm-item')) runtimePreview.replaceChildren(box);
+    else runtimePreview.replaceChildren();
   }
 
   // Изменение черновика — новый шаг истории (шаги «вперёд» отбрасываются).
@@ -1150,6 +1169,7 @@
 
   // Применение черновика: аккордеон и подменю раздела перерисовываются с новым названием и списком.
   function saveEditor() {
+    if (editorFromScratch()) { closeEditor(); return; }
     const { sec, draft } = ed;
     const pristine = PRISTINE[sec.id];
     // Открытый пункт подменю ищем по самому пункту — после удалений ключ «колонка:строка» мог сдвинуться.
@@ -1217,7 +1237,7 @@
 
   smeUndo.addEventListener('click', () => goHistory(-1));
   smeRedo.addEventListener('click', () => goHistory(1));
-  smeReset.addEventListener('click', () => commit(cloneDraft(PRISTINE[ed.sec.id])));
+  smeReset.addEventListener('click', () => commit(cloneDraft(ed.base)));
   $('#smeDone').addEventListener('click', saveEditor);
   $('#smeClose').addEventListener('click', () => {
     if (draftKey(ed.draft) === draftKey(ed.hist[0])) closeEditor();

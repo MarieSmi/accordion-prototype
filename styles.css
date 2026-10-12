@@ -897,14 +897,18 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .editor-only > * { flex: 1; }
 .editor-only__runtime { display: flex; justify-content: flex-end; padding-right: 40px; }
 .editor-only__design { padding-left: 40px; }
-.stage[data-variant="scratch"] .editor-only > * { visibility: hidden; } /* «С нуля»: пока пустой фрейм */
+.editor-only__runtime:has(#runtimePreview:empty) { visibility: hidden; } /* пустое подменю в рантайме не показывается */
+/* заглушка пустого подменю в редакторе — «+» как у «Виджет» в пустом дашборде */
+.sme-stub { flex: 1; height: 120px; display: flex; align-items: center; justify-content: center; border-radius: 8px; }
+.sme-stub .ico24 { width: 66px; height: 54px; display: flex; align-items: center; justify-content: center; border-radius: 8px; color: var(--accent2);
+  background: radial-gradient(ellipse 160% 120% at 27% 178%, #fcf0e4, rgba(255, 248, 245, 0)), var(--c-surface); }
 .stage[data-scenario="submenu-editor"] :is(.plus-menu, .icon-pick) { z-index: 47; }
 .stage[data-scenario="submenu-editor"] .confirm-layer { z-index: 48; }
 .kind { display: flex; flex-direction: column; gap: 12px; }
 .kind__label { font-size: 16px; font-weight: 600; letter-spacing: -.2256px; color: #000; } /* подпись на светлом фоне конструктора */
 .kinds .submenu { position: static; }
 /* пункты — колонкой справа от подменю; у каждой — короткая панель подменю и подписи состояний вровень со строками */
-.kinds__items { display: flex; flex-direction: column; gap: 40px; }
+.kinds__items { display: flex; flex-direction: column; gap: 40px; margin-left: 48px; } /* от подменю отделены вдвое большим отступом */
 .item-kind { display: flex; align-items: flex-start; gap: 12px; }
 .kinds__items .submenu__panel { padding: 6px 0; min-width: 230px; } /* не уже 230, шире — если пункту с элементом справа не хватает места */
 .kinds__items .submenu__head { padding: 0 6px 0 4px; }
