@@ -159,7 +159,7 @@
     resetTabs(radio.dataset.scenario.startsWith('tab-'));
     resetHistory(); // смена сценария — не правка: история начинается заново
     setInside(scenario);
-    setEditorOnly(scenario === 'submenu-editor');
+    setEditorOnly();
   });
   function fitStage() {
     const css = getComputedStyle(document.documentElement);
@@ -1002,7 +1002,7 @@
       title: sec.title, icon: sec.customIcon ?? null, head: sec.submenu.headLabel ? null : sec.submenu.head ?? sec.title, showHead: !sec.submenu.noHead,
       cols: sec.submenu.cols.map((c) => c.slice()),
     };
-    ed = { sec, draft, hist: [cloneDraft(draft)], at: 0, selected: null, base: PRISTINE[id] }; // base — к чему возвращает «Вернуть исходное»
+    ed = { sec, draft, hist: [cloneDraft(draft)], at: 0, selected: null };
     smeConfirm.hidden = true;
     renderEditor();
     shield.hidden = false;
@@ -1026,28 +1026,22 @@
     editor.hidden = true;
     shield.hidden = true;
     ed = null;
-    if (stage.dataset.scenario === 'submenu-editor') openEditorOnly();
+    if (editorOnlyReady()) openEditorOnly();
   }
 
   // Группа «Редактор подменю»: на сцене только редактор «Документов» по центру; после ✓/✕ он открывается снова.
-  // «С нуля» — подменю без пунктов (только заголовок), его ✓ не трогает «Документы» в аккордеоне; «Готовое подменю» — как есть.
-  const editorFromScratch = () => stage.dataset.scenario === 'submenu-editor' && stage.dataset.variant === 'scratch';
+  // Редактор открыт только в «Готовом подменю»; «С нуля» — пока пустой фрейм (будет заглушка).
+  const editorOnlyReady = () => stage.dataset.scenario === 'submenu-editor' && stage.dataset.variant === 'ready';
   const runtimePreview = $('#runtimePreview');
   function openEditorOnly() {
     openEditor('docs');
-    if (editorFromScratch()) {
-      ed.draft.cols = [[]];
-      ed.hist = [cloneDraft(ed.draft)];
-      ed.base = cloneDraft(ed.draft);
-      renderEditor();
-    }
     // редактор — в правой половине, под подписью «Дизайнтайм»
     const design = $('.editor-only__design');
     editor.style.left = design.offsetLeft - 10 + 'px';
     editor.style.top = design.offsetTop + 32 + 'px';
   }
-  function setEditorOnly(on) {
-    if (on) openEditorOnly();
+  function setEditorOnly() {
+    if (editorOnlyReady()) openEditorOnly();
     else if (ed) closeEditor();
   }
 
@@ -1093,7 +1087,7 @@
     });
     smeUndo.disabled = ed.at === 0;
     smeRedo.disabled = ed.at === ed.hist.length - 1;
-    smeReset.disabled = draftKey(draft) === draftKey(ed.base);
+    smeReset.disabled = draftKey(draft) === draftKey(PRISTINE[ed.sec.id]);
     if (stage.dataset.scenario === 'submenu-editor') renderRuntime();
   }
 
@@ -1156,7 +1150,6 @@
 
   // Применение черновика: аккордеон и подменю раздела перерисовываются с новым названием и списком.
   function saveEditor() {
-    if (editorFromScratch()) { closeEditor(); return; }
     const { sec, draft } = ed;
     const pristine = PRISTINE[sec.id];
     // Открытый пункт подменю ищем по самому пункту — после удалений ключ «колонка:строка» мог сдвинуться.
@@ -1224,7 +1217,7 @@
 
   smeUndo.addEventListener('click', () => goHistory(-1));
   smeRedo.addEventListener('click', () => goHistory(1));
-  smeReset.addEventListener('click', () => commit(cloneDraft(ed.base)));
+  smeReset.addEventListener('click', () => commit(cloneDraft(PRISTINE[ed.sec.id])));
   $('#smeDone').addEventListener('click', saveEditor);
   $('#smeClose').addEventListener('click', () => {
     if (draftKey(ed.draft) === draftKey(ed.hist[0])) closeEditor();

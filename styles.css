@@ -896,6 +896,7 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .editor-only > * { flex: 1; }
 .editor-only__runtime { display: flex; justify-content: flex-end; padding-right: 40px; }
 .editor-only__design { padding-left: 40px; }
+.stage[data-variant="scratch"] .editor-only > * { visibility: hidden; } /* «С нуля»: пока пустой фрейм */
 .stage[data-scenario="submenu-editor"] :is(.plus-menu, .icon-pick) { z-index: 47; }
 .stage[data-scenario="submenu-editor"] .confirm-layer { z-index: 48; }
 .kind { display: flex; flex-direction: column; gap: 12px; }
