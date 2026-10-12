@@ -835,15 +835,16 @@ ul { list-style: none; margin: 0; padding: 0; }
 .sm-item--sub { padding-left: 22px; }
 /* элемент справа (Figma nuC4KFMiS36uDWDUp9wKGl 7706:22744): счётчики 14px — акцентный и обычный, стрелка 8×16, плюс; прижат к правому краю */
 .sm-item__title, .sm-head__text { overflow: hidden; text-overflow: ellipsis; }
-.sm-right { margin-left: auto; padding-left: 12px; display: flex; align-items: center; flex: none; }
+.sm-right { margin-left: auto; padding-left: 12px; display: flex; align-items: center; flex: none; align-self: stretch; gap: 7px; }
+/* у всех пунктов с элементом справа при наведении его отделяет вертикальная черта 1px на всю высоту пункта цветом фона подменю
+   (Figma 9eLwMJLQCwT0xHKviN2j1P 18543:19840) */
+.sm-right::before { content: ""; width: 1px; align-self: stretch; }
+.sm-item:hover .sm-right::before, button.sm-head:hover .sm-right::before { background: var(--submenu-bg); }
 .sm-count { padding: 0 3px; font-size: 14px; letter-spacing: -.1974px; color: var(--sm-count, #7694b8); } /* text/navigation_unaccented_text-color */
 .sm-count:last-child { padding-right: 1px; }
 .sm-count--accent { color: var(--sm-count-accent, var(--accent)); } /* text/navigation_primary_text-color */
-/* пункт со стрелкой (Figma nuC4KFMiS36uDWDUp9wKGl 7706:23261): стрелка — шрифтовая иконка 16 у правого края (отступ 8);
-   при наведении её отделяет вертикальная черта 1px на всю высоту пункта цветом фона подменю */
-.sm-right--arrow { align-self: stretch; margin-right: -10px; padding: 0 8px 0 0; gap: 4px; }
-.sm-right--arrow::before { content: ""; width: 1px; align-self: stretch; }
-.sm-item:hover .sm-right--arrow::before, button.sm-head:hover .sm-right--arrow::before { background: var(--submenu-bg); }
+/* пункт со стрелкой (Figma nuC4KFMiS36uDWDUp9wKGl 7706:23261): стрелка — шрифтовая иконка 16 у правого края (отступ 8) */
+.sm-right--arrow { margin-right: -10px; padding: 0 8px 0 0; gap: 4px; }
 .sm-right--arrow .ico { color: var(--acc-cmd-dots); } /* icon/navigation_unaccented_icon-color */
 .sm-right--plus .ico { color: var(--acc-icon); }
 .sm-item:hover { background: var(--submenu-item-hover); }
