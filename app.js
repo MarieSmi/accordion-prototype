@@ -1951,14 +1951,14 @@
   }
 
   // Сценарий «Аккордеон → Добавление пунктов»: страница из меню «+» шапки аккордеона становится пунктом в конце аккордеона
-  // с пустым подменю и открывается её страница (скелетон). Редактор подменю — по ✎ пункта, как у остальных разделов.
+  // и открывается её страница (скелетон). Пустого подменю нет: в нём сразу заголовок — название пункта. Редактор подменю — по ✎ пункта, как у остальных разделов.
   const accAddItems = () => stage.dataset.scenario === 'acc-add-items';
   const ADDED_ICON = ICON_GROUPS[0].icons[0]; // иконка нового пункта — первая из выбора иконок (меняется в редакторе)
   let addedCount = 0;
   function addAccItem(title) {
     const id = 'added-' + ++addedCount;
-    const sec = { id, title, short: title, added: true, customIcon: ADDED_ICON, submenu: { head: title, noHead: true, cols: [[]] } };
-    PRISTINE[id] = { title, short: title, icon: ADDED_ICON, head: title, showHead: false, cols: [[]] };
+    const sec = { id, title, short: title, added: true, customIcon: ADDED_ICON, submenu: { head: title, cols: [[]] } };
+    PRISTINE[id] = { title, short: title, icon: ADDED_ICON, head: title, showHead: true, cols: [[]] };
     ALL_SECTIONS[id] = sec;
     SECTIONS.push(sec);
     closePlusMenu();
