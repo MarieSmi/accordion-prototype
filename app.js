@@ -1589,12 +1589,18 @@
   $('#infAddTab').addEventListener('click', (e) => (tabAddMenu.hidden ? openAddMenu(e.currentTarget, true) : closeTabMenus()));
   // Сценарий «Из шапки дашборда»: ссылка «+вкладка» справа в шапке, «+» меню ровно поверх её «+».
   $('#dashAddTab').addEventListener('click', (e) => (tabAddMenu.hidden ? openAddMenu(e.currentTarget, true) : closeTabMenus()));
-  // Подсценарий «По чипсе»: чипса «вкладки» открывает то же меню «+» — под чипсой на 4px, по её левому краю.
-  // «С чистого листа» добавляет виджет вкладок, чипса пропадает.
+  // Подсценарий «По чипсе»: чипса «вкладки» открывает то же меню «+» поверх себя — «+» заголовка меню (иконка 24 в точке 20,10;
+  // сам знак — с отступом 5 внутри) по середине чипсы, над началом слова. «С чистого листа» добавляет виджет вкладок, чипса пропадает.
   $('#dashChipTab').addEventListener('click', (e) => {
     if (!tabAddMenu.hidden) return closeTabMenus();
-    openAddMenu(e.currentTarget);
-    tabAddMenu.style.left = Math.round(stageRect(e.currentTarget).left) + 'px';
+    const chip = e.currentTarget;
+    openAddMenu(chip);
+    const range = document.createRange();
+    range.selectNodeContents(chip);
+    const text = stageRect(range);
+    const r = stageRect(chip);
+    tabAddMenu.style.left = Math.round(text.left - 5 - 20) + 'px';
+    tabAddMenu.style.top = Math.round(r.top + r.height / 2 - 12 - 10) + 'px';
   });
   // пока виджета вкладок нет (одна вкладка), «С чистого листа» сразу добавляет вкладку (addBlankTab)
   $('#tabAddBlank').addEventListener('click', () => {
