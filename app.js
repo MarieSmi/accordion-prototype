@@ -525,8 +525,9 @@
       ['первый', '<button class="sm-item" type="button">Продажи/CRM</button>'],
       ['второй', '<button class="sm-item sm-item--sub" type="button">Документы</button>']] },
     { label: 'Элемент справа', rows: [
-      ['счётчик', `<button class="sm-item" type="button">${itemHTML(sub('Разобрать', 1, { count: '62' }))}</button>`],
-      ['двойной счётчик', `<button class="sm-item" type="button">${itemHTML(sub('Входящие', 1, { accent: '20', count: '20.7K' }))}</button>`],
+      ['новые и общие события', `<button class="sm-item" type="button">${itemHTML(sub('Входящие', 1, { accent: '20', count: '20.7K' }))}</button>`],
+      ['только новые события', `<button class="sm-item" type="button">${itemHTML(sub('Группы', 1, { accent: '5' }))}</button>`],
+      ['общие', `<button class="sm-item" type="button">${itemHTML(sub('Разобрать', 1, { count: '62' }))}</button>`],
       ['стрелка', `<button class="sm-item" type="button">${itemHTML(sub('Скрипты', 1, 'arrow'))}</button>`],
       ['плюс', `<button class="sm-item" type="button">${itemHTML(sub('Заметки', 1, 'plus'))}</button>`]] },
   ];
