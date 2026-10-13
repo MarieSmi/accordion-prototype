@@ -2081,6 +2081,7 @@
 
   function openItemWin(key) {
     closeOtherWindows();
+    if (!plusMenu.hidden) closePlusMenu(); // два меню / окна сразу не открыты
     const d = ed.draft;
     const head = key === 'head';
     const [ci, ii] = head ? [] : key.split(':').map(Number);
@@ -2214,6 +2215,16 @@
   for (const box of [list, layer]) box.addEventListener('click', (e) => { if (e.target.closest('.sm-right--btn')) e.stopPropagation(); }, true);
 
   function openPlusMenu(owner) {
+    // окно настроек пункта закрывается без сохранения (как по ✕); виджеты перерисовываются — плюс находим заново
+    if (iw) {
+      const m = owner.classList.contains('sme-mk') && owner.className.match(/sme-mk--\w+/)[0];
+      const w = m && owner.parentElement.closest('.sme-w');
+      const li = m && !w && [...smeCard.children].indexOf(owner.parentElement);
+      closeItemWin();
+      renderEditor();
+      if (w) owner = $(`.sme-w[data-key="${w.dataset.key}"] > .${m}`, smeCard);
+      else if (m) owner = $(`:scope > .${m}`, smeCard.children[li]);
+    }
     if (owner !== accPlus) stopTitleEdit(true);
     plusOwner = owner;
     plusAt = !owner.classList.contains('sme-mk') ? null
