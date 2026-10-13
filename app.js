@@ -1177,12 +1177,13 @@
     smeIcon.innerHTML = editorIconHTML(ed.sec, draft.icon);
     smeCard.innerHTML = '';
     smeCard.classList.toggle('is-multi', draft.cols.length > 1);
-    // плюсы открывают меню «+», выбранная страница встаёт на место плюса: у виджета — сверху и снизу (в список),
-    // у списка — слева и справа (новой колонкой)
+    // правки реестра (двухколоночный, плюсы с меню «+», ховер только у виджета) — только в «Аккордеоне и подменю»
+    const registry = itemSettingsOn();
+    smeCard.classList.toggle('is-registry', registry);
+    // в реестре плюсы сверху и снизу выделенного виджета открывают меню «+», выбранная страница встаёт на место плюса
     const mk = (side, ci, at) => {
       const m = el('span', `sme-mk sme-mk--${side}`);
-      m.dataset.col = ci;
-      m.dataset.at = at;
+      if (registry) Object.assign(m.dataset, { col: ci, at });
       return m;
     };
     const widget = (key, title, sub, right, ci, ii) => {
@@ -1198,11 +1199,12 @@
       const l = el('div', 'sme-list');
       if (ci === 0 && draft.head != null && draft.showHead) l.append(widget('head', draft.head, false, draft.headRight, ci, 0));
       col.forEach((it, ii) => l.append(widget(`${ci}:${ii}`, it.title, it.level === 2, it.right, ci, ii)));
-      // реестр двухколоночный: пустая колонка плюсами по бокам заполняется, у одной колонки они добавляют вторую
-      if (!col.length && !(ci === 0 && draft.head != null && draft.showHead)) l.append(mk('left', ci, 0), mk('right', ci, 0));
-      else if (draft.cols.length < 2) l.append(mk('left', ci, 'col'), mk('right', ci + 1, 'col'));
       l.classList.toggle('has-selected', !!l.querySelector('.sme-w.is-selected'));
-      l.classList.toggle('is-empty', !l.querySelector('.sme-w')); // пустая колонка («Добавить колонку») — бледный пунктир
+      // в реестре пустая колонка («Добавить колонку») — по клику меню «+», страница встаёт в неё; в остальных — плюсы по сторонам списка
+      const empty = registry && !l.querySelector('.sme-w');
+      if (empty) Object.assign(l.dataset, { col: ci, at: 0 });
+      l.classList.toggle('is-empty', empty);
+      if (!registry) l.append(mk('top'), mk('bottom'), mk('left'), mk('right'));
       smeCard.append(l);
     });
     // пустое подменю — заглушка «+» на всю карточку
@@ -1970,7 +1972,7 @@
   const smePlus = $('.sme-plus', editor);
   const accPlus = $('.acc-plus');
   let plusOwner = smePlus; // кнопка, открывшая меню: «+» редактора, плюс у виджета или «+» шапки аккордеона
-  let plusAt = null; // плюс у виджета или списка: куда встанет страница — { col, at } (at: 'col' — новой колонкой перед col)
+  let plusAt = null; // плюс у виджета или пустая колонка: куда встанет страница — { col, at }
 
   function renderPlusMenu() {
     const q = plusSearch.value.trim().toLowerCase();
@@ -1993,7 +1995,7 @@
     // «Добавить колонку» — пока колонка одна (вторая без виджетов при удалении последнего пропадает).
     if (!q && fromEditor) {
       row('', '<span class="ico pm-ico">&#xEADD;</span><span>Добавить виджет</span>');
-      if (ed.draft.cols.length < 2) row('', '<span class="ico pm-ico">&#xEADD;</span><span>Добавить колонку</span>', addColumn);
+      if (itemSettingsOn() && ed.draft.cols.length < 2) row('', '<span class="ico pm-ico">&#xEADD;</span><span>Добавить колонку</span>', addColumn);
     }
     for (const n of PLUS_TREE) {
       if (n.sep) { if (!q) plusList.append(el('div', 'pm-sep')); continue; }
@@ -2012,8 +2014,7 @@
   function addPage(title) {
     const draft = cloneDraft(ed.draft);
     let key;
-    if (plusAt?.at === 'col') { draft.cols.splice(plusAt.col, 0, [sub(title)]); key = `${plusAt.col}:0`; } // плюс сбоку списка — новая колонка
-    else if (plusAt) { draft.cols[plusAt.col].splice(plusAt.at, 0, sub(title)); key = `${plusAt.col}:${plusAt.at}`; } // плюс у виджета — в список
+    if (plusAt) { draft.cols[plusAt.col].splice(plusAt.at, 0, sub(title)); key = `${plusAt.col}:${plusAt.at}`; } // плюс у виджета или пустая колонка
     else {
       // новый пункт — в конец первой колонки, но над закреплёнными внизу
       const pinned = draft.cols[0].findIndex((it) => it.pinned);
@@ -2023,13 +2024,13 @@
     }
     closePlusMenu();
     commit(draft);
-    select(key); // добавленный пункт — выделен
+    if (itemSettingsOn()) select(key); // добавленный пункт — выделен
   }
 
-  // «Добавить колонку» — пустая колонка: у плюса сбоку списка — на его месте, иначе — справа от всех
+  // «Добавить колонку» — пустая колонка справа
   function addColumn() {
     const draft = cloneDraft(ed.draft);
-    draft.cols.splice(plusAt?.at === 'col' ? plusAt.col : draft.cols.length, 0, []);
+    draft.cols.push([]);
     closePlusMenu();
     commit(draft);
   }
@@ -2235,16 +2236,15 @@
     if (iw) {
       const m = owner.classList.contains('sme-mk') && owner.className.match(/sme-mk--\w+/)[0];
       const w = m && owner.parentElement.closest('.sme-w');
-      const li = m && !w && [...smeCard.children].indexOf(owner.parentElement);
+      const li = owner.classList.contains('sme-list') ? [...smeCard.children].indexOf(owner) : -1;
       closeItemWin();
       renderEditor();
       if (w) owner = $(`.sme-w[data-key="${w.dataset.key}"] > .${m}`, smeCard);
-      else if (m) owner = $(`:scope > .${m}`, smeCard.children[li]);
+      else if (li >= 0) owner = smeCard.children[li];
     }
     if (owner !== accPlus) stopTitleEdit(true);
     plusOwner = owner;
-    plusAt = !owner.classList.contains('sme-mk') ? null
-      : { col: +owner.dataset.col, at: owner.dataset.at === 'col' ? 'col' : +owner.dataset.at };
+    plusAt = owner.dataset.at == null ? null : { col: +owner.dataset.col, at: +owner.dataset.at };
     plusSearch.value = '';
     // каждое открытие — исходный вид: раскрыты «Моей компании» и «Отчетность»
     for (const n of PLUS_TREE) if (n.kind === 'group') n.open = PLUS_OPEN.includes(n.title);
@@ -2265,8 +2265,8 @@
   smePlus.addEventListener('click', () => (plusMenu.hidden ? openPlusMenu(smePlus) : closePlusMenu()));
   accPlus.addEventListener('click', () => (plusMenu.hidden ? openPlusMenu(accPlus) : closePlusMenu()));
   smeCard.addEventListener('click', (e) => {
-    const m = e.target.closest('.sme-mk');
-    if (!m) return;
+    const m = e.target.closest('.sme-mk, .sme-list.is-empty');
+    if (!m || m.dataset.at == null) return; // вне реестра плюсы пока ничего не добавляют
     const again = !plusMenu.hidden && plusOwner === m;
     if (!plusMenu.hidden) closePlusMenu();
     if (!again) openPlusMenu(m);
@@ -2274,7 +2274,7 @@
   $('#plusMenuClose').addEventListener('click', closePlusMenu);
   plusSearch.addEventListener('input', renderPlusMenu);
   stage.addEventListener('mousedown', (e) => {
-    if (plusMenu.hidden || e.target.closest('#plusMenu') || e.target.closest('.sme-plus, .acc-plus, .sme-mk')) return;
+    if (plusMenu.hidden || e.target.closest('#plusMenu') || e.target.closest('.sme-plus, .acc-plus, .sme-mk, .sme-list.is-empty')) return;
     closePlusMenu();
   }, true);
 

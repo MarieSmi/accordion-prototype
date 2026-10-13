@@ -1148,24 +1148,21 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 }
 .sme-w--sub { padding-left: 20px; }
 
-/* ховер списка — рамка и плюсы слева и справа; при наведении на виджет подсвечен и список */
-.sme-list:hover:not(.has-selected) { border: 1px solid var(--info-border-soft); border-radius: 2px; }
+/* ховер виджета; выделенный — рамка и плюсы сверху и снизу */
 .sme-w:hover { border-color: var(--info-border-soft); }
-/* выделенный виджет — рамка и плюсы сверху и снизу; его список — пунктиром */
 .sme-w.is-selected { border-color: var(--info-border); }
-/* пунктир рисуем SVG: у border: dashed браузер делает штрихи 1–3px, и в уменьшенной сцене их почти не видно (в Figma штрих 4, зазор 4) */
-.sme-list.has-selected { border-color: transparent; border-radius: 2px; }
-.sme-list.has-selected::before {
+/* вне «Аккордеона и подменю»: ховер списка — рамка и плюсы по сторонам; список выделенного виджета — пунктиром.
+   Пунктир рисуем SVG: у border: dashed браузер делает штрихи 1–3px, и в уменьшенной сцене их почти не видно (в Figma штрих 4, зазор 4) */
+.sme-card:not(.is-registry) .sme-list:hover:not(.has-selected) { border: 1px solid var(--info-border-soft); border-radius: 2px; }
+.sme-card:not(.is-registry) .sme-list.has-selected { border-color: transparent; border-radius: 2px; }
+.sme-card:not(.is-registry) .sme-list.has-selected::before {
   content: ""; position: absolute; inset: -1px; pointer-events: none;
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Crect x='.5' y='.5' width='calc(100%25 - 1px)' height='calc(100%25 - 1px)' rx='2' fill='none' stroke='%237b62f8' stroke-opacity='.6' stroke-dasharray='4 4'/%3E%3C/svg%3E");
 }
-
-/* пустая колонка — бледный пунктир, пока не наведена */
-.sme-list.is-empty:not(:hover) { border-radius: 2px; }
-.sme-list.is-empty:not(:hover)::before {
-  content: ""; position: absolute; inset: -1px; pointer-events: none;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Crect x='.5' y='.5' width='calc(100%25 - 1px)' height='calc(100%25 - 1px)' rx='2' fill='none' stroke='%23c9ced6' stroke-dasharray='4 4'/%3E%3C/svg%3E");
-}
+/* реестр («Аккордеон и подменю»): колонки не подсвечиваются и пунктиром не выделяются; между колонками — линия (как в рантайме);
+   пустая колонка — по клику меню «+» */
+.is-registry .sme-list + .sme-list::before { content: ""; position: absolute; left: -7px; top: 0; bottom: 0; width: 1px; background: #eaeaea; pointer-events: none; } /* border/border-color */
+.sme-list.is-empty { cursor: pointer; }
 
 /* плюсы (Figma rHabzni5OI5D4fxBLQdj2m 399:49380): кружок 8px → при наведении 16px с «+», при нажатии темнее */
 .sme-mk { position: absolute; z-index: 2; width: 20px; height: 20px; display: none; align-items: center; justify-content: center; cursor: pointer; }
@@ -1178,7 +1175,7 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .sme-mk--bottom { left: 50%; bottom: -11px; transform: translateX(-50%); }
 .sme-mk--left { left: -11px; top: 50%; transform: translateY(-50%); }
 .sme-mk--right { right: -11px; top: 50%; transform: translateY(-50%); }
-.sme-list:hover:not(.has-selected) > .sme-mk,
+.sme-card:not(.is-registry) .sme-list:hover:not(.has-selected) > .sme-mk,
 .sme-w.is-selected > .sme-mk, .sme-mk.is-active { display: flex; }
 
 /* плавающий тулбар выделенного виджета (Figma rHabzni5OI5D4fxBLQdj2m 131:17364): над виджетом по левому краю.
