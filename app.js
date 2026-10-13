@@ -1177,7 +1177,8 @@
     smeIcon.innerHTML = editorIconHTML(ed.sec, draft.icon);
     smeCard.innerHTML = '';
     smeCard.classList.toggle('is-multi', draft.cols.length > 1);
-    // плюсы сверху и снизу открывают меню «+»; выбранная страница встаёт на место плюса
+    // плюсы открывают меню «+», выбранная страница встаёт на место плюса: у виджета — сверху и снизу (в список),
+    // у списка — слева и справа (новой колонкой)
     const mk = (side, ci, at) => {
       const m = el('span', `sme-mk sme-mk--${side}`);
       m.dataset.col = ci;
@@ -1197,7 +1198,7 @@
       const l = el('div', 'sme-list');
       if (ci === 0 && draft.head != null && draft.showHead) l.append(widget('head', draft.head, false, draft.headRight, ci, 0));
       col.forEach((it, ii) => l.append(widget(`${ci}:${ii}`, it.title, it.level === 2, it.right, ci, ii)));
-      l.append(mk('top', ci, 0), mk('bottom', ci, col.length));
+      l.append(mk('left', ci, 'col'), mk('right', ci + 1, 'col'));
       l.classList.toggle('has-selected', !!l.querySelector('.sme-w.is-selected'));
       smeCard.append(l);
     });
@@ -1958,7 +1959,7 @@
   const smePlus = $('.sme-plus', editor);
   const accPlus = $('.acc-plus');
   let plusOwner = smePlus; // кнопка, открывшая меню: «+» редактора, плюс у виджета или «+» шапки аккордеона
-  let plusAt = null; // плюс у виджета: куда встанет страница — { col, at }
+  let plusAt = null; // плюс у виджета или списка: куда встанет страница — { col, at } (at: 'col' — новой колонкой перед col)
 
   function renderPlusMenu() {
     const q = plusSearch.value.trim().toLowerCase();
@@ -1995,7 +1996,8 @@
 
   function addPage(title) {
     const draft = cloneDraft(ed.draft);
-    if (plusAt) draft.cols[plusAt.col].splice(plusAt.at, 0, sub(title)); // на место плюса у виджета
+    if (plusAt?.at === 'col') draft.cols.splice(plusAt.col, 0, [sub(title)]); // плюс сбоку списка — новая колонка
+    else if (plusAt) draft.cols[plusAt.col].splice(plusAt.at, 0, sub(title)); // плюс у виджета — в список
     else {
       // новый пункт — в конец первой колонки, но над закреплёнными внизу
       const pinned = draft.cols[0].findIndex((it) => it.pinned);
@@ -2197,7 +2199,8 @@
   function openPlusMenu(owner) {
     if (owner !== accPlus) stopTitleEdit(true);
     plusOwner = owner;
-    plusAt = owner.classList.contains('sme-mk') ? { col: +owner.dataset.col, at: +owner.dataset.at } : null;
+    plusAt = !owner.classList.contains('sme-mk') ? null
+      : { col: +owner.dataset.col, at: owner.dataset.at === 'col' ? 'col' : +owner.dataset.at };
     plusSearch.value = '';
     // каждое открытие — исходный вид: раскрыты «Моей компании» и «Отчетность»
     for (const n of PLUS_TREE) if (n.kind === 'group') n.open = PLUS_OPEN.includes(n.title);

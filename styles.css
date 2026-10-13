@@ -1148,7 +1148,7 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 }
 .sme-w--sub { padding-left: 20px; }
 
-/* ховер списка — рамка и плюсы сверху и снизу; при наведении на виджет подсвечен и список */
+/* ховер списка — рамка и плюсы слева и справа; при наведении на виджет подсвечен и список */
 .sme-list:hover:not(.has-selected) { border: 1px solid var(--info-border-soft); border-radius: 2px; }
 .sme-w:hover { border-color: var(--info-border-soft); }
 /* выделенный виджет — рамка и плюсы сверху и снизу; его список — пунктиром */
@@ -1169,6 +1169,8 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .sme-mk:is(:hover, .is-active)::after { display: block; }
 .sme-mk--top { left: 50%; top: -11px; transform: translateX(-50%); }
 .sme-mk--bottom { left: 50%; bottom: -11px; transform: translateX(-50%); }
+.sme-mk--left { left: -11px; top: 50%; transform: translateY(-50%); }
+.sme-mk--right { right: -11px; top: 50%; transform: translateY(-50%); }
 .sme-list:hover:not(.has-selected) > .sme-mk,
 .sme-w.is-selected > .sme-mk, .sme-mk.is-active { display: flex; }
 
