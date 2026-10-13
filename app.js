@@ -1177,11 +1177,17 @@
     smeIcon.innerHTML = editorIconHTML(ed.sec, draft.icon);
     smeCard.innerHTML = '';
     smeCard.classList.toggle('is-multi', draft.cols.length > 1);
-    const mk = (side) => el('span', `sme-mk sme-mk--${side}`);
-    const widget = (key, title, sub, right) => {
+    // плюсы сверху и снизу открывают меню «+»; выбранная страница встаёт на место плюса
+    const mk = (side, ci, at) => {
+      const m = el('span', `sme-mk sme-mk--${side}`);
+      m.dataset.col = ci;
+      m.dataset.at = at;
+      return m;
+    };
+    const widget = (key, title, sub, right, ci, ii) => {
       const w = el('div', 'sme-w' + (sub ? ' sme-w--sub' : '') + (key === selected ? ' is-selected' : ''));
       w.dataset.key = key;
-      w.append(el('span', 'sme-w__text', title), mk('top'), mk('bottom'));
+      w.append(el('span', 'sme-w__text', title), mk('top', ci, ii), mk('bottom', ci, key === 'head' ? 0 : ii + 1));
       // в «Добавлении пунктов» у виджета виден элемент справа из окна настроек
       if (itemSettingsOn() && right) $('.sme-w__text', w).insertAdjacentHTML('afterend', rightHTML(right));
       if (key === selected) w.append(toolbar());
@@ -1189,9 +1195,9 @@
     };
     draft.cols.forEach((col, ci) => {
       const l = el('div', 'sme-list');
-      if (ci === 0 && draft.head != null && draft.showHead) l.append(widget('head', draft.head, false, draft.headRight));
-      col.forEach((it, ii) => l.append(widget(`${ci}:${ii}`, it.title, it.level === 2, it.right)));
-      l.append(mk('top'), mk('bottom'), mk('left'), mk('right'));
+      if (ci === 0 && draft.head != null && draft.showHead) l.append(widget('head', draft.head, false, draft.headRight, ci, 0));
+      col.forEach((it, ii) => l.append(widget(`${ci}:${ii}`, it.title, it.level === 2, it.right, ci, ii)));
+      l.append(mk('top', ci, 0), mk('bottom', ci, col.length));
       l.classList.toggle('has-selected', !!l.querySelector('.sme-w.is-selected'));
       smeCard.append(l);
     });
@@ -1951,12 +1957,13 @@
   const plusSearch = $('#plusMenuSearch');
   const smePlus = $('.sme-plus', editor);
   const accPlus = $('.acc-plus');
-  let plusOwner = smePlus; // кнопка, открывшая меню: «+» редактора или «+» шапки аккордеона
+  let plusOwner = smePlus; // кнопка, открывшая меню: «+» редактора, плюс у виджета или «+» шапки аккордеона
+  let plusAt = null; // плюс у виджета: куда встанет страница — { col, at }
 
   function renderPlusMenu() {
     const q = plusSearch.value.trim().toLowerCase();
     const match = (t) => !q || t.toLowerCase().includes(q);
-    const fromEditor = plusOwner === smePlus;
+    const fromEditor = plusOwner !== accPlus;
     // В «Добавлении пунктов» уже добавленной страницы в меню нет: в редакторе — пунктов и заголовка подменю,
     // в «+» шапки аккордеона — добавленных пунктов аккордеона.
     const used = new Set(!accAddItems() ? [] : fromEditor
@@ -1988,9 +1995,12 @@
 
   function addPage(title) {
     const draft = cloneDraft(ed.draft);
-    // новый пункт — в конец первой колонки, но над закреплёнными внизу
-    const pinned = draft.cols[0].findIndex((it) => it.pinned);
-    draft.cols[0].splice(pinned < 0 ? draft.cols[0].length : pinned, 0, sub(title));
+    if (plusAt) draft.cols[plusAt.col].splice(plusAt.at, 0, sub(title)); // на место плюса у виджета
+    else {
+      // новый пункт — в конец первой колонки, но над закреплёнными внизу
+      const pinned = draft.cols[0].findIndex((it) => it.pinned);
+      draft.cols[0].splice(pinned < 0 ? draft.cols[0].length : pinned, 0, sub(title));
+    }
     closePlusMenu();
     commit(draft);
   }
@@ -2185,8 +2195,9 @@
   for (const box of [list, layer]) box.addEventListener('click', (e) => { if (e.target.closest('.sm-right--btn')) e.stopPropagation(); }, true);
 
   function openPlusMenu(owner) {
-    if (owner === smePlus) stopTitleEdit(true);
+    if (owner !== accPlus) stopTitleEdit(true);
     plusOwner = owner;
+    plusAt = owner.classList.contains('sme-mk') ? { col: +owner.dataset.col, at: +owner.dataset.at } : null;
     plusSearch.value = '';
     // каждое открытие — исходный вид: раскрыты «Моей компании» и «Отчетность»
     for (const n of PLUS_TREE) if (n.kind === 'group') n.open = PLUS_OPEN.includes(n.title);
@@ -2206,10 +2217,17 @@
 
   smePlus.addEventListener('click', () => (plusMenu.hidden ? openPlusMenu(smePlus) : closePlusMenu()));
   accPlus.addEventListener('click', () => (plusMenu.hidden ? openPlusMenu(accPlus) : closePlusMenu()));
+  smeCard.addEventListener('click', (e) => {
+    const m = e.target.closest('.sme-mk');
+    if (!m) return;
+    const again = !plusMenu.hidden && plusOwner === m;
+    if (!plusMenu.hidden) closePlusMenu();
+    if (!again) openPlusMenu(m);
+  });
   $('#plusMenuClose').addEventListener('click', closePlusMenu);
   plusSearch.addEventListener('input', renderPlusMenu);
   stage.addEventListener('mousedown', (e) => {
-    if (plusMenu.hidden || e.target.closest('#plusMenu') || e.target.closest('.sme-plus, .acc-plus')) return;
+    if (plusMenu.hidden || e.target.closest('#plusMenu') || e.target.closest('.sme-plus, .acc-plus, .sme-mk')) return;
     closePlusMenu();
   }, true);
 
