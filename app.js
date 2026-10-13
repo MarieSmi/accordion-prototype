@@ -2151,7 +2151,7 @@
   $('#iwSide').addEventListener('click', (e) => { const b = e.target.closest('[data-side]'); if (b) iwSet({ side: b.dataset.side }); });
   $('#iwPin').addEventListener('click', () => iwSet({ pinned: !iw.pinned }));
 
-  // Выпадающие списки окна («Вложенность», «Команды», «Выводить»): первый пункт встаёт на место ссылки, выбранный — с точкой.
+  // Выпадающие списки окна («Вложенность», «Команда», «Выводить»): первый пункт встаёт на место ссылки, выбранный — с точкой.
   let iwMenuFor = null;
   function openIwMenu(link, options, current, width, pick) {
     iwMenuFor = link;
