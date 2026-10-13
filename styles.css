@@ -465,7 +465,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 .pg-link .ico { align-self: center; width: 12px; height: 12px; font-size: 12px; margin-right: 4px; color: inherit; }
 .pg-link:hover .pg-link__text { text-decoration: underline from-font; text-underline-position: from-font; } /* как у ссылок вспомогательной панели */
 .pg-link:hover, .pg-link.is-active { color: #313e78; } /* label_hover_text-color / label_hover_icon-color (Figma nuC4KFMiS36uDWDUp9wKGl 17890:7593) */
-.stage[data-scenario="tab-dash-head"]:not([data-variant="chip"]):not(.tabs-added) #dashAddTab { display: flex; }
+.stage[data-scenario="tab-dash-head"]:not([data-variant^="chip"]):not(.tabs-added) #dashAddTab { display: flex; }
 /* чипса «вкладка» (Figma nuC4KFMiS36uDWDUp9wKGl 18813:5910, Buttons style=contrast): белая 24px, отступы 12, текст label_contrast;
    на ховере — рамка hover_border-color. Подсценарий «По чипсе», пропадает после добавления вкладки */
 .pg-chip {
@@ -474,12 +474,12 @@ ul { list-style: none; margin: 0; padding: 0; }
   font-size: 14px; line-height: normal; letter-spacing: -.1974px; color: #656c87; white-space: nowrap;
 }
 .pg-chip:hover { border-color: #d0d0d0; }
-.stage[data-scenario="tab-dash-head"][data-variant="chip"]:not(.tabs-added) .pg-chip { display: flex; }
+.stage[data-scenario="tab-dash-head"][data-variant^="chip"]:not(.tabs-added) .pg-chip { display: flex; }
 /* правая часть шапки: «+вкладка» и фильтры через 8px */
 .pg-head__right { margin-left: auto; display: flex; align-items: baseline; gap: 8px; }
 /* фильтры (Figma xMQ3ZEN4AUINgwjVoxR8hS 19325:47991): значение фильтра и кнопка-воронка 32×32, вписанная в высоту шапки */
 .pg-filters { display: none; align-items: baseline; }
-.stage[data-scenario="tab-dash-head"][data-variant="filters"] .pg-filters { display: flex; }
+.stage[data-scenario="tab-dash-head"]:is([data-variant="filters"], [data-variant="chip-filters"]) .pg-filters { display: flex; }
 .pg-filter { height: 24px; padding: 0 8px; display: flex; align-items: center; border-radius: 100px; background: #ebf4ff; font-size: 14px; line-height: 18px; letter-spacing: -.1974px; color: #000; white-space: nowrap; } /* background/same/secondary_same_background-color */
 .pg-filter-btn { align-self: center; width: 32px; height: 32px; margin: -4px 0; padding-top: 1px; display: flex; align-items: center; justify-content: center; border-radius: 16px; }
 .pg-filter-btn .ico { color: #656c87; } /* icons/secondary_icon-color */
