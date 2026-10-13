@@ -230,6 +230,7 @@
 
   function renderAccordion() {
     list.innerHTML = '';
+    stage.classList.toggle('items-added', SECTIONS.some((s) => s.added)); // пин на «+» аккордеона — до первого добавленного пункта
     for (const sec of SECTIONS) {
       const li = el('li', 'acc-item');
       li.dataset.id = sec.id;

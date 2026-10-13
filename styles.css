@@ -673,6 +673,9 @@ ul { list-style: none; margin: 0; padding: 0; }
 .click-pin::before { content: ""; position: absolute; inset: 0; border-radius: 32px; background: #6cc; opacity: .5; }
 .click-pin img { position: absolute; left: 26px; top: 26px; }
 .stage[data-scenario^="tab-"]:not(.tabs-added) .rp-btn[data-rp="shop"]:not(.is-active) .click-pin { display: block; }
+/* «Добавление пунктов»: пин на «+» шапки аккордеона — пока пункт не добавлен и меню «+» не открыто */
+.acc-plus { position: relative; }
+.stage[data-scenario="acc-add-items"]:not(.items-added) .acc-plus:not(.is-active) .click-pin { display: block; }
 /* Точка-подсказка (Figma 18348:17461, clickDot 6×6) у элементов добавления вкладки в сценариях «Добавление вкладки»:
    плюс в колонке информеров и ссылка «+вкладка» — справа вверху. Пока вкладка не добавлена и меню не открыто. */
 #infPlus, #dashAddTab { position: relative; }
