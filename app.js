@@ -1200,6 +1200,7 @@
       col.forEach((it, ii) => l.append(widget(`${ci}:${ii}`, it.title, it.level === 2, it.right, ci, ii)));
       l.append(mk('left', ci, 'col'), mk('right', ci + 1, 'col'));
       l.classList.toggle('has-selected', !!l.querySelector('.sme-w.is-selected'));
+      l.classList.toggle('is-empty', !l.querySelector('.sme-w')); // пустая колонка («Добавить колонку») — бледный пунктир
       smeCard.append(l);
     });
     // пустое подменю — заглушка «+» на всю карточку
@@ -1985,8 +1986,11 @@
       if (onClick) r.addEventListener('click', onClick);
       plusList.append(r);
     };
-    // У «+» шапки аккордеона строки «Добавить виджет» нет.
-    if (!q && fromEditor) row('', '<span class="ico pm-ico">&#xEADD;</span><span>Добавить виджет</span>');
+    // У «+» шапки аккордеона строк «Добавить виджет» и «Добавить колонку» нет.
+    if (!q && fromEditor) {
+      row('', '<span class="ico pm-ico">&#xEADD;</span><span>Добавить виджет</span>');
+      row('', '<span class="ico pm-ico">&#xEADD;</span><span>Добавить колонку</span>', addColumn);
+    }
     for (const n of PLUS_TREE) {
       if (n.sep) { if (!q) plusList.append(el('div', 'pm-sep')); continue; }
       const kids = pages(n).filter(match);
@@ -2016,6 +2020,14 @@
     closePlusMenu();
     commit(draft);
     select(key); // добавленный пункт — выделен
+  }
+
+  // «Добавить колонку» — пустая колонка: у плюса сбоку списка — на его месте, иначе — справа от всех
+  function addColumn() {
+    const draft = cloneDraft(ed.draft);
+    draft.cols.splice(plusAt?.at === 'col' ? plusAt.col : draft.cols.length, 0, []);
+    closePlusMenu();
+    commit(draft);
   }
 
   // Сценарий «Аккордеон → Добавление пунктов»: страница из меню «+» шапки аккордеона становится пунктом в конце аккордеона
