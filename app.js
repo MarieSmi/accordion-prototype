@@ -1933,6 +1933,12 @@
     const q = plusSearch.value.trim().toLowerCase();
     const match = (t) => !q || t.toLowerCase().includes(q);
     const fromEditor = plusOwner === smePlus;
+    // В «Добавлении пунктов» уже добавленной страницы в меню нет: в редакторе — пунктов и заголовка подменю,
+    // в «+» шапки аккордеона — добавленных пунктов аккордеона.
+    const used = new Set(!accAddItems() ? [] : fromEditor
+      ? [ed.draft.showHead ? ed.draft.head : null, ...ed.draft.cols.flat().map((it) => it.title)]
+      : SECTIONS.filter((s) => s.added).map((s) => s.title));
+    const pages = (n) => (n.items || []).filter((t) => !used.has(t));
     plusList.innerHTML = '';
     const row = (cls, html, onClick) => {
       const r = el('button', 'pm-row' + (cls ? ' ' + cls : ''), html);
@@ -1944,7 +1950,7 @@
     if (!q && fromEditor) row('', '<span class="ico pm-ico">&#xEADD;</span><span>Добавить виджет</span>');
     for (const n of PLUS_TREE) {
       if (n.sep) { if (!q) plusList.append(el('div', 'pm-sep')); continue; }
-      const kids = (n.items || []).filter(match);
+      const kids = pages(n).filter(match);
       if (q && !match(n.title) && !kids.length) continue;
       const arrow = n.kind === 'folder' ? '' : (n.open || (q && kids.length)) ? '' : '';
       // В меню «+» шапки аккордеона не кликаются страницы и пустые группы («Деньги», «Торги»).
@@ -1952,7 +1958,7 @@
         n.kind === 'group' && (fromEditor || n.items.length) ? () => { n.open = !n.open; renderPlusMenu(); } : null);
       // В «Добавлении пунктов» страница «Моей компании» из «+» шапки аккордеона добавляет пункт в аккордеон.
       const onPage = (t) => (fromEditor ? () => addPage(t) : accAddItems() && n.title === 'Моей компании' ? () => addAccItem(t) : null);
-      if (n.open || (q && kids.length)) for (const t of (q ? kids : n.items)) row('pm-row--page', `<span>${t}</span>`, onPage(t));
+      if (n.open || (q && kids.length)) for (const t of (q ? kids : pages(n))) row('pm-row--page', `<span>${t}</span>`, onPage(t));
     }
   }
 
