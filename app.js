@@ -1219,9 +1219,10 @@
 
   // Слева от редактора в группе «Редактор подменю» — рантайм из черновика, обновляется с каждой правкой:
   // пункт аккордеона (иконка, название, счётчик) и подменю (широкое, как по клику в аккордеоне). Ховеры работают, кликов нет.
+  // Пока открыто окно настроек пункта — из черновика с его правками.
   const runtimeAcc = $('#runtimeAcc');
-  function renderRuntime() {
-    const { sec, draft } = ed;
+  function renderRuntime(draft = ed.draft) {
+    const { sec } = ed;
     const view = { ...sec, title: draft.title, customIcon: draft.icon,
       submenu: { ...sec.submenu, head: draft.head ?? sec.submenu.head, headRight: draft.headRight ?? undefined, cols: draft.cols } };
     const li = el('li', 'acc-item');
@@ -2115,11 +2116,12 @@
     $('.sm-right', w)?.remove();
     const right = iwRight();
     if (right) $('.sme-w__text', w).insertAdjacentHTML('afterend', rightHTML(right));
+    if (stage.dataset.scenario === 'submenu-editor') renderRuntime(iwDraft().draft);
   }
   function iwSet(patch) { Object.assign(iw, patch); renderItemWin(); }
 
-  // ✓: настройки — в черновик одним шагом; закреплённый пункт уходит в конец своей колонки. Виджет остаётся выделенным.
-  function applyItemWin() {
+  // Черновик с настройками окна; закреплённый пункт уходит в конец своей колонки.
+  function iwDraft() {
     const { key } = iw;
     const title = iw.title.replace(/\s+/g, ' ').trim() || JSON.parse(iw.start)[0];
     const right = iwRight();
@@ -2138,6 +2140,11 @@
       col[ii] = it;
       if (iw.pinned && !wasPinned) { col.splice(ii, 1); col.push(it); selKey = `${ci}:${col.length - 1}`; }
     }
+    return { draft, selKey };
+  }
+  // ✓: настройки — в черновик одним шагом. Виджет остаётся выделенным.
+  function applyItemWin() {
+    const { draft, selKey } = iwDraft();
     closeItemWin();
     commit(draft);
     select(selKey);
