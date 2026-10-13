@@ -1198,7 +1198,9 @@
       const l = el('div', 'sme-list');
       if (ci === 0 && draft.head != null && draft.showHead) l.append(widget('head', draft.head, false, draft.headRight, ci, 0));
       col.forEach((it, ii) => l.append(widget(`${ci}:${ii}`, it.title, it.level === 2, it.right, ci, ii)));
-      l.append(mk('left', ci, 'col'), mk('right', ci + 1, 'col'));
+      // реестр двухколоночный: пустая колонка плюсами по бокам заполняется, у одной колонки они добавляют вторую
+      if (!col.length && !(ci === 0 && draft.head != null && draft.showHead)) l.append(mk('left', ci, 0), mk('right', ci, 0));
+      else if (draft.cols.length < 2) l.append(mk('left', ci, 'col'), mk('right', ci + 1, 'col'));
       l.classList.toggle('has-selected', !!l.querySelector('.sme-w.is-selected'));
       l.classList.toggle('is-empty', !l.querySelector('.sme-w')); // пустая колонка («Добавить колонку») — бледный пунктир
       smeCard.append(l);
@@ -1290,6 +1292,7 @@
     else {
       const [ci, ii] = key.split(':').map(Number);
       draft.cols[ci].splice(ii, 1);
+      if (ci > 0 && !draft.cols[ci].length) draft.cols.splice(ci, 1); // вторая колонка без виджетов пропадает
     }
     commit(draft);
   }
@@ -1986,10 +1989,11 @@
       if (onClick) r.addEventListener('click', onClick);
       plusList.append(r);
     };
-    // У «+» шапки аккордеона строк «Добавить виджет» и «Добавить колонку» нет.
+    // У «+» шапки аккордеона строк «Добавить виджет» и «Добавить колонку» нет. Реестр двухколоночный:
+    // «Добавить колонку» — пока колонка одна (вторая без виджетов при удалении последнего пропадает).
     if (!q && fromEditor) {
       row('', '<span class="ico pm-ico">&#xEADD;</span><span>Добавить виджет</span>');
-      row('', '<span class="ico pm-ico">&#xEADD;</span><span>Добавить колонку</span>', addColumn);
+      if (ed.draft.cols.length < 2) row('', '<span class="ico pm-ico">&#xEADD;</span><span>Добавить колонку</span>', addColumn);
     }
     for (const n of PLUS_TREE) {
       if (n.sep) { if (!q) plusList.append(el('div', 'pm-sep')); continue; }
