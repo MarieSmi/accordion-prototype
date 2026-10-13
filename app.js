@@ -1239,7 +1239,9 @@
     box.append(panel);
     // подменю из одного пункта (или пустого) нет — блок «Рантайм — подменю» пропадает
     const kind = runtimePreview.closest('.kind');
-    kind.hidden = panel.querySelectorAll('button.sm-head, .sm-item').length < 2;
+    const count = panel.querySelectorAll('button.sm-head, .sm-item').length;
+    kind.hidden = count < 2;
+    $('#runtimeNote').hidden = count !== 1; // один пункт — бледная подсказка под пунктом аккордеона
     if (kind.hidden) { runtimePreview.replaceChildren(); return; }
     runtimePreview.replaceChildren(box);
     if (draft.cols.length > 1) fitMultiHead(box); // заголовок многоколоночного — по ширине первой колонки, как в аккордеоне
