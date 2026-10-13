@@ -513,6 +513,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 }
 .tabs-w__btn { display: flex; align-items: center; padding: 4px 6px; transition: background-color .12s; }
 .tabs-w__btn .ico24 { padding-bottom: 1px; }
+.tabs-w__btn--del .ico24 { color: #c2140a; } /* icon/danger_icon-color — как удаление в списке окна «Вкладки» */
 .tabs-w__btn:hover, .tabs-w__btn.is-active { background: var(--pill-hover); } /* наведения в макете нет — как у кнопок шапки */
 /* правка названия по второму клику на активную вкладку — без подчёркивания, только каретка (всегда чёрная) */
 .pg-tab__text.is-editing { outline: none; cursor: text; user-select: text; caret-color: #000; }

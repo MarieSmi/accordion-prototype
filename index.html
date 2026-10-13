@@ -112,6 +112,7 @@
                 <div class="tabs-w__bar" id="tabsBar">
                   <button class="tabs-w__btn" type="button" id="tabsPlus" aria-label="Добавить вкладку"><span class="ico24">&#xE95D;</span></button>
                   <button class="tabs-w__btn" type="button" id="tabsGear" aria-label="Настроить вкладки"><span class="ico24">&#xE75D;</span></button>
+                  <button class="tabs-w__btn tabs-w__btn--del" type="button" id="tabsDel" aria-label="Удалить вкладки"><span class="ico24">&#xEB72;</span></button>
                   <button class="tabs-w__btn" type="button" id="tabsDots" aria-label="Ещё"><span class="ico24">&#xEAB4;</span></button>
                 </div>
               </div>
@@ -877,6 +878,19 @@
         </div>
       </div>
 
+      <!-- Удаление виджета вкладок из его тулбара, когда пользовательские вкладки настроены — оформление как у «Сохранить изменения?» -->
+      <div class="confirm-layer" id="tabsDelConfirm" hidden>
+        <div class="confirm" role="dialog" aria-modal="true" aria-labelledby="tabsDelConfirmMsg">
+          <div class="confirm__head"><span class="confirm__marker"></span></div>
+          <div class="confirm__content">
+            <p class="confirm__message" id="tabsDelConfirmMsg">Вы собираетесь удалить все пользовательские вкладки. Продолжить?</p>
+          </div>
+          <div class="confirm__footer">
+            <button class="confirm__btn confirm__btn--primary" type="button" data-answer="yes">Да</button>
+            <button class="confirm__btn" type="button" data-answer="cancel">Отмена</button>
+          </div>
+        </div>
+      </div>
       <!-- Переход на другую страницу приложения при несохранённых правках — оформление как у «Сохранить изменения?» выше -->
       <div class="confirm-layer" id="navConfirm" hidden>
         <div class="confirm" role="dialog" aria-modal="true" aria-labelledby="navConfirmMsg">

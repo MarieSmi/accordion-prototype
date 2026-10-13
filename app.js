@@ -1390,7 +1390,8 @@
   // пустой вкладкой «Страница N», она активна, виджет выделен.
   function addBlankTab() {
     const id = nextTabId++;
-    tabs.push({ id, title: `Страница ${tabs.length + 1}`, pane: 'empty' });
+    const title = `Страница ${tabs.length + 1}`;
+    tabs.push({ id, title, pane: 'empty', def: title }); // def — исходное название: пока совпадает, вкладка «не тронута»
     activeTab = id;
     stage.classList.add('tabs-added');
     renderTabs();
@@ -1462,7 +1463,7 @@
 
   // Клик мимо виджета, его меню и окна снимает выделение; пока открыто окно «Вкладки», виджет остаётся выделенным.
   stage.addEventListener('mousedown', (e) => {
-    if (tw || e.target.closest('#tabsWidget, #tabAddMenu, #tabDotsMenu, #tabsWin, #smeConfirm')) return;
+    if (tw || e.target.closest('#tabsWidget, #tabAddMenu, #tabDotsMenu, #tabsWin, #smeConfirm, #tabsDelConfirm')) return;
     selectTabs(false);
   });
 
@@ -1552,6 +1553,34 @@
   $('#tabsPlus').addEventListener('click', (e) => (tabAddMenu.hidden ? openAddMenu(e.currentTarget) : closeTabMenus()));
   $('#tabsDots').addEventListener('click', (e) => (tabDotsMenu.hidden ? openDotsMenu(e.currentTarget) : closeTabMenus()));
   $('#tabsGear').addEventListener('click', () => { closeTabMenus(); openTabsWin('list'); });
+  // 🗑 в тулбаре: удаляет все пользовательские вкладки (кроме «Главного») — и виджет пропадает.
+  // Одна нетронутая новая вкладка («Страница N» без переименования) — сразу; иначе — подтверждение «Да / Отмена».
+  const tabsDelConfirm = $('#tabsDelConfirm');
+  function deleteUserTabs() {
+    if (tw) closeTabsWin();
+    tabs = tabs.filter((t) => t.id === 1);
+    activeTab = 1;
+    selectTabs(false);
+    stage.classList.remove('tabs-added');
+    renderTabs();
+  }
+  $('#tabsDel').addEventListener('click', () => {
+    closeTabMenus();
+    const user = tabs.filter((t) => t.id !== 1);
+    if (user.length === 1 && user[0].def && user[0].title === user[0].def) deleteUserTabs();
+    else tabsDelConfirm.hidden = false;
+  });
+  tabsDelConfirm.addEventListener('click', (e) => {
+    const answer = e.target.closest('[data-answer]')?.dataset.answer;
+    if (!answer) return;
+    tabsDelConfirm.hidden = true;
+    if (answer === 'yes') deleteUserTabs();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape' || tabsDelConfirm.hidden) return;
+    e.stopImmediatePropagation(); // Esc — как «Отмена»
+    tabsDelConfirm.hidden = true;
+  }, true);
   $('#tabAddClose').addEventListener('click', closeTabMenus);
   $('#tabDotsClose').addEventListener('click', closeTabMenus);
   // Сценарий «Плюс в тулбаре»: плюс в колонке информеров, «+» меню ровно поверх него.
