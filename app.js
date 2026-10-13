@@ -2019,7 +2019,7 @@
 
   // ---------- Окно настроек пункта подменю (Figma 9eLwMJLQCwT0xHKviN2j1P 18562:24378) ----------
   // По ⚙ тулбара выделенного виджета, пока только в «Добавлении пунктов». Встаёт справа от виджета (как «Вкладки»),
-  // перетаскивается за шапку. Правки копятся в окне: ✓ — одним шагом в черновик редактора, ✕ — без изменений,
+  // перетаскивается за шапку. Правки сразу видны на виджете: ✓ — одним шагом в черновик редактора, ✕ — без изменений,
   // ↺ — к виду на момент открытия. У заголовка подменю нет «Вложенности» и «Закрепить», зато есть «Размещение» плюса.
   const itemWin = $('#itemWin');
   const iwTitle = $('#iwTitle');
@@ -2092,6 +2092,14 @@
     for (const b of $('#iwSide').children) b.classList.toggle('is-on', b.dataset.side === iw.side);
     $('#iwPin').textContent = iw.pinned ? 'Открепить пункт' : 'Закрепить пункт снизу';
     $('#iwReset').disabled = iwState() === iw.start;
+    // настройки сразу видны на виджете (название, уровень, элемент справа); в черновик — по ✓, ✕ возвращает виджет как был
+    const w = $(`.sme-w[data-key="${iw.key}"]`, editor);
+    if (!w) return;
+    $('.sme-w__text', w).textContent = iw.title;
+    if (!head) w.classList.toggle('sme-w--sub', iw.level === 2);
+    $('.sm-right', w)?.remove();
+    const right = iwRight();
+    if (right) $('.sme-w__text', w).insertAdjacentHTML('afterend', rightHTML(right));
   }
   function iwSet(patch) { Object.assign(iw, patch); renderItemWin(); }
 
@@ -2121,7 +2129,7 @@
   }
 
   $('#iwDone').addEventListener('click', applyItemWin);
-  $('#iwClose').addEventListener('click', closeItemWin);
+  $('#iwClose').addEventListener('click', () => { closeItemWin(); renderEditor(); }); // виджет — снова из черновика
   $('#iwReset').addEventListener('click', () => {
     const [title, level, pinned, right] = JSON.parse(iw.start);
     iwTitle.textContent = title;
