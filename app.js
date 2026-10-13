@@ -1378,7 +1378,13 @@
     if (w && e.detail === 2 && e.target.closest('.sme-w__text') && !e.target.closest('.sme-tb')) {
       e.preventDefault();
       select(w.dataset.key);
+      closeItemWin();
       startItemEdit($(`.sme-w[data-key="${w.dataset.key}"]`, smeCard), e.clientX, e.clientY);
+      return;
+    }
+    // повторный клик по выделенному виджету — окно настроек пункта (там, где оно есть)
+    if (w && e.detail === 1 && ed.selected === w.dataset.key && !e.target.closest('.sme-tb') && itemSettingsOn() && iw?.key !== w.dataset.key) {
+      openItemWin(w.dataset.key);
       return;
     }
     if (w) select(w.dataset.key);
@@ -1966,11 +1972,11 @@
     const q = plusSearch.value.trim().toLowerCase();
     const match = (t) => !q || t.toLowerCase().includes(q);
     const fromEditor = plusOwner !== accPlus;
-    // В «Добавлении пунктов» уже добавленной страницы в меню нет: в редакторе — пунктов и заголовка подменю,
-    // в «+» шапки аккордеона — добавленных пунктов аккордеона.
-    const used = new Set(!accAddItems() ? [] : fromEditor
-      ? [ed.draft.showHead ? ed.draft.head : null, ...ed.draft.cols.flat().map((it) => it.title)]
-      : SECTIONS.filter((s) => s.added).map((s) => s.title));
+    // В «Добавлении пунктов» и «Подменю → Редактор» уже добавленной страницы в меню нет: в редакторе — пунктов
+    // и заголовка подменю, в «+» шапки аккордеона — добавленных пунктов аккордеона.
+    const used = new Set(fromEditor
+      ? (itemSettingsOn() ? [ed.draft.showHead ? ed.draft.head : null, ...ed.draft.cols.flat().map((it) => it.title)] : [])
+      : (accAddItems() ? SECTIONS.filter((s) => s.added).map((s) => s.title) : []));
     const pages = (n) => (n.items || []).filter((t) => !used.has(t));
     plusList.innerHTML = '';
     const row = (cls, html, onClick) => {
@@ -1997,15 +2003,19 @@
 
   function addPage(title) {
     const draft = cloneDraft(ed.draft);
-    if (plusAt?.at === 'col') draft.cols.splice(plusAt.col, 0, [sub(title)]); // плюс сбоку списка — новая колонка
-    else if (plusAt) draft.cols[plusAt.col].splice(plusAt.at, 0, sub(title)); // плюс у виджета — в список
+    let key;
+    if (plusAt?.at === 'col') { draft.cols.splice(plusAt.col, 0, [sub(title)]); key = `${plusAt.col}:0`; } // плюс сбоку списка — новая колонка
+    else if (plusAt) { draft.cols[plusAt.col].splice(plusAt.at, 0, sub(title)); key = `${plusAt.col}:${plusAt.at}`; } // плюс у виджета — в список
     else {
       // новый пункт — в конец первой колонки, но над закреплёнными внизу
       const pinned = draft.cols[0].findIndex((it) => it.pinned);
-      draft.cols[0].splice(pinned < 0 ? draft.cols[0].length : pinned, 0, sub(title));
+      const at = pinned < 0 ? draft.cols[0].length : pinned;
+      draft.cols[0].splice(at, 0, sub(title));
+      key = `0:${at}`;
     }
     closePlusMenu();
     commit(draft);
+    select(key); // добавленный пункт — выделен
   }
 
   // Сценарий «Аккордеон → Добавление пунктов»: страница из меню «+» шапки аккордеона становится пунктом в конце аккордеона
