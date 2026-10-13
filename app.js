@@ -1560,6 +1560,8 @@
   $('#infAddTab').addEventListener('click', (e) => (tabAddMenu.hidden ? openAddMenu(e.currentTarget, true) : closeTabMenus()));
   // Сценарий «Из шапки дашборда»: ссылка «+вкладка» справа в шапке, «+» меню ровно поверх её «+».
   $('#dashAddTab').addEventListener('click', (e) => (tabAddMenu.hidden ? openAddMenu(e.currentTarget, true) : closeTabMenus()));
+  // Подсценарий «По чипсе»: чипса «вкладка» в шапке сразу добавляет виджет вкладок с новой вкладкой (чипса пропадает).
+  $('#dashChipTab').addEventListener('click', () => { if (!stage.classList.contains('tabs-added')) addBlankTab(); });
   // пока виджета вкладок нет (одна вкладка), «С чистого листа» сразу добавляет вкладку (addBlankTab)
   $('#tabAddBlank').addEventListener('click', () => {
     closeTabMenus();
