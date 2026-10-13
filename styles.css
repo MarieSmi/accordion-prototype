@@ -1788,12 +1788,12 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .iw-field__x, .iw-field__menu { color: #ccc; flex: none; } /* icon/unaccented_icon-color */
 .iw-field__x { margin-left: -6px; width: 16px; }
 .iw-field__menu { margin-left: auto; width: 24px; display: flex; justify-content: flex-end; padding-bottom: 1px; }
-/* «Дополнение пункта»: заголовок 15 semibold, 4 до строк; чекбокс — 8 ниже строк */
+/* «Дополнительно»: заголовок 15 semibold, 4 до строк; чекбокс — 8 ниже строк */
 .set-win__body.iw-fill { gap: 4px; }
 .iw-fill__title { height: 24px; display: flex; align-items: center; font-size: 15px; font-weight: 600; letter-spacing: -.2115px; color: var(--text); }
 .iw-check { display: flex; align-items: flex-start; padding-top: 4px; text-align: left; font-size: 14px; letter-spacing: -.1974px; color: var(--text); }
-.iw-check > span:last-child { padding: 2px 0; }
-.iw-check__box { width: 16px; height: 24px; flex: none; display: flex; align-items: flex-end; padding-bottom: 6px; }
+.iw-check > span:last-child { padding: 2px 0; line-height: 20px; }
+.iw-check__box { width: 16px; height: 24px; flex: none; display: flex; align-items: center; } /* по центру первой строки текста */
 .iw-check__box::before { content: ""; width: 13px; height: 13px; background: url("assets/img/checkbox-off.svg") no-repeat; }
 .iw-check.is-on .iw-check__box::before { background-image: url("assets/img/checkbox-on.svg"); }
 /* «Размещение» — тумблер Справа / Слева (tumblerDefault 18369:80115) */
