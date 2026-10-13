@@ -63,8 +63,6 @@
         </div>
 
         <div class="ctor-header__right">
-          <!-- Сценарий «Из шапки конструктора»: ссылка «+вкладка» слева от языка через 12px, остаётся и после добавления вкладки -->
-          <button class="pg-link ctor-add-tab" type="button" id="ctorAddTab"><span class="ico">&#xEB25;</span><span class="pg-link__text">вкладка</span></button>
           <button class="pill-group lang-btn" type="button" id="langBtn">Язык RU</button>
           <button class="done-btn" type="button" aria-label="Сохранить"><span class="ico ico--20">&#xE75E;</span></button>
           <button class="close-btn" type="button" aria-label="Закрыть"><img src="assets/img/close-header.svg" width="28" height="28" alt=""></button>
@@ -430,7 +428,7 @@
       <!-- Правая панель -->
       <aside class="right-panel">
         <div class="right-panel__cmds">
-          <button class="rp-btn rp-btn--accent" type="button" aria-label="Магазин" data-rp="shop"><span class="ico24">&#xEADD;</span><span class="click-pin" aria-hidden="true"><img src="assets/img/click-cursor.svg" width="16" height="16" alt=""></span></button>
+          <button class="rp-btn rp-btn--accent" type="button" aria-label="Магазин" data-rp="shop"><span class="ico24">&#xEADD;</span></button>
           <button class="rp-btn" type="button" aria-label="Данные" data-rp="data"><span class="rp-svg rp-svg--data"></span></button>
           <button class="rp-btn" type="button" aria-label="Слои" data-rp="layers"><span class="rp-svg rp-svg--layers"></span></button>
           <button class="rp-btn" type="button" aria-label="Фильтр" data-rp="filter"><span class="ico24">&#xE94C;</span></button>
@@ -1045,15 +1043,16 @@
         </div>
         <div class="sys-group">Добавление вкладки</div>
         <div class="sys-options">
-          <button class="sys-radio" type="button" role="radio" aria-checked="false" data-scenario="tab-toolbar"><span class="sys-radio__box"></span><span class="sys-radio__text">Плюс в тулбаре</span></button>
-          <button class="sys-radio" type="button" role="radio" aria-checked="false" data-scenario="tab-toolbar-link"><span class="sys-radio__box"></span><span class="sys-radio__text">+вкладка в тулбаре</span></button>
+          <button class="sys-radio" type="button" role="radio" aria-checked="false" data-scenario="tab-toolbar"><span class="sys-radio__box"></span><span class="sys-radio__text">Из тулбара</span></button>
+          <div class="sys-sub">
+            <button class="sys-radio" type="button" role="radio" aria-checked="false" data-scenario="tab-toolbar" data-variant="plus"><span class="sys-radio__box"></span><span class="sys-radio__text">Плюс в тулбаре</span></button>
+            <button class="sys-radio" type="button" role="radio" aria-checked="false" data-scenario="tab-toolbar" data-variant="link"><span class="sys-radio__box"></span><span class="sys-radio__text">+вкладка</span></button>
+          </div>
           <button class="sys-radio" type="button" role="radio" aria-checked="false" data-scenario="tab-dash-head"><span class="sys-radio__box"></span><span class="sys-radio__text">Из шапки дашборда</span></button>
           <div class="sys-sub">
             <button class="sys-radio" type="button" role="radio" aria-checked="false" data-scenario="tab-dash-head" data-variant="no-filters"><span class="sys-radio__box"></span><span class="sys-radio__text">Без фильтров</span></button>
             <button class="sys-radio" type="button" role="radio" aria-checked="false" data-scenario="tab-dash-head" data-variant="filters"><span class="sys-radio__box"></span><span class="sys-radio__text">С фильтрами</span></button>
           </div>
-          <button class="sys-radio" type="button" role="radio" aria-checked="false" data-scenario="tab-ctor-head"><span class="sys-radio__box"></span><span class="sys-radio__text">Из шапки конструктора</span></button>
-          <button class="sys-radio" type="button" role="radio" aria-checked="false" data-scenario="tab-shop"><span class="sys-radio__box"></span><span class="sys-radio__text">Из магазина</span></button>
         </div>
       </div>
     </div>

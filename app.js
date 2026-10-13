@@ -1560,31 +1560,19 @@
   $('#infAddTab').addEventListener('click', (e) => (tabAddMenu.hidden ? openAddMenu(e.currentTarget, true) : closeTabMenus()));
   // Сценарий «Из шапки дашборда»: ссылка «+вкладка» справа в шапке, «+» меню ровно поверх её «+».
   $('#dashAddTab').addEventListener('click', (e) => (tabAddMenu.hidden ? openAddMenu(e.currentTarget, true) : closeTabMenus()));
-  // Сценарий «Из шапки конструктора»: та же ссылка слева от «Язык RU».
-  $('#ctorAddTab').addEventListener('click', (e) => (tabAddMenu.hidden ? openAddMenu(e.currentTarget, true) : closeTabMenus()));
   // пока виджета вкладок нет (одна вкладка), «С чистого листа» сразу добавляет вкладку (addBlankTab)
   $('#tabAddBlank').addEventListener('click', () => {
     closeTabMenus();
-    if (stage.dataset.scenario === 'tab-ctor-head') addBlankTabWin();
-    else if (!stage.classList.contains('tabs-added')) addBlankTab();
+    if (!stage.classList.contains('tabs-added')) addBlankTab();
     else openTabsWin('new');
   });
-  // Сценарий «Из шапки конструктора»: вкладка «Страница N» создаётся сразу и открывается в окне «Вкладки» на экране вкладки.
-  // ↺ окна убирает и её (снимок — до добавления).
-  function addBlankTabWin() {
-    const snap = tw ? null : tabsSnapshot();
-    addBlankTab();
-    openTabsWin('list');
-    if (snap) tw.start = snap;
-    showTabEdit(activeTab);
-  }
   tabDotsMenu.addEventListener('click', (e) => {
     const act = e.target.closest('[data-act]')?.dataset.act;
     if (act === 'add') openAddMenu($('#tabsPlus'));
     else if (act === 'settings') { closeTabMenus(); openTabsWin('list'); }
   });
   stage.addEventListener('mousedown', (e) => {
-    if (!tabMenuOpen() || e.target.closest('#tabAddMenu, #tabDotsMenu, #tabsPlus, #tabsDots, #twPlus, #infPlus, #dashAddTab, #ctorAddTab')) return;
+    if (!tabMenuOpen() || e.target.closest('#tabAddMenu, #tabDotsMenu, #tabsPlus, #tabsDots, #twPlus, #infPlus, #dashAddTab')) return;
     closeTabMenus();
   });
 

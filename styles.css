@@ -370,12 +370,12 @@ ul { list-style: none; margin: 0; padding: 0; }
 .inf-plus .ico24 { color: #333; } /* icon/icon-color; глиф — как «+» в заголовке меню «вкладка», чтобы плюсы совпали */
 .inf-plus:hover, .inf-plus.is-active { background: rgba(51, 51, 51, .1); } /* наведения в макете нет */
 /* после добавления вкладки (.tabs-added) — снова «4 квадратика», как в Figma 18797:65818 */
-.stage:is([data-scenario="tab-toolbar"], [data-scenario="tab-toolbar-link"]):not(.tabs-added) .informers__btn { display: none; }
-.stage[data-scenario="tab-toolbar"]:not(.tabs-added) .inf-plus { display: flex; }
+.stage[data-scenario="tab-toolbar"]:not(.tabs-added) .informers__btn { display: none; }
+.stage[data-scenario="tab-toolbar"][data-variant="plus"]:not(.tabs-added) .inf-plus { display: flex; }
 /* «+вкладка в тулбаре»: ссылка повёрнута — читается снизу вверх, «+» внизу; после добавления вкладки пропадает */
 .inf-link { writing-mode: vertical-rl; transform: rotate(180deg); } /* стоит на месте скрытой кнопки «4 квадратика» */
 .inf-link .ico { margin: 0 0 4px; }
-.stage[data-scenario="tab-toolbar-link"]:not(.tabs-added) .inf-link { display: flex; align-items: center; }
+.stage[data-scenario="tab-toolbar"][data-variant="link"]:not(.tabs-added) .inf-link { display: flex; align-items: center; }
 .informers__bottom { display: flex; flex-direction: column; gap: 10px; }
 /* Звонки и Сообщения в макете — кадры из скриншота Saby */
 .informers__shot { position: relative; width: 26.975px; height: 26.975px; border-radius: 13.488px; overflow: hidden; }
@@ -466,8 +466,6 @@ ul { list-style: none; margin: 0; padding: 0; }
 .pg-link:hover .pg-link__text { text-decoration: underline from-font; text-underline-position: from-font; } /* как у ссылок вспомогательной панели */
 .pg-link:hover, .pg-link.is-active { color: #313e78; } /* label_hover_text-color / label_hover_icon-color (Figma nuC4KFMiS36uDWDUp9wKGl 17890:7593) */
 .stage[data-scenario="tab-dash-head"]:not(.tabs-added) #dashAddTab { display: flex; }
-/* «+вкладка» в шапке конструктора: до «Язык RU» 12px (gap шапки), не пропадает после добавления вкладки */
-.stage[data-scenario="tab-ctor-head"] .ctor-add-tab { display: flex; align-items: center; }
 /* правая часть шапки: «+вкладка» и фильтры через 8px */
 .pg-head__right { margin-left: auto; display: flex; align-items: baseline; gap: 8px; }
 /* фильтры (Figma xMQ3ZEN4AUINgwjVoxR8hS 19325:47991): значение фильтра и кнопка-воронка 32×32, вписанная в высоту шапки */
@@ -653,20 +651,16 @@ ul { list-style: none; margin: 0; padding: 0; }
 .rp-btn { width: 44px; height: 48px; padding: 12px 10px; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: background-color .12s; }
 .rp-btn:hover { background: var(--rp-hover); }
 .rp-btn--accent .ico24 { color: var(--rp-accent); }
-/* подсказка клика «Пин» (Figma xMQ3ZEN4AUINgwjVoxR8hS 18797:65764): круг 40 #6cc 50% и курсор 16 справа снизу.
-   Сценарий «Из магазина» — на «Магазине», пока он закрыт и вкладки не добавлены */
-.click-pin { display: none; position: absolute; left: 50%; top: 50%; width: 40px; height: 40px; margin: -20px 0 0 -20px; pointer-events: none; }
-.click-pin::before { content: ""; position: absolute; inset: 0; border-radius: 32px; background: #6cc; opacity: .5; }
-.click-pin img { position: absolute; left: 26px; top: 26px; }
-.stage[data-scenario="tab-shop"]:not(.tabs-added) .rp-btn[data-rp="shop"]:not(.is-active) .click-pin { display: block; }
-/* Точка-подсказка (Figma 18348:17461, clickDot 6×6) у элементов добавления вкладки в сценариях «Добавление вкладки»:
-   плюс в колонке информеров и ссылки «+вкладка» — справа вверху. Пока вкладка не добавлена и меню не открыто. */
-#infPlus, #dashAddTab, #ctorAddTab { position: relative; }
-.stage[data-scenario^="tab-"]:not(.tabs-added) :is(#infPlus, #dashAddTab, #ctorAddTab):not(.is-active)::after {
-  content: ""; position: absolute; width: 6px; height: 6px; border-radius: 10px; background: #6cc; pointer-events: none;
+/* Подсказка клика «Пин» (Figma xMQ3ZEN4AUINgwjVoxR8hS 18797:65764): круг 40 #6cc 50% и курсор 16 справа снизу —
+   на элементах добавления вкладки в сценариях «Добавление вкладки»: плюс в колонке информеров и ссылки «+вкладка»
+   (круг по «+» ссылки). Пока вкладка не добавлена и меню не открыто. */
+#infPlus, #infAddTab, #dashAddTab { position: relative; }
+.stage[data-scenario^="tab-"]:not(.tabs-added) :is(#infPlus, #infAddTab, #dashAddTab):not(.is-active)::after {
+  content: ""; position: absolute; width: 40px; height: 40px; margin: -20px 0 0 -20px; top: 50%; pointer-events: none;
+  background: url("assets/img/click-cursor.svg") 26px 26px / 16px 16px no-repeat, radial-gradient(circle, rgba(102, 204, 204, .5) 19.5px, transparent 20px);
 }
-#infPlus::after { right: 0; top: 0; }
-#dashAddTab::after, #ctorAddTab::after { right: -8px; top: 0; }
+#infPlus::after { left: 50%; }
+#infAddTab::after, #dashAddTab::after { left: 6px; }
 /* «Данные» и «Слои»: в cbuc-icons24 глифов нет — контуры из макета (Figma xMQ3ZEN4AUINgwjVoxR8hS 16041:45391, 16041:45392), цвет как у иконок */
 .rp-svg { width: 24px; height: 24px; background: var(--icon); -webkit-mask: var(--m) center / 24px no-repeat; mask: var(--m) center / 24px no-repeat; }
 .rp-svg--data { --m: url("assets/img/rp-data.svg"); }
