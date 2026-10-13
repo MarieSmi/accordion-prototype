@@ -1546,7 +1546,7 @@
   function closeTabMenus() {
     tabAddMenu.hidden = true;
     tabDotsMenu.hidden = true;
-    for (const b of document.querySelectorAll('.tabs-w__btn.is-active:not(#tabsGear), .tw-plus.is-active, .inf-plus.is-active, .pg-link.is-active')) b.classList.remove('is-active');
+    for (const b of document.querySelectorAll('.tabs-w__btn.is-active:not(#tabsGear), .tw-plus.is-active, .inf-plus.is-active, .pg-link.is-active, .pg-chip.is-active')) b.classList.remove('is-active');
   }
   const tabMenuOpen = () => !tabAddMenu.hidden || !tabDotsMenu.hidden;
 
@@ -1589,8 +1589,13 @@
   $('#infAddTab').addEventListener('click', (e) => (tabAddMenu.hidden ? openAddMenu(e.currentTarget, true) : closeTabMenus()));
   // Сценарий «Из шапки дашборда»: ссылка «+вкладка» справа в шапке, «+» меню ровно поверх её «+».
   $('#dashAddTab').addEventListener('click', (e) => (tabAddMenu.hidden ? openAddMenu(e.currentTarget, true) : closeTabMenus()));
-  // Подсценарий «По чипсе»: чипса «вкладка» в шапке сразу добавляет виджет вкладок с новой вкладкой (чипса пропадает).
-  $('#dashChipTab').addEventListener('click', () => { if (!stage.classList.contains('tabs-added')) addBlankTab(); });
+  // Подсценарий «По чипсе»: чипса «вкладки» открывает то же меню «+» — под чипсой на 4px, по её левому краю.
+  // «С чистого листа» добавляет виджет вкладок, чипса пропадает.
+  $('#dashChipTab').addEventListener('click', (e) => {
+    if (!tabAddMenu.hidden) return closeTabMenus();
+    openAddMenu(e.currentTarget);
+    tabAddMenu.style.left = Math.round(stageRect(e.currentTarget).left) + 'px';
+  });
   // пока виджета вкладок нет (одна вкладка), «С чистого листа» сразу добавляет вкладку (addBlankTab)
   $('#tabAddBlank').addEventListener('click', () => {
     closeTabMenus();
@@ -1603,7 +1608,7 @@
     else if (act === 'settings') { closeTabMenus(); openTabsWin('list'); }
   });
   stage.addEventListener('mousedown', (e) => {
-    if (!tabMenuOpen() || e.target.closest('#tabAddMenu, #tabDotsMenu, #tabsPlus, #tabsDots, #twPlus, #infPlus, #dashAddTab')) return;
+    if (!tabMenuOpen() || e.target.closest('#tabAddMenu, #tabDotsMenu, #tabsPlus, #tabsDots, #twPlus, #infPlus, #dashAddTab, #dashChipTab')) return;
     closeTabMenus();
   });
 
