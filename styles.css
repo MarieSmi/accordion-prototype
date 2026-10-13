@@ -259,10 +259,10 @@ ul { list-style: none; margin: 0; padding: 0; }
 .accordion:not(.is-narrow) .acc-item.is-selected.has-sub.is-sub-hover .acc-item__sub { background: var(--acc-item-hover); }
 .acc-item__sub { position: relative; overflow: hidden; }
 
-/* команды по ховеру (✎ ⋮) — появляются после задержки */
+/* команды по ховеру (✎ ⋮) — появляются после задержки; подложка — до правого края и на высоту пункта, чтобы закрыть счётчик */
 .acc-cmds {
-  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-  display: flex; align-items: center; gap: 6px; padding-left: 2px;
+  position: absolute; right: 0; top: 0; bottom: 0;
+  display: flex; align-items: center; gap: 6px; padding: 0 12px 0 2px;
   background: var(--acc-item-hover); opacity: 0; pointer-events: none; transition: opacity .15s;
 }
 .acc-cmds::before {
