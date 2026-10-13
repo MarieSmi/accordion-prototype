@@ -7,7 +7,7 @@
 
   // Пункт подменю: [заголовок, уровень (1|2), элемент справа]
   // right (как в макете, Figma nuC4KFMiS36uDWDUp9wKGl 7706:22744; кликов нет): { count } — счётчик, { accent, count } — двойной
-  // (акцентный + обычный), 'arrow' — стрелка, 'plus' — плюс. submenu.headRight — то же у заголовка подменю.
+  // (акцентный + обычный), { accent } — только акцентный, 'arrow' — стрелка, 'plus' — плюс. submenu.headRight — то же у заголовка подменю.
   const sub = (title, level = 1, right) => ({ title, level, ...(right && { right }) });
 
   // Разделы аккордеона. icon — символ шрифта Accordion-Font.
@@ -16,10 +16,11 @@
   // Заголовок подменю ведёт на страницу раздела.
   const SECTIONS = [
     { id: 'contacts', title: 'Контакты', short: 'Контакты', icon: '',
-      submenu: { cols: [[sub('Группы'), sub('Каналы'), sub('Новости'), sub('Звонки'), sub('Почта'), sub('Обсуждения'), sub('Обращения'), sub('Заявки')]] } },
+      submenu: { headRight: { count: '2881' }, cols: [[sub('Группы', 1, { accent: '5' }), sub('Каналы', 1, { accent: '23' }), sub('Новости'), sub('Звонки'), sub('Почта'),
+        sub('Обсуждения', 1, { accent: '1', count: '19.8K' }), sub('Обращения'), sub('Заявки')]] } },
     { id: 'tasks', title: 'Задачи', short: 'Задачи', icon: '',
-      submenu: { head: 'Задачи на мне', headRight: { count: '5' }, cols: [
-        [sub('От меня', 2, { count: '17' }), sub('На контроле', 2), sub('По сотрудникам', 2), sub('Разобрать', 2),
+      submenu: { head: 'Задачи на мне', headRight: { accent: '3', count: '47' }, cols: [
+        [sub('От меня', 2, { accent: '9', count: '64' }), sub('На контроле', 2, { count: '39' }), sub('По сотрудникам', 2), sub('Разобрать', 2),
          sub('Доски'), sub('Проекты'), sub('Планы работ'), sub('Вехи и сроки'), sub('Кайдзен'), sub('Сбор отчетности')],
       ] } },
     { id: 'business', title: 'Бизнес', short: 'Бизнес', icon: '',
@@ -359,7 +360,7 @@
     if (!r) return '';
     if (r === 'arrow') return '<span class="sm-right sm-right--arrow"><span class="ico">&#xE9AB;</span></span>';
     if (r === 'plus') return '<span class="sm-right sm-right--plus"><span class="ico">&#xEB25;</span></span>';
-    return `<span class="sm-right">${r.accent ? `<span class="sm-count sm-count--accent">${r.accent}</span>` : ''}<span class="sm-count">${r.count}</span></span>`;
+    return `<span class="sm-right">${r.accent ? `<span class="sm-count sm-count--accent">${r.accent}</span>` : ''}${r.count ? `<span class="sm-count">${r.count}</span>` : ''}</span>`;
   }
   const itemHTML = (it) => `<span class="sm-item__title">${it.title}</span>${rightHTML(it.right)}`;
   const headTitleHTML = (sec, title) => `<span class="sm-head__title"><span class="sm-head__text">${title}</span>${rightHTML(sec.submenu.headRight)}</span>`;
