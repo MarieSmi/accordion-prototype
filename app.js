@@ -83,6 +83,9 @@
     title: s.title, short: s.short, icon: null, head: s.submenu.headLabel ? null : s.submenu.head ?? s.title, showHead: true, cols: s.submenu.cols.map((c) => c.slice()),
   }]));
 
+  // Все разделы по id — и исходные, и добавленные в сценарии «Добавление пунктов» (отмена / повтор возвращает их в список).
+  const ALL_SECTIONS = Object.fromEntries(SECTIONS.map((s) => [s.id, s]));
+
   // Виды панели (окно «Меню» → «Состояние панели»): широкий аккордеон и три вида узкого.
   const PANEL_VIEWS = [
     { id: 'wide', title: 'Широкая' },
@@ -165,6 +168,7 @@
     closeTabsWin();
     selectTabs(false);
     resetTabs(radio.dataset.scenario.startsWith('tab-'));
+    removeAddedSections(); // пункты, добавленные в «Добавлении пунктов», живут только в этом сценарии
     resetHistory(); // смена сценария — не правка: история начинается заново
     setInside(scenario);
     setEditorOnly();
@@ -1931,7 +1935,9 @@
       // В меню «+» шапки аккордеона не кликаются страницы и пустые группы («Деньги», «Торги»).
       row('', `<span class="ico pm-ico">${arrow}</span><span>${n.title}</span>`,
         n.kind === 'group' && (fromEditor || n.items.length) ? () => { n.open = !n.open; renderPlusMenu(); } : null);
-      if (n.open || (q && kids.length)) for (const t of (q ? kids : n.items)) row('pm-row--page', `<span>${t}</span>`, fromEditor ? () => addPage(t) : null);
+      // В «Добавлении пунктов» страница «Моей компании» из «+» шапки аккордеона добавляет пункт в аккордеон.
+      const onPage = (t) => (fromEditor ? () => addPage(t) : accAddItems() && n.title === 'Моей компании' ? () => addAccItem(t) : null);
+      if (n.open || (q && kids.length)) for (const t of (q ? kids : n.items)) row('pm-row--page', `<span>${t}</span>`, onPage(t));
     }
   }
 
@@ -1940,6 +1946,31 @@
     draft.cols[0].push(sub(title));
     closePlusMenu();
     commit(draft);
+  }
+
+  // Сценарий «Аккордеон → Добавление пунктов»: страница из меню «+» шапки аккордеона становится пунктом в конце аккордеона
+  // с пустым подменю. Открывается её страница (скелетон) и редактор подменю на месте подменю пункта — с заглушкой «+».
+  const accAddItems = () => stage.dataset.scenario === 'acc-add-items';
+  const ADDED_ICON = ICON_GROUPS[0].icons[0]; // иконка нового пункта — первая из выбора иконок (меняется в редакторе)
+  let addedCount = 0;
+  function addAccItem(title) {
+    const id = 'added-' + ++addedCount;
+    const sec = { id, title, short: title, added: true, customIcon: ADDED_ICON, submenu: { head: title, noHead: true, cols: [[]] } };
+    PRISTINE[id] = { title, short: title, icon: ADDED_ICON, head: title, showHead: false, cols: [[]] };
+    ALL_SECTIONS[id] = sec;
+    SECTIONS.push(sec);
+    closePlusMenu();
+    renderAccordion();
+    goPage(id, null);
+    record();
+    openEditor(id);
+  }
+  function removeAddedSections() {
+    const keep = SECTIONS.filter((s) => !s.added);
+    if (keep.length === SECTIONS.length) return;
+    SECTIONS.splice(0, SECTIONS.length, ...keep);
+    if (ALL_SECTIONS[state.page.section]?.added) goPage(null, null);
+    renderAccordion();
   }
 
   function openPlusMenu(owner) {
@@ -2569,7 +2600,7 @@
     submenuTrigger: settings.submenuTrigger,
     logo, align: state.align, informers: state.informers, themeId, userTheme,
     tabs, tabsAdded: stage.classList.contains('tabs-added'),
-    sections: SECTIONS.map((s) => ({ title: s.title, short: s.short, customIcon: s.customIcon ?? null,
+    sections: SECTIONS.map((s) => ({ id: s.id, title: s.title, short: s.short, customIcon: s.customIcon ?? null,
       head: s.submenu.head ?? null, noHead: !!s.submenu.noHead, cols: s.submenu.cols })),
   });
 
@@ -2626,6 +2657,9 @@
     if (!s.tabsAdded) selectTabs(false);
     renderTabs();
     // разделы; открытый пункт подменю, которого больше нет, снимается
+    // список разделов — по снимку (добавленные в «Добавлении пунктов» уходят и возвращаются)
+    SECTIONS.splice(0, SECTIONS.length, ...s.sections.map((d) => ALL_SECTIONS[d.id]));
+    if (state.page.section && !SECTIONS.some((x) => x.id === state.page.section)) { state.page = { section: null, item: null }; updatePage(); }
     SECTIONS.forEach((sec, i) => {
       const d = s.sections[i];
       Object.assign(sec, { title: d.title, short: d.short, customIcon: d.customIcon });
