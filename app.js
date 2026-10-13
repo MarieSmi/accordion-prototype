@@ -1204,14 +1204,25 @@
     if (stage.dataset.scenario === 'submenu-editor') renderRuntime();
   }
 
-  // Слева от редактора в группе «Редактор подменю» — то же подменю в рантайме (широкое, как по клику в аккордеоне),
-  // собранное из черновика: обновляется с каждой правкой. Ховеры работают, кликов нет.
+  // Слева от редактора в группе «Редактор подменю» — рантайм из черновика, обновляется с каждой правкой:
+  // пункт аккордеона (иконка, название, счётчик) и подменю (широкое, как по клику в аккордеоне). Ховеры работают, кликов нет.
+  const runtimeAcc = $('#runtimeAcc');
   function renderRuntime() {
     const { sec, draft } = ed;
+    const view = { ...sec, title: draft.title, customIcon: draft.icon,
+      submenu: { ...sec.submenu, head: draft.head ?? sec.submenu.head, headRight: draft.headRight ?? undefined, cols: draft.cols } };
+    const li = el('li', 'acc-item');
+    li.append(el('button', 'acc-item__btn' + (view.photo ? ' acc-item__btn--photo' : '') + (view.submenu.headRight === 'plus-left' ? ' has-plus-left' : ''),
+      `${iconHTML(view)}<span class="acc-item__title">${view.title}</span>${accCountHTML(view)}`));
+    li.addEventListener('mouseenter', () => li.classList.add('is-hover'));
+    li.addEventListener('mouseleave', () => li.classList.remove('is-hover'));
+    runtimeAcc.replaceChildren(el('ul', 'acc-list', ''));
+    runtimeAcc.firstChild.append(li);
+
     const box = el('div', 'submenu submenu--wide' + (draft.cols.length > 1 ? ' submenu--multi' : ''));
     const panel = el('div', 'submenu__panel');
     if (draft.head == null) panel.append(el('div', 'submenu__head', `<div class="sm-head">${headIconHTML(sec)}${headTitleHTML(sec, sec.submenu.head || draft.title)}</div>`));
-    else if (draft.showHead) panel.append(el('div', 'submenu__head', `<button class="sm-head" type="button">${headIconHTML({ ...sec, customIcon: draft.icon })}${headTitleHTML(sec, draft.head)}</button>`));
+    else if (draft.showHead) panel.append(el('div', 'submenu__head', `<button class="sm-head${view.submenu.headRight === 'plus-left' ? ' has-plus-left' : ''}" type="button">${headIconHTML(view)}${headTitleHTML(view, draft.head)}</button>`));
     const cols = el('div', 'submenu__cols');
     for (const col of draft.cols) {
       const c = el('div', 'submenu__col');
@@ -2138,8 +2149,7 @@
     const r = stageRect(link);
     // 30 = отступ списка 8 + отступ пункта 8 + маркер 12 + 2; 12 — верхний отступ списка, 16 — половина пункта.
     iwMenu.style.left = (r.left - 30) + 'px';
-    // не помещается до низа сцены — поднимаем (выбранный пункт тогда уже не на месте ссылки)
-    iwMenu.style.top = Math.min(r.top + r.height / 2 - 12 - 16, 900 - 8 - iwMenu.offsetHeight) + 'px';
+    iwMenu.style.top = (r.top + r.height / 2 - 12 - 16) + 'px';
   }
   function closeIwMenu() { iwMenu.hidden = true; iwMenuFor = null; }
   const iwToggle = (link, ...args) => (iwMenuFor === link ? closeIwMenu() : openIwMenu(link, ...args));

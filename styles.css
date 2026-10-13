@@ -913,6 +913,9 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .editor-only { padding-top: 120px; }
 .editor-only > * { flex: 1; }
 .editor-only__runtime { display: flex; justify-content: flex-end; padding-right: 40px; }
+.editor-only__rt { display: flex; flex-direction: column; gap: 32px; } /* аккордеон и подменю — одной колонкой по левому краю */
+/* пункт аккордеона в рантайме — на полосе аккордеона шириной 220, как на сцене */
+.rt-acc { width: 220px; padding: 4px 0; border-radius: 8px; background: var(--acc-bg); color: var(--acc-text); font-weight: var(--acc-weight); -webkit-font-smoothing: antialiased; }
 .editor-only__design { padding-left: 40px; }
 .editor-only .submenu.is-empty .submenu__panel { width: 230px; height: 120px; } /* пустое подменю в рантайме — пустая панель */
 /* заглушка пустого подменю в редакторе — «+» как у «Виджет» в пустом дашборде */
