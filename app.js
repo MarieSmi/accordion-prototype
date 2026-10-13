@@ -265,7 +265,7 @@
         li.classList.add('is-hover');
         timer = setTimeout(() => li.classList.add('is-delay'), COMMANDS_DELAY);
         if (trigger() === 'hover') {
-          if (sec.submenu) { if (state.openSection !== sec.id) openSubmenu(sec.id); }
+          if (hasMenu(sec)) { if (state.openSection !== sec.id) openSubmenu(sec.id); }
           else closeSubmenu();
         }
       });
@@ -288,7 +288,7 @@
         const cmd = e.target.closest('.acc-cmd');
         if (cmd) { if (!cmd.classList.contains('acc-cmd--dots')) openEditor(sec.id); return; }
         // Подменю для раздела ещё не нарисовано — переходим сразу на страницу раздела.
-        if (!sec.submenu) { navigate(sec.id, null); return; }
+        if (!hasMenu(sec)) { navigate(sec.id, null); return; }
         if (state.openSection === sec.id) { if (trigger() === 'click') closeSubmenu(); }
         else openSubmenu(sec.id);
       });
@@ -394,10 +394,13 @@
     }
     return `<div class="kind-cal"><div class="kind-cal__head"><span class="kind-cal__arr"></span><span class="kind-cal__month">${month[0].toUpperCase() + month.slice(1)}</span><span class="kind-cal__arr"></span></div><div class="kind-cal__grid">${cells.join('')}</div></div>`;
   }
+  // Подменю из одного заголовка (без пунктов) не показывается: клик по пункту аккордеона сразу ведёт на страницу раздела.
+  function hasMenu(sec) { return !!sec.submenu && (!!sec.calendar || sec.submenu.cols.some((c) => c.length)); }
+
   function openSubmenu(id) {
     const sec = SECTIONS.find((s) => s.id === id);
     closeSubmenu();
-    if (!sec || !sec.submenu) return;
+    if (!sec || !hasMenu(sec)) return;
     closeRp();
     state.openSection = id;
 
