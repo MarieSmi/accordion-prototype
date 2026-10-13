@@ -215,13 +215,20 @@
   }
 
   // ---------- Аккордеон ----------
+  // Счётчик пункта аккордеона — из подменю: счётчик заголовка подменю, а без него — первого пункта (страница раздела по умолчанию).
+  function accCountHTML(sec) {
+    const isCount = (r) => r && typeof r === 'object';
+    const r = isCount(sec.submenu?.headRight) ? sec.submenu.headRight : sec.submenu?.cols[0]?.[0]?.right;
+    return isCount(r) ? rightHTML(r).replace('sm-right', 'sm-right acc-item__count') : '';
+  }
+
   function renderAccordion() {
     list.innerHTML = '';
     for (const sec of SECTIONS) {
       const li = el('li', 'acc-item');
       li.dataset.id = sec.id;
       const btn = el('button', 'acc-item__btn' + (sec.photo ? ' acc-item__btn--photo' : ''),
-        `${iconHTML(sec)}<span class="acc-item__title">${sec.title}</span>
+        `${iconHTML(sec)}<span class="acc-item__title">${sec.title}</span>${accCountHTML(sec)}
          <span class="acc-item__short">${sec.short}</span>
          <span class="acc-cmds">
            <span class="acc-cmd" role="button" aria-label="Настроить"><span class="ico"></span></span>

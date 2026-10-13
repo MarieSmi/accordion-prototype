@@ -218,6 +218,11 @@ ul { list-style: none; margin: 0; padding: 0; }
 .acc-item__btn--photo { gap: 11px; padding-left: 11px; }
 .acc-item__icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; flex: none; padding-top: 1px; }
 .acc-item__title { font-size: 16px; letter-spacing: -.2256px; white-space: nowrap; color: var(--acc-text); padding-top: 1px; }
+/* счётчики — как в подменю (.sm-count), прижаты вправо; плотнее, чтобы «Документы 20 20.7K» влезали в 220 */
+.acc-item__btn .acc-item__count { margin-left: auto; padding: 1px 0 0; gap: 6px; }
+.acc-item__btn .acc-item__count::before { display: none; }
+.acc-item__btn .acc-item__count .sm-count { padding: 0; }
+.acc-item__title:has(+ .acc-item__count) { min-width: 0; margin-right: -6px; overflow: hidden; text-overflow: ellipsis; }
 .acc-item__photo { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; flex: none; }
 
 .acc-cal { position: relative; width: 20px; height: 20px; flex: none; color: var(--acc-icon); }
@@ -297,6 +302,7 @@ ul { list-style: none; margin: 0; padding: 0; }
   padding: 4px 0; overflow: visible;
 }
 .accordion.is-compact .acc-item__title,
+.accordion.is-compact .acc-item__count,
 .accordion.is-compact .acc-cmds { display: none; }
 .accordion.is-compact .acc-item__icon { width: 24px; height: 24px; padding: 0 0 2px; }
 .accordion.is-compact .acc-glyph { font-size: 24px; letter-spacing: -.3384px; }
