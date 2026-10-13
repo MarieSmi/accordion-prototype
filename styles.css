@@ -917,7 +917,6 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 /* пункт аккордеона в рантайме — на полосе аккордеона шириной 220, как на сцене */
 .rt-acc { width: 220px; padding: 4px 0; border-radius: 8px; background: var(--acc-bg); color: var(--acc-text); font-weight: var(--acc-weight); -webkit-font-smoothing: antialiased; }
 .editor-only__design { padding-left: 40px; }
-.editor-only .submenu.is-empty .submenu__panel { width: 230px; height: 120px; } /* пустое подменю в рантайме — пустая панель */
 /* заглушка пустого подменю в редакторе — «+» как у «Виджет» в пустом дашборде */
 .sme-stub { flex: 1; height: 120px; display: flex; align-items: center; justify-content: center; border-radius: 8px; }
 .sme-stub .ico24 { width: 66px; height: 54px; display: flex; align-items: center; justify-content: center; border-radius: 8px; color: var(--accent2);
@@ -929,6 +928,7 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .stage[data-scenario="acc-add-items"] :is(.ctor-header, .content, .right-panel, #menuWin .set-win__body, #logoWin .set-win__body) { pointer-events: none; }
 .stage[data-scenario="acc-add-items"] :is(#menuBtn, #logoBtn) { pointer-events: auto; }
 .kind { display: flex; flex-direction: column; gap: 12px; }
+.kind[hidden] { display: none; }
 .kind__label { font-size: 16px; font-weight: 600; letter-spacing: -.2256px; color: #000; } /* подпись на светлом фоне конструктора */
 .kinds .submenu { position: static; }
 /* пункты — колонкой справа от подменю; у каждой — короткая панель подменю и подписи состояний вровень со строками */

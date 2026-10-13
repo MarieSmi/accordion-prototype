@@ -394,8 +394,14 @@
     }
     return `<div class="kind-cal"><div class="kind-cal__head"><span class="kind-cal__arr"></span><span class="kind-cal__month">${month[0].toUpperCase() + month.slice(1)}</span><span class="kind-cal__arr"></span></div><div class="kind-cal__grid">${cells.join('')}</div></div>`;
   }
-  // Подменю из одного заголовка (без пунктов) не показывается: клик по пункту аккордеона сразу ведёт на страницу раздела.
-  function hasMenu(sec) { return !!sec.submenu && (!!sec.calendar || sec.submenu.cols.some((c) => c.length)); }
+  // Подменю не бывает из одного пункта (заголовок тоже пункт; подпись headLabel — нет): такое не показывается,
+  // клик по пункту аккордеона сразу ведёт на страницу раздела.
+  function hasMenu(sec) {
+    if (!sec.submenu) return false;
+    if (sec.calendar) return true;
+    const head = !sec.submenu.noHead && !sec.submenu.headLabel ? 1 : 0;
+    return head + sec.submenu.cols.reduce((n, c) => n + c.length, 0) >= 2;
+  }
 
   function openSubmenu(id) {
     const sec = SECTIONS.find((s) => s.id === id);
@@ -1066,15 +1072,15 @@
   }
 
   // Группа «Редактор подменю»: на сцене только редактор «Документов» по центру; после ✓/✕ он открывается снова.
-  // «С нуля» — тот же редактор без пунктов и заголовка: на белой карточке заглушка «+» (открывает меню «+»),
-  // его ✓ не трогает «Документы» в аккордеоне. «Готовое подменю» — подменю как есть.
+  // «С нуля» — тот же редактор, где есть только заголовок «Документы» (подменю из одного пункта в рантайме не показывается);
+  // удалить и его — на белой карточке заглушка «+» (открывает меню «+»). Его ✓ не трогает «Документы» в аккордеоне. «Готовое подменю» — подменю как есть.
   const editorOnly = () => stage.dataset.scenario === 'submenu-editor';
   const editorFromScratch = () => editorOnly() && stage.dataset.variant === 'scratch';
   const runtimePreview = $('#runtimePreview');
   function openEditorOnly() {
     openEditor('docs');
     if (editorFromScratch()) {
-      Object.assign(ed.draft, { showHead: false, cols: [[]] });
+      Object.assign(ed.draft, { showHead: true, cols: [[]] });
       ed.hist = [cloneDraft(ed.draft)];
       ed.base = cloneDraft(ed.draft);
       renderEditor();
@@ -1231,8 +1237,10 @@
     }
     panel.append(cols);
     box.append(panel);
-    // пустое подменю — пустая панель
-    box.classList.toggle('is-empty', !panel.querySelector('.sm-head, .sm-item'));
+    // подменю из одного пункта (или пустого) нет — блок «Рантайм — подменю» пропадает
+    const kind = runtimePreview.closest('.kind');
+    kind.hidden = panel.querySelectorAll('button.sm-head, .sm-item').length < 2;
+    if (kind.hidden) { runtimePreview.replaceChildren(); return; }
     runtimePreview.replaceChildren(box);
     if (draft.cols.length > 1) fitMultiHead(box); // заголовок многоколоночного — по ширине первой колонки, как в аккордеоне
   }
