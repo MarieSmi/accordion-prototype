@@ -451,12 +451,7 @@
 
     layer.append(box);
 
-    // Заголовок многоколоночного подменю — по ширине первой колонки (колонки шириной по самому длинному пункту).
-    const headBtn = $('.sm-head', box);
-    if (multi && headBtn) {
-      const col = $('.submenu__col', box);
-      headBtn.style.width = (col.offsetLeft + col.offsetWidth - headBtn.offsetLeft) + 'px';
-    }
+    if (multi) fitMultiHead(box);
 
     // Позиция: поверх пункта (иконка заголовка совпадает с иконкой пункта)
     // или справа от аккордеона, вровень с пунктом.
@@ -468,6 +463,13 @@
     box.addEventListener('mouseenter', cancelLeave);
     box.addEventListener('mouseleave', scheduleLeave);
     syncAccordion();
+  }
+
+  // Заголовок многоколоночного подменю — по ширине первой колонки (колонки шириной по самому длинному пункту).
+  function fitMultiHead(box) {
+    const headBtn = $('.sm-head', box);
+    const col = $('.submenu__col', box);
+    if (headBtn && col) headBtn.style.width = (col.offsetLeft + col.offsetWidth - headBtn.offsetLeft) + 'px';
   }
 
   function closeSubmenu() {
@@ -501,6 +503,8 @@
     const kind = el('div', 'kind', `<div class="kind__label">${label}</div>`);
     kind.append(box);
     kindsBox.append(kind);
+    // сводная скрыта до выбора сценария — ширина заголовка считается, когда подменю появляется
+    if (sec.submenu.cols.length > 1) new ResizeObserver(() => box.offsetWidth && fitMultiHead(box)).observe(box);
   }
 
   // ---------- Сводная «Виды подменю и пунктов»: пункты ----------
@@ -1198,12 +1202,7 @@
     // пустое подменю — пустая панель
     box.classList.toggle('is-empty', !panel.querySelector('.sm-head, .sm-item'));
     runtimePreview.replaceChildren(box);
-    // заголовок многоколоночного — по ширине первой колонки, как в аккордеоне
-    const headBtn = $('.sm-head', box);
-    if (draft.cols.length > 1 && headBtn) {
-      const col = $('.submenu__col', box);
-      headBtn.style.width = (col.offsetLeft + col.offsetWidth - headBtn.offsetLeft) + 'px';
-    }
+    if (draft.cols.length > 1) fitMultiHead(box); // заголовок многоколоночного — по ширине первой колонки, как в аккордеоне
   }
 
   // Изменение черновика — новый шаг истории (шаги «вперёд» отбрасываются).
