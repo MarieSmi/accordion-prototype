@@ -722,6 +722,51 @@
         </div>
       </section>
 
+      <!-- Окно настроек пункта подменю (Figma 9eLwMJLQCwT0xHKviN2j1P 18562:24378): по ⚙ тулбара виджета редактора,
+           пока только в сценарии «Добавление пунктов». Встаёт справа от виджета, как «Вкладки» от виджета вкладок -->
+      <section class="set-win item-win" id="itemWin" hidden aria-label="Настройка пункта">
+        <div class="set-win__head">
+          <span class="iw-title" id="iwTitle" spellcheck="false" contenteditable="plaintext-only"></span>
+          <div class="set-win__cmds">
+            <button class="sw-reset" type="button" id="iwReset" aria-label="Сбросить настройки" disabled><span class="ico24">&#xE629;</span></button>
+            <button class="sw-done" type="button" id="iwDone" aria-label="Сохранить и закрыть"><span class="ico">&#xE75E;</span></button>
+            <button class="sw-close" type="button" id="iwClose" aria-label="Закрыть"><span class="ico24">&#xE66C;</span></button>
+          </div>
+        </div>
+        <div class="iw-blocks">
+          <div class="set-win__body iw-grid">
+            <span class="iw-name" data-row="level">Вложенность</span>
+            <button class="mw-link iw-link" type="button" id="iwLevel" data-row="level"></button>
+            <span class="iw-name">По клику</span>
+            <div class="iw-field">
+              <span>Открыть</span><span class="iw-field__sep"></span><span class="iw-field__page" id="iwPage"></span>
+              <span class="ico iw-field__x">&#xE66C;</span>
+              <span class="ico iw-field__menu">&#xEA90;</span>
+            </div>
+          </div>
+          <div class="set-win__body iw-fill">
+            <div class="iw-fill__title">Наполнение пункта</div>
+            <div class="iw-grid">
+              <span class="iw-name">Команды</span>
+              <button class="mw-link iw-link" type="button" id="iwCmd"></button>
+              <span class="iw-name" data-row="show">Выводить</span>
+              <button class="mw-link iw-link" type="button" id="iwShow" data-row="show"></button>
+              <span class="iw-name" data-row="side">Размещение</span>
+              <div class="iw-tumbler" id="iwSide" data-row="side">
+                <button type="button" data-side="right">Справа</button>
+                <button type="button" data-side="left">Слева</button>
+              </div>
+            </div>
+            <button class="iw-check" type="button" id="iwPanel" data-row="show"><span class="iw-check__box"></span><span>Открывать панель по клику на счетчик</span></button>
+          </div>
+        </div>
+        <div class="iw-chips" data-row="pin"><button class="iw-chip" type="button" id="iwPin"></button></div>
+      </section>
+      <div class="mw-menu iw-menu" id="iwMenu" hidden>
+        <div class="mw-menu__list" id="iwMenuList"></div>
+        <button class="mw-menu__close" type="button" id="iwMenuClose" aria-label="Закрыть"><img src="assets/img/close-menu.svg" width="12" height="12" alt=""></button>
+      </div>
+
       <!-- Меню «+» виджета вкладок (Figma 18797:88559): работает только «С чистого листа» -->
       <div class="icon-menu tab-add" id="tabAddMenu" hidden>
         <div class="icon-menu__head">

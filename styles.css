@@ -1750,3 +1750,70 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .ins-main--acc .ins-top { padding-right: 0; }
 /* превью 620×350 — то же превью в масштабе 1.4 (аккордеон 106, ЦУ 130 — как в макете); поля задают место под увеличенное */
 .ins-main--acc .ipv { width: 442.857px; border-radius: 7.196px; transform: scale(1.4); transform-origin: 0 0; margin: 0 177.143px 100px 0; }
+
+/* ---------- Окно настроек пункта подменю (Figma 9eLwMJLQCwT0xHKviN2j1P 18562:24378) ---------- */
+/* поверх редактора подменю (25) и его щита; выпадающие списки окна — выше (mw-menu, 30) */
+.item-win { z-index: 26; }
+.item-win [hidden] { display: none !important; }
+/* название — правится на месте; под ним всегда линия unaccented_border-color, как у поля */
+.iw-title {
+  margin-left: 12px; max-width: 200px; height: 28px; display: flex; align-items: flex-end; padding-bottom: 3px;
+  font-size: 16px; font-weight: 600; letter-spacing: -.2256px; color: var(--text); white-space: nowrap; overflow: hidden;
+  background: linear-gradient(var(--border), var(--border)) bottom / 100% 1px no-repeat; outline: none; cursor: text;
+}
+.iw-blocks { display: flex; flex-direction: column; gap: 4px; }
+/* подписи — колонкой по самой длинной, 8 до редакторов; строки 24, между строками 8 */
+.iw-grid { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 8px; }
+.set-win__body.iw-grid { display: grid; }
+.iw-name { height: 24px; display: flex; align-items: center; padding-bottom: 1px; font-size: 14px; letter-spacing: -.1974px; color: var(--switcher-text); white-space: nowrap; } /* text/label_text-color */
+.iw-link { justify-self: start; display: flex; align-items: center; white-space: nowrap; }
+/* «По клику»: «Открыть | название пункта ×», справа ≡, снизу линия поля — без кликов */
+.iw-field {
+  height: 24px; display: flex; align-items: center; gap: 6px; padding-bottom: 1px; min-width: 0;
+  font-size: 14px; letter-spacing: -.1974px; color: var(--text); white-space: nowrap;
+  background: url("assets/img/field-line.svg") bottom / 100% 1px no-repeat;
+}
+.iw-field__sep { align-self: stretch; width: 1px; margin: 4px 0; background: #eaeaea; flex: none; } /* border/border-color */
+.iw-field__page { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.iw-field__x, .iw-field__menu { color: #ccc; flex: none; } /* icon/unaccented_icon-color */
+.iw-field__x { margin-left: -6px; width: 16px; }
+.iw-field__menu { margin-left: auto; width: 24px; display: flex; justify-content: flex-end; padding-bottom: 1px; }
+/* «Наполнение пункта»: заголовок 15 semibold, 4 до строк; чекбокс — 8 ниже строк */
+.set-win__body.iw-fill { gap: 4px; }
+.iw-fill__title { height: 24px; display: flex; align-items: center; font-size: 15px; font-weight: 600; letter-spacing: -.2115px; color: var(--text); }
+.iw-check { display: flex; align-items: flex-start; padding-top: 4px; text-align: left; font-size: 14px; letter-spacing: -.1974px; color: var(--text); }
+.iw-check > span:last-child { padding: 2px 0; }
+.iw-check__box { width: 16px; height: 24px; flex: none; display: flex; align-items: flex-end; padding-bottom: 6px; }
+.iw-check__box::before { content: ""; width: 13px; height: 13px; background: url("assets/img/checkbox-off.svg") no-repeat; }
+.iw-check.is-on .iw-check__box::before { background-image: url("assets/img/checkbox-on.svg"); }
+/* «Размещение» — тумблер Справа / Слева (tumblerDefault 18369:80115) */
+.iw-tumbler { justify-self: start; height: 24px; display: flex; gap: 1px; padding: 1px; border-radius: 100px; background: rgba(51, 51, 51, .05); }
+.iw-tumbler button { height: 100%; padding: 0 12px; border-radius: 100px; font-size: 14px; letter-spacing: -.1974px; color: var(--label); transition: color .12s; }
+.iw-tumbler button:hover { color: var(--text); }
+.iw-tumbler button.is-on { background: #fff; color: var(--text); filter: drop-shadow(0 0 3px rgba(0, 0, 0, .1)); cursor: default; }
+/* «Закрепить пункт снизу» — чипса filled */
+.iw-chips { display: flex; flex-wrap: wrap; padding: 8px 12px 4px; }
+.iw-chip { height: 28px; padding: 0 12px; border-radius: 100px; background: #fff; font-size: 14px; letter-spacing: -.1974px; color: var(--label); transition: color .12s; }
+.iw-chip:hover { color: var(--text); }
+
+/* ⚙ тулбара виджета, пока открыто окно настроек */
+.sme-tb__btn.is-active { background: var(--pill-active); }
+/* элемент справа у виджетов редактора («Добавление пунктов») — как в подменю, на светлой карточке */
+.sme-w .sm-right { padding-left: 12px; }
+.sme-w .sm-right::before { display: none; }
+.sme-w .sm-right--plus .ico, .sme-w .sm-right--arrow .ico { color: var(--label); }
+
+/* «Открывать панель по клику на счетчик»: у счётчика своя зона — свой ховер (и свой клик) */
+.sm-right--btn { padding: 0 6px 0 8px; margin-right: -4px; border-radius: 15px; transition: background-color .12s; }
+.sm-right--btn::before { display: none; }
+.sm-right--btn:hover { background: var(--acc-plus-hover-bg); }
+.acc-item__btn .acc-item__count.sm-right--btn { height: 28px; align-self: center; padding: 0 8px; margin-right: -4px; }
+/* «Добавление» слева (только у заголовка подменю): по долгому наведению «+» встаёт вместо иконки — в подменю и в пункте аккордеона */
+:is(.acc-item__btn, .sm-head).has-plus-left .acc-item__icon { position: relative; }
+:is(.acc-item__btn, .sm-head).has-plus-left .acc-item__icon::after {
+  content: "\EADD"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-family: "cbuc-icons24"; font-size: 20px; color: var(--acc-text); opacity: 0;
+}
+:is(.acc-item__btn, .sm-head).has-plus-left .acc-item__icon > * { transition: opacity 0s; }
+:is(.acc-item__btn, .sm-head).has-plus-left:hover .acc-item__icon::after { opacity: 1; transition: opacity 0s .6s; }
+:is(.acc-item__btn, .sm-head).has-plus-left:hover .acc-item__icon > * { opacity: 0; transition: opacity 0s .6s; }

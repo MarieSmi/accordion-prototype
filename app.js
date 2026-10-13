@@ -8,6 +8,8 @@
   // Пункт подменю: [заголовок, уровень (1|2), элемент справа]
   // right (как в макете, Figma nuC4KFMiS36uDWDUp9wKGl 7706:22744; кликов нет): { count } — счётчик, { accent, count } — двойной
   // (акцентный + обычный), { accent } — только акцентный, 'arrow' — стрелка, 'plus' — плюс. submenu.headRight — то же у заголовка подменю.
+  // У счётчика panel: true — своя зона клика и ховера («Открывать панель по клику на счетчик»); у заголовка 'plus-left' — «+»
+  // вместо иконки по долгому наведению. pinned: true — пункт закреплён внизу колонки (окно настроек пункта).
   const sub = (title, level = 1, right) => ({ title, level, ...(right && { right }) });
 
   // Разделы аккордеона. icon — символ шрифта Accordion-Font.
@@ -80,7 +82,7 @@
 
   // Исходный вид разделов — к нему возвращает ↺ в редакторе подменю.
   const PRISTINE = Object.fromEntries(SECTIONS.map((s) => [s.id, {
-    title: s.title, short: s.short, icon: null, head: s.submenu.headLabel ? null : s.submenu.head ?? s.title, showHead: true, cols: s.submenu.cols.map((c) => c.slice()),
+    title: s.title, short: s.short, icon: null, head: s.submenu.headLabel ? null : s.submenu.head ?? s.title, headRight: s.submenu.headRight ?? null, showHead: true, cols: s.submenu.cols.map((c) => c.slice()),
   }]));
 
   // Все разделы по id — и исходные, и добавленные в сценарии «Добавление пунктов» (отмена / повтор возвращает их в список).
@@ -231,7 +233,7 @@
     for (const sec of SECTIONS) {
       const li = el('li', 'acc-item');
       li.dataset.id = sec.id;
-      const btn = el('button', 'acc-item__btn' + (sec.photo ? ' acc-item__btn--photo' : ''),
+      const btn = el('button', 'acc-item__btn' + (sec.photo ? ' acc-item__btn--photo' : '') + (sec.submenu?.headRight === 'plus-left' ? ' has-plus-left' : ''),
         `${iconHTML(sec)}<span class="acc-item__title">${sec.title}</span>${accCountHTML(sec)}
          <span class="acc-item__short">${sec.short}</span>
          <span class="acc-cmds">
@@ -371,7 +373,8 @@
     if (!r) return '';
     if (r === 'arrow') return '<span class="sm-right sm-right--arrow"><span class="ico">&#xE9AB;</span></span>';
     if (r === 'plus') return '<span class="sm-right sm-right--plus"><span class="ico">&#xEB25;</span></span>';
-    return `<span class="sm-right">${r.accent ? `<span class="sm-count sm-count--accent">${r.accent}</span>` : ''}${r.count ? `<span class="sm-count">${r.count}</span>` : ''}</span>`;
+    if (r === 'plus-left') return ''; // «+» слева — вместо иконки заголовка (CSS .has-plus-left)
+    return `<span class="sm-right${r.panel ? ' sm-right--btn' : ''}">${r.accent ? `<span class="sm-count sm-count--accent">${r.accent}</span>` : ''}${r.count ? `<span class="sm-count">${r.count}</span>` : ''}</span>`;
   }
   const itemHTML = (it) => `<span class="sm-item__title">${it.title}</span>${rightHTML(it.right)}`;
   const headTitleHTML = (sec, title) => `<span class="sm-head__title"><span class="sm-head__text">${title}</span>${rightHTML(sec.submenu.headRight)}</span>`;
@@ -409,7 +412,7 @@
       const head = el('div', 'submenu__head');
       const headTitle = sec.submenu.head || sec.title;
       const label = sec.submenu.headLabel;
-      const headBtn = el(label ? 'div' : 'button', 'sm-head', kind === 'wide'
+      const headBtn = el(label ? 'div' : 'button', 'sm-head' + (sec.submenu.headRight === 'plus-left' ? ' has-plus-left' : ''), kind === 'wide'
         ? `${headIconHTML(sec)}${headTitleHTML(sec, headTitle)}`
         : headTitleHTML(sec, headTitle));
       if (!label) {
@@ -655,6 +658,7 @@
     closeBgWin();
     if (tw) closeTabsWin();
     closeLangMenu();
+    closeItemWin();
   }
 
   function registerWindow(name, { win, btn, onOpen = () => {}, onClose = () => {} }) {
@@ -696,7 +700,7 @@
   }
 
   function startDrag(e, win) {
-    if (e.button !== 0 || e.target.closest('button, .sme-title, .sme-icon')) return;
+    if (e.button !== 0 || e.target.closest('button, .sme-title, .sme-icon, .iw-title')) return;
     e.preventDefault();
     closePopups();
     const startX = e.clientX, startY = e.clientY;
@@ -1005,9 +1009,10 @@
   // ed: { sec, draft, hist, at, selected: 'head' | 'ci:ii' | null }
   // draft: { title — название раздела, icon — своя иконка (null — исходная), head — заголовок подменю (отдельная сущность; null у headLabel), showHead, cols }
   let ed = null;
+  let iw = null; // окно настроек пункта: { key, title, level, pinned, cmd, show, panel, side, nums, start }
 
   const cloneDraft = (d) => ({ ...d, cols: d.cols.map((c) => c.slice()) });
-  const draftKey = (d) => JSON.stringify([d.title, d.icon, d.head, d.showHead, d.cols]);
+  const draftKey = (d) => JSON.stringify([d.title, d.icon, d.head, d.headRight ?? null, d.showHead, d.cols]);
 
   function editorIconHTML(sec, icon) {
     if (icon) return customGlyph(icon);
@@ -1023,7 +1028,8 @@
     cancelLeave();
     setPanelOpen(false);
     const draft = {
-      title: sec.title, icon: sec.customIcon ?? null, head: sec.submenu.headLabel ? null : sec.submenu.head ?? sec.title, showHead: !sec.submenu.noHead,
+      title: sec.title, icon: sec.customIcon ?? null, head: sec.submenu.headLabel ? null : sec.submenu.head ?? sec.title,
+      headRight: sec.submenu.headRight ?? null, showHead: !sec.submenu.noHead,
       cols: sec.submenu.cols.map((c) => c.slice()),
     };
     ed = { sec, draft, hist: [cloneDraft(draft)], at: 0, selected: null, base: PRISTINE[id] }; // base — к чему возвращает «Вернуть исходное»
@@ -1043,6 +1049,7 @@
   }
 
   function closeEditor() {
+    closeItemWin();
     stopTitleEdit(false);
     closeIconPick();
     closePlusMenu();
@@ -1090,7 +1097,9 @@
       return b;
     };
     btn('', '', 'Назад').addEventListener('click', () => select(null));
-    btn('', '', 'Настройки');
+    // ⚙ — окно настроек пункта (пока только в «Добавлении пунктов»; в остальных сценариях — наведение)
+    const gear = btn('sme-tb__btn--gear' + (iw && iw.key === ed.selected ? ' is-active' : ''), '', 'Настройки');
+    if (itemSettingsOn()) gear.addEventListener('click', () => (iw && iw.key === ed.selected ? closeItemWin() : openItemWin(ed.selected)));
     btn('sme-tb__btn--del', '', 'Удалить').addEventListener('click', deleteSelected);
     btn('', '', 'Ещё');
     return tb;
@@ -1153,22 +1162,25 @@
 
   function renderEditor() {
     const { draft, selected } = ed;
+    if (iw && iw.key !== selected) closeItemWin(); // окно настроек — только у выделенного виджета
     if (!smeTitle.classList.contains('is-editing')) smeTitle.textContent = draft.title;
     smeIcon.innerHTML = editorIconHTML(ed.sec, draft.icon);
     smeCard.innerHTML = '';
     smeCard.classList.toggle('is-multi', draft.cols.length > 1);
     const mk = (side) => el('span', `sme-mk sme-mk--${side}`);
-    const widget = (key, title, sub) => {
+    const widget = (key, title, sub, right) => {
       const w = el('div', 'sme-w' + (sub ? ' sme-w--sub' : '') + (key === selected ? ' is-selected' : ''));
       w.dataset.key = key;
       w.append(el('span', 'sme-w__text', title), mk('top'), mk('bottom'));
+      // в «Добавлении пунктов» у виджета виден элемент справа из окна настроек
+      if (itemSettingsOn() && right) $('.sme-w__text', w).insertAdjacentHTML('afterend', rightHTML(right));
       if (key === selected) w.append(toolbar());
       return w;
     };
     draft.cols.forEach((col, ci) => {
       const l = el('div', 'sme-list');
-      if (ci === 0 && draft.head != null && draft.showHead) l.append(widget('head', draft.head, false));
-      col.forEach((it, ii) => l.append(widget(`${ci}:${ii}`, it.title, it.level === 2)));
+      if (ci === 0 && draft.head != null && draft.showHead) l.append(widget('head', draft.head, false, draft.headRight));
+      col.forEach((it, ii) => l.append(widget(`${ci}:${ii}`, it.title, it.level === 2, it.right)));
       l.append(mk('top'), mk('bottom'), mk('left'), mk('right'));
       l.classList.toggle('has-selected', !!l.querySelector('.sme-w.is-selected'));
       smeCard.append(l);
@@ -1258,7 +1270,7 @@
     sec.title = draft.title;
     sec.customIcon = draft.icon;
     sec.short = draft.title === pristine.title ? pristine.short : draft.title;
-    if (draft.head != null) { sec.submenu.head = draft.head; sec.submenu.noHead = !draft.showHead; }
+    if (draft.head != null) { sec.submenu.head = draft.head; sec.submenu.noHead = !draft.showHead; sec.submenu.headRight = draft.headRight ?? undefined; }
     sec.submenu.cols = draft.cols.map((c) => c.slice());
     if (current) {
       let key = null;
@@ -1945,7 +1957,9 @@
 
   function addPage(title) {
     const draft = cloneDraft(ed.draft);
-    draft.cols[0].push(sub(title));
+    // новый пункт — в конец первой колонки, но над закреплёнными внизу
+    const pinned = draft.cols[0].findIndex((it) => it.pinned);
+    draft.cols[0].splice(pinned < 0 ? draft.cols[0].length : pinned, 0, sub(title));
     closePlusMenu();
     commit(draft);
   }
@@ -1973,6 +1987,162 @@
     if (ALL_SECTIONS[state.page.section]?.added) goPage(null, null);
     renderAccordion();
   }
+
+  // ---------- Окно настроек пункта подменю (Figma 9eLwMJLQCwT0xHKviN2j1P 18562:24378) ----------
+  // По ⚙ тулбара выделенного виджета, пока только в «Добавлении пунктов». Встаёт справа от виджета (как «Вкладки»),
+  // перетаскивается за шапку. Правки копятся в окне: ✓ — одним шагом в черновик редактора, ✕ — без изменений,
+  // ↺ — к виду на момент открытия. У заголовка подменю нет «Вложенности» и «Закрепить», зато есть «Размещение» плюса.
+  const itemWin = $('#itemWin');
+  const iwTitle = $('#iwTitle');
+  const iwMenu = $('#iwMenu');
+  const IW_LEVELS = [[1, '1 уровень'], [2, '2 уровень']];
+  const IW_CMDS = [['none', 'Не выбрано'], ['count', 'Счетчик'], ['panel', 'Открытие панели'], ['add', 'Добавление']];
+  const IW_SHOWS = [['both', 'Новые и общие события'], ['new', 'Только новые события'], ['total', 'Общее количество событий']];
+  const IW_DEMO = { accent: '3', count: '12' }; // демо-цифры счётчика, если своих у пункта нет
+  function itemSettingsOn() { return stage.dataset.scenario === 'acc-add-items'; }
+
+  // Элемент справа пункта ⇄ настройки окна
+  function iwFromRight(r) {
+    const cfg = { cmd: 'none', show: 'new', panel: false, side: 'right', nums: { ...IW_DEMO } };
+    if (r === 'arrow') cfg.cmd = 'panel';
+    else if (r === 'plus' || r === 'plus-left') Object.assign(cfg, { cmd: 'add', side: r === 'plus' ? 'right' : 'left' });
+    else if (r && typeof r === 'object') {
+      Object.assign(cfg, { cmd: 'count', panel: !!r.panel, show: r.accent && r.count ? 'both' : r.accent ? 'new' : 'total' });
+      cfg.nums = { accent: r.accent ?? IW_DEMO.accent, count: r.count ?? IW_DEMO.count };
+    }
+    return cfg;
+  }
+  function iwRight() {
+    if (iw.cmd === 'panel') return 'arrow';
+    if (iw.cmd === 'add') return iw.key === 'head' && iw.side === 'left' ? 'plus-left' : 'plus';
+    if (iw.cmd !== 'count') return null;
+    const r = {};
+    if (iw.show !== 'total') r.accent = iw.nums.accent;
+    if (iw.show !== 'new') r.count = iw.nums.count;
+    if (iw.panel) r.panel = true;
+    return r;
+  }
+  const iwState = () => JSON.stringify([iw.title, iw.level, iw.pinned, iwRight()]);
+
+  function openItemWin(key) {
+    closeOtherWindows();
+    const d = ed.draft;
+    const head = key === 'head';
+    const [ci, ii] = head ? [] : key.split(':').map(Number);
+    const it = head ? null : d.cols[ci][ii];
+    const right = head ? d.headRight : it.right;
+    iw = { key, title: head ? d.head : it.title, level: it?.level ?? 1, pinned: !!it?.pinned, ...iwFromRight(right) };
+    iw.start = iwState();
+    iwTitle.textContent = iw.title;
+    renderItemWin();
+    itemWin.hidden = false;
+    // левый край — в 8 от правого края виджета, верх — по верху виджета
+    const r = stageRect($(`.sme-w[data-key="${key}"]`, editor));
+    itemWin.style.left = Math.round(Math.min(r.left + r.width + 8, 1600 - itemWin.offsetWidth)) + 'px';
+    itemWin.style.top = Math.round(Math.max(0, Math.min(r.top, 900 - itemWin.offsetHeight))) + 'px';
+    $('.sme-tb__btn--gear', editor)?.classList.add('is-active');
+  }
+
+  function closeItemWin() {
+    if (!iw) return;
+    iw = null;
+    closeIwMenu();
+    itemWin.hidden = true;
+    $('.sme-tb__btn--gear', editor)?.classList.remove('is-active');
+  }
+
+  function renderItemWin() {
+    const head = iw.key === 'head';
+    const rows = { level: !head, show: iw.cmd === 'count', side: head && iw.cmd === 'add', pin: !head };
+    for (const n of itemWin.querySelectorAll('[data-row]')) n.hidden = !rows[n.dataset.row];
+    $('#iwLevel').textContent = IW_LEVELS.find(([v]) => v === iw.level)[1];
+    $('#iwPage').textContent = iw.title;
+    $('#iwCmd').textContent = IW_CMDS.find(([v]) => v === iw.cmd)[1];
+    $('#iwShow').textContent = IW_SHOWS.find(([v]) => v === iw.show)[1];
+    $('#iwPanel').classList.toggle('is-on', iw.panel);
+    for (const b of $('#iwSide').children) b.classList.toggle('is-on', b.dataset.side === iw.side);
+    $('#iwPin').textContent = iw.pinned ? 'Открепить пункт' : 'Закрепить пункт снизу';
+    $('#iwReset').disabled = iwState() === iw.start;
+  }
+  function iwSet(patch) { Object.assign(iw, patch); renderItemWin(); }
+
+  // ✓: настройки — в черновик одним шагом; закреплённый пункт уходит в конец своей колонки. Виджет остаётся выделенным.
+  function applyItemWin() {
+    const { key } = iw;
+    const title = iw.title.replace(/\s+/g, ' ').trim() || JSON.parse(iw.start)[0];
+    const right = iwRight();
+    const draft = cloneDraft(ed.draft);
+    let selKey = key;
+    if (key === 'head') Object.assign(draft, { head: title, headRight: right });
+    else {
+      const [ci, ii] = key.split(':').map(Number);
+      const col = draft.cols[ci];
+      const wasPinned = !!col[ii].pinned;
+      const it = { ...col[ii], title, level: iw.level };
+      delete it.right;
+      delete it.pinned;
+      if (right) it.right = right;
+      if (iw.pinned) it.pinned = true;
+      col[ii] = it;
+      if (iw.pinned && !wasPinned) { col.splice(ii, 1); col.push(it); selKey = `${ci}:${col.length - 1}`; }
+    }
+    closeItemWin();
+    commit(draft);
+    select(selKey);
+  }
+
+  $('#iwDone').addEventListener('click', applyItemWin);
+  $('#iwClose').addEventListener('click', closeItemWin);
+  $('#iwReset').addEventListener('click', () => {
+    const [title, level, pinned, right] = JSON.parse(iw.start);
+    iwTitle.textContent = title;
+    iwSet({ title, level, pinned, ...iwFromRight(right), nums: iw.nums });
+  });
+  $('.set-win__head', itemWin).addEventListener('mousedown', (e) => startDrag(e, itemWin));
+  // Название правится на месте: Enter — закончить, Esc — вернуть как было при открытии окна; пустое — тоже возвращается.
+  const iwTitleBack = () => { iwTitle.textContent = JSON.parse(iw.start)[0]; iwSet({ title: iwTitle.textContent }); };
+  iwTitle.addEventListener('input', () => iwSet({ title: iwTitle.textContent }));
+  iwTitle.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); iwTitle.blur(); }
+    else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); iwTitleBack(); iwTitle.blur(); }
+  });
+  iwTitle.addEventListener('blur', () => { if (iw && !iw.title.trim()) iwTitleBack(); });
+  $('#iwPanel').addEventListener('click', () => iwSet({ panel: !iw.panel }));
+  $('#iwSide').addEventListener('click', (e) => { const b = e.target.closest('[data-side]'); if (b) iwSet({ side: b.dataset.side }); });
+  $('#iwPin').addEventListener('click', () => iwSet({ pinned: !iw.pinned }));
+
+  // Выпадающие списки окна («Вложенность», «Команды», «Выводить»): первый пункт встаёт на место ссылки, выбранный — с точкой.
+  let iwMenuFor = null;
+  function openIwMenu(link, options, current, width, pick) {
+    iwMenuFor = link;
+    const box = $('#iwMenuList');
+    box.innerHTML = '';
+    for (const [v, text] of options) {
+      const b = el('button', 'mw-menu__item' + (v === current ? ' is-on' : ''), `<span class="mw-menu__dot"></span><span class="mw-menu__text">${text}</span>`);
+      b.type = 'button';
+      b.addEventListener('click', () => { closeIwMenu(); pick(v); });
+      box.append(b);
+    }
+    iwMenu.style.width = width + 'px';
+    iwMenu.hidden = false;
+    const r = stageRect(link);
+    // 30 = отступ списка 8 + отступ пункта 8 + маркер 12 + 2; 12 — верхний отступ списка, 16 — половина пункта.
+    iwMenu.style.left = (r.left - 30) + 'px';
+    iwMenu.style.top = (r.top + r.height / 2 - 12 - 16) + 'px';
+  }
+  function closeIwMenu() { iwMenu.hidden = true; iwMenuFor = null; }
+  const iwToggle = (link, ...args) => (iwMenuFor === link ? closeIwMenu() : openIwMenu(link, ...args));
+  $('#iwLevel').addEventListener('click', (e) => iwToggle(e.currentTarget, IW_LEVELS, iw.level, 190, (v) => iwSet({ level: v })));
+  $('#iwCmd').addEventListener('click', (e) => iwToggle(e.currentTarget, IW_CMDS, iw.cmd, 190, (v) => iwSet({ cmd: v })));
+  $('#iwShow').addEventListener('click', (e) => iwToggle(e.currentTarget, IW_SHOWS, iw.show, 271, (v) => iwSet({ show: v })));
+  $('#iwMenuClose').addEventListener('click', closeIwMenu);
+  stage.addEventListener('mousedown', (e) => {
+    if (iwMenu.hidden || e.target.closest('#iwMenu') || e.target.closest('.iw-link') === iwMenuFor) return;
+    closeIwMenu();
+  }, true);
+
+  // Зона счётчика с «Открывать панель по клику на счетчик» — свой клик: пункт по нему не открывается (панели пока нет).
+  for (const box of [list, layer]) box.addEventListener('click', (e) => { if (e.target.closest('.sm-right--btn')) e.stopPropagation(); }, true);
 
   function openPlusMenu(owner) {
     if (owner === smePlus) stopTitleEdit(true);
@@ -2604,7 +2774,7 @@
     logo, align: state.align, informers: state.informers, themeId, userTheme,
     tabs, tabsAdded: stage.classList.contains('tabs-added'),
     sections: SECTIONS.map((s) => ({ id: s.id, title: s.title, short: s.short, customIcon: s.customIcon ?? null,
-      head: s.submenu.head ?? null, noHead: !!s.submenu.noHead, cols: s.submenu.cols })),
+      head: s.submenu.head ?? null, headRight: s.submenu.headRight ?? null, noHead: !!s.submenu.noHead, cols: s.submenu.cols })),
   });
 
   function renderHistory() {
@@ -2666,7 +2836,7 @@
     SECTIONS.forEach((sec, i) => {
       const d = s.sections[i];
       Object.assign(sec, { title: d.title, short: d.short, customIcon: d.customIcon });
-      Object.assign(sec.submenu, { head: d.head ?? undefined, noHead: d.noHead, cols: d.cols });
+      Object.assign(sec.submenu, { head: d.head ?? undefined, headRight: d.headRight ?? undefined, noHead: d.noHead, cols: d.cols });
     });
     const { section, item } = state.page;
     if (section && item != null && !subItem(SECTIONS.find((x) => x.id === section), item)) state.page.item = null;
