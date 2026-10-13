@@ -2063,7 +2063,7 @@
 
   function renderItemWin() {
     const head = iw.key === 'head';
-    const rows = { level: !head, show: iw.cmd === 'count', side: head && iw.cmd === 'add', pin: !head };
+    const rows = { level: !head, show: iw.cmd === 'count', side: head && iw.cmd === 'add', pin: false }; // «Закрепить пункт снизу» — в настройках пункта аккордеона, не подменю: чипса скрыта
     for (const n of itemWin.querySelectorAll('[data-row]')) n.hidden = !rows[n.dataset.row];
     $('#iwLevel').textContent = IW_LEVELS.find(([v]) => v === iw.level)[1];
     $('#iwPage').textContent = iw.title;
@@ -2138,7 +2138,8 @@
     const r = stageRect(link);
     // 30 = отступ списка 8 + отступ пункта 8 + маркер 12 + 2; 12 — верхний отступ списка, 16 — половина пункта.
     iwMenu.style.left = (r.left - 30) + 'px';
-    iwMenu.style.top = (r.top + r.height / 2 - 12 - 16) + 'px';
+    // не помещается до низа сцены — поднимаем (выбранный пункт тогда уже не на месте ссылки)
+    iwMenu.style.top = Math.min(r.top + r.height / 2 - 12 - 16, 900 - 8 - iwMenu.offsetHeight) + 'px';
   }
   function closeIwMenu() { iwMenu.hidden = true; iwMenuFor = null; }
   const iwToggle = (link, ...args) => (iwMenuFor === link ? closeIwMenu() : openIwMenu(link, ...args));

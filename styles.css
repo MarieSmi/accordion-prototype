@@ -923,7 +923,7 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .stage[data-scenario="submenu-editor"] .confirm-layer { z-index: 48; }
 /* «Добавление пунктов»: экран общего демо, работает только аккордеон. В шапке кликаются лишь «Меню» и «Логотип» —
    их окна открываются, закрываются и перетаскиваются, но настройки внутри не нажимаются */
-.stage[data-scenario="acc-add-items"] :is(.ctor-header, .content, .right-panel, .set-win__body) { pointer-events: none; }
+.stage[data-scenario="acc-add-items"] :is(.ctor-header, .content, .right-panel, #menuWin .set-win__body, #logoWin .set-win__body) { pointer-events: none; }
 .stage[data-scenario="acc-add-items"] :is(#menuBtn, #logoBtn) { pointer-events: auto; }
 .kind { display: flex; flex-direction: column; gap: 12px; }
 .kind__label { font-size: 16px; font-weight: 600; letter-spacing: -.2256px; color: #000; } /* подпись на светлом фоне конструктора */
