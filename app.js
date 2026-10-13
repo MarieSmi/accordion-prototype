@@ -1908,6 +1908,7 @@
     { title: 'Маркетинг', kind: 'folder' },
     { title: 'Прочее', kind: 'folder' },
   ];
+  const PLUS_OPEN = PLUS_TREE.filter((n) => n.open).map((n) => n.title);
   const plusMenu = $('#plusMenu');
   const plusList = $('#plusMenuList');
   const plusSearch = $('#plusMenuSearch');
@@ -1977,6 +1978,8 @@
     if (owner === smePlus) stopTitleEdit(true);
     plusOwner = owner;
     plusSearch.value = '';
+    // каждое открытие — исходный вид: раскрыты «Моей компании» и «Отчетность»
+    for (const n of PLUS_TREE) if (n.kind === 'group') n.open = PLUS_OPEN.includes(n.title);
     renderPlusMenu();
     plusMenu.hidden = false;
     owner.classList.add('is-active');

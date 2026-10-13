@@ -1090,9 +1090,10 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 /* шапка: иконка раздела, название, «+» | отмена, повтор, сброс | ✓ ✕ */
 .sme-head { width: 100%; min-width: 220px; display: flex; align-items: center; gap: 12px; padding: 7px 0; cursor: grab; user-select: none; }
 .sme-head__left { flex: 1 0 auto; display: flex; align-items: center; gap: 6px; }
-.sme-icon { width: 28px; height: 28px; flex: none; border-radius: 6px; overflow: hidden; background: var(--editor-icon-bg); display: flex; align-items: center; justify-content: center; }
-.sme-icon .acc-glyph { font-size: 16px; letter-spacing: 0; color: var(--acc-label); }
-.sme-icon .acc-cal { width: 16px; height: 16px; color: var(--acc-label); }
+/* фон под иконкой — цвета аккордеона (по теме), иконка — его цветом иконок */
+.sme-icon { width: 28px; height: 28px; flex: none; border-radius: 6px; overflow: hidden; background: var(--acc-bg); display: flex; align-items: center; justify-content: center; }
+.sme-icon .acc-glyph { font-size: 16px; letter-spacing: 0; color: var(--acc-icon); }
+.sme-icon .acc-cal { width: 16px; height: 16px; color: var(--acc-icon); }
 .sme-icon .acc-cal__day { top: 9.6px; font-size: 12px; letter-spacing: 0; }
 .sme-icon img { width: 28px; height: 28px; object-fit: cover; display: block; }
 .sme-title {
@@ -1233,7 +1234,7 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 
 /* ---------- Выбор иконки раздела (Figma 44fX18O5Huk4hmoaANMNIC 10506:57779, без выбора цвета) ---------- */
 .sme-icon { cursor: pointer; transition: background-color .12s; }
-.sme-icon:hover, .sme-icon.is-active { background: #eee; } /* наведения в макете нет — подобрано */
+.sme-icon:hover, .sme-icon.is-active { background: var(--acc-item-hover); } /* наведения в макете нет — как ховер пункта аккордеона */
 .acc-glyph--cbuc24 { font-family: "cbuc-icons24"; letter-spacing: 0; }
 .acc-glyph--cbuc { font-family: "cbuc-icons"; letter-spacing: 0; }
 
