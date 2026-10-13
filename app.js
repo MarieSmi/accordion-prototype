@@ -153,6 +153,13 @@
     stage.dataset.scenario = scenario;
     if (variant) stage.dataset.variant = variant;
     else delete stage.dataset.variant;
+    // смена сценария закрывает все окна и меню на сцене
+    closeOtherWindows();
+    closePopups();
+    closePlusMenu();
+    closeIconPick();
+    closeRpMore();
+    closeSubmenu();
     // каждый сценарий начинается с исходных вкладок; в «Добавлении вкладки» — одна «Главный», виджета вкладок нет
     closeTabsWin();
     selectTabs(false);
