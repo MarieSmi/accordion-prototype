@@ -651,16 +651,20 @@ ul { list-style: none; margin: 0; padding: 0; }
 .rp-btn { width: 44px; height: 48px; padding: 12px 10px; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: background-color .12s; }
 .rp-btn:hover { background: var(--rp-hover); }
 .rp-btn--accent .ico24 { color: var(--rp-accent); }
-/* Подсказка клика «Пин» (Figma xMQ3ZEN4AUINgwjVoxR8hS 18797:65764): круг 40 #6cc 50% и курсор 16 справа снизу —
-   на элементах добавления вкладки в сценариях «Добавление вкладки»: плюс в колонке информеров и ссылки «+вкладка»
-   (круг по «+» ссылки). Пока вкладка не добавлена и меню не открыто. */
-#infPlus, #infAddTab, #dashAddTab { position: relative; }
-.stage[data-scenario^="tab-"]:not(.tabs-added) :is(#infPlus, #infAddTab, #dashAddTab):not(.is-active)::after {
-  content: ""; position: absolute; width: 40px; height: 40px; margin: -20px 0 0 -20px; top: 50%; pointer-events: none;
-  background: url("assets/img/click-cursor.svg") 26px 26px / 16px 16px no-repeat, radial-gradient(circle, rgba(102, 204, 204, .5) 19.5px, transparent 20px);
+/* подсказка клика «Пин» (Figma xMQ3ZEN4AUINgwjVoxR8hS 18797:65764): круг 40 #6cc 50% и курсор 16 справа снизу.
+   В сценариях «Добавление вкладки» — на «Магазине», пока он закрыт и вкладки не добавлены */
+.click-pin { display: none; position: absolute; left: 50%; top: 50%; width: 40px; height: 40px; margin: -20px 0 0 -20px; pointer-events: none; }
+.click-pin::before { content: ""; position: absolute; inset: 0; border-radius: 32px; background: #6cc; opacity: .5; }
+.click-pin img { position: absolute; left: 26px; top: 26px; }
+.stage[data-scenario^="tab-"]:not(.tabs-added) .rp-btn[data-rp="shop"]:not(.is-active) .click-pin { display: block; }
+/* Точка-подсказка (Figma 18348:17461, clickDot 6×6) у элементов добавления вкладки в сценариях «Добавление вкладки»:
+   плюс в колонке информеров и ссылка «+вкладка» — справа вверху. Пока вкладка не добавлена и меню не открыто. */
+#infPlus, #dashAddTab { position: relative; }
+.stage[data-scenario^="tab-"]:not(.tabs-added) :is(#infPlus, #dashAddTab):not(.is-active)::after {
+  content: ""; position: absolute; width: 6px; height: 6px; border-radius: 10px; background: #6cc; pointer-events: none;
 }
-#infPlus::after { left: 50%; }
-#infAddTab::after, #dashAddTab::after { left: 6px; }
+#infPlus::after { right: 0; top: 0; }
+#dashAddTab::after { right: -8px; top: 0; }
 /* «Данные» и «Слои»: в cbuc-icons24 глифов нет — контуры из макета (Figma xMQ3ZEN4AUINgwjVoxR8hS 16041:45391, 16041:45392), цвет как у иконок */
 .rp-svg { width: 24px; height: 24px; background: var(--icon); -webkit-mask: var(--m) center / 24px no-repeat; mask: var(--m) center / 24px no-repeat; }
 .rp-svg--data { --m: url("assets/img/rp-data.svg"); }
