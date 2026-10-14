@@ -2308,7 +2308,8 @@
     if (iw?.ae) renderItemWin(); // правки окна настроек видны на пункте и после перерисовки
   }
 
-  // Тулбар выделенного пункта — как в редакторе подменю: ⚙ — окно настроек пункта справа, удаление работает, ⋯ — наведение.
+  // Тулбар выделенного пункта (Figma 18582:28278): «Закрепить снизу» / «Открепить» (18585:28344), ⚙ — окно настроек пункта
+  // справа, удаление, ⋯ — наведение.
   function aeToolbar() {
     const tb = el('div', 'sme-tb');
     const btn = (cls, ch, label) => {
@@ -2318,6 +2319,10 @@
       tb.append(b);
       return b;
     };
+    const pinned = !!ae.draft.find((it) => it.id === ae.selected)?.pinned;
+    const pin = btn('sme-tb__btn--pin', pinned ? '' : '', pinned ? 'Открепить' : 'Закрепить снизу');
+    pin.dataset.tip = pinned ? 'Открепить' : 'Закрепить снизу';
+    pin.addEventListener('click', () => aeCommit(aePin(ae.draft, ae.selected, !pinned), ae.selected));
     btn('sme-tb__btn--gear' + (iw?.ae && iw.key === ae.selected ? ' is-active' : ''), '', 'Настройки')
       .addEventListener('click', () => (iw?.ae && iw.key === ae.selected ? closeItemWin() : openAeItemWin(ae.selected)));
     btn('sme-tb__btn--del', '', 'Удалить').addEventListener('click', () => {
@@ -2325,6 +2330,16 @@
     });
     btn('', '', 'Ещё');
     return tb;
+  }
+
+  // Закрепить снизу можно только один пункт: он уходит в самый низ, у прежнего закреплённого закрепление снимается.
+  // Открепленный пункт остаётся на месте.
+  function aePin(draft, id, on) {
+    const next = draft.map((it) => {
+      const { pinned, ...rest } = it;
+      return (on ? it.id === id : pinned && it.id !== id) ? { ...rest, pinned: true } : rest;
+    });
+    return on ? [...next.filter((it) => it.id !== id), next.find((it) => it.id === id)] : next;
   }
 
   function aeCommit(draft, selected = null) {
@@ -2358,7 +2373,9 @@
     ALL_SECTIONS[id] = { id, title, short: title, added: true, customIcon: ADDED_ICON, submenu: { head: title, cols: [[]] } };
     PRISTINE[id] = { title, short: title, icon: ADDED_ICON, head: title, showHead: true, cols: [[]] };
     const draft = ae.draft.slice();
-    draft.splice(plusAt ? plusAt.at : draft.length, 0, { id, title, icon: ADDED_ICON });
+    // под закреплённым снизу пунктом новый не встаёт — только над ним
+    const last = draft.length - (draft.some((it) => it.pinned) ? 1 : 0);
+    draft.splice(Math.min(plusAt ? plusAt.at : draft.length, last), 0, { id, title, icon: ADDED_ICON });
     closePlusMenu();
     aeCommit(draft, id); // добавленный пункт — выделен
   }
@@ -2457,6 +2474,9 @@
       aeList.classList.remove('is-dragging');
       const draft = ae.draft.slice();
       draft.splice(to, 0, ...draft.splice(from, 1));
+      // закреплённый пункт всегда последний: перетаскивание его не сдвигает и других под него не ставит
+      const p = draft.findIndex((it) => it.pinned);
+      if (p >= 0) draft.push(...draft.splice(p, 1));
       aeCommit(draft, w.dataset.id);
     };
     document.addEventListener('mousemove', move);
@@ -2682,12 +2702,10 @@
       if (it.id !== id) return it;
       const next = { ...it, title };
       delete next.right;
-      delete next.pinned;
       if (!same) next.right = right;
-      if (pinned) next.pinned = true;
       return next;
     });
-    if (pinned && !wasPinned) draft = [...draft.filter((it) => it.id !== id), draft.find((it) => it.id === id)];
+    if (pinned !== wasPinned) draft = aePin(draft, id, pinned);
     closeItemWin();
     aeCommit(draft, id);
   }
