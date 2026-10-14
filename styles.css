@@ -1217,7 +1217,10 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 }
 /* реестр («Аккордеон и подменю»): колонки не подсвечиваются и пунктиром не выделяются; между колонками — линия (как в рантайме);
    пустая колонка — по клику меню «+» */
-.is-registry .sme-list + .sme-list::before { content: ""; position: absolute; left: -7px; top: 0; bottom: 0; width: 1px; background: #eaeaea; pointer-events: none; } /* border/border-color */
+/* реестр: между колонками только линия 1px, так что от виджетов до него те же 7px, что и до края карточки;
+   линия — пунктир как обводка выделенной колонки (Figma rHabzni5OI5D4fxBLQdj2m 3279:4851): #7b62f8 60%, штрих 4 / 4 */
+.sme-card.is-registry { gap: 1px; } /* зазор — под линию */
+.is-registry .sme-list + .sme-list::before { content: ""; position: absolute; left: -1px; top: 0; bottom: 0; width: 1px; background: repeating-linear-gradient(to bottom, rgba(123, 98, 248, .6) 0 4px, transparent 4px 8px); pointer-events: none; }
 .sme-list.is-empty { cursor: pointer; }
 
 /* плюсы (Figma rHabzni5OI5D4fxBLQdj2m 399:49380): кружок 8px → при наведении 16px с «+», при нажатии темнее */
