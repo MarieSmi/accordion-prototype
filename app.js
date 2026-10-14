@@ -2325,7 +2325,7 @@
     const pinned = !!ae.draft.find((it) => it.id === ae.selected)?.pinned;
     const pin = btn('sme-tb__btn--pin', pinned ? '' : '', pinned ? 'Открепить' : 'Закрепить снизу');
     pin.dataset.tip = pinned ? 'Открепить' : 'Закрепить снизу';
-    pin.addEventListener('click', () => aeCommit(aePin(ae.draft, ae.selected, !pinned), ae.selected));
+    pin.addEventListener('click', () => aeSetPin(ae.selected, !pinned));
     btn('sme-tb__btn--gear' + (iw?.ae && iw.key === ae.selected ? ' is-active' : ''), '', 'Настройки')
       .addEventListener('click', () => (iw?.ae && iw.key === ae.selected ? closeItemWin() : openAeItemWin(ae.selected)));
     btn('sme-tb__btn--del', '', 'Удалить').addEventListener('click', () => {
@@ -2366,7 +2366,7 @@
     if (!act || !ae?.selected) return;
     const id = ae.selected;
     closeAeMore();
-    if (act === 'pin') aeCommit(aePin(ae.draft, id, !ae.draft.find((it) => it.id === id).pinned), id);
+    if (act === 'pin') aeSetPin(id, !ae.draft.find((it) => it.id === id).pinned);
     else if (act === 'settings') openAeItemWin(id);
     else if (act === 'delete') aeCommit(ae.draft.filter((it) => it.id !== id));
   });
@@ -2379,6 +2379,19 @@
       return (on ? it.id === id : pinned && it.id !== id) ? { ...rest, pinned: true } : rest;
     });
     return on ? [...next.filter((it) => it.id !== id), next.find((it) => it.id === id)] : next;
+  }
+
+  // Закрепить / открепить — сразу шагом в черновик (из тулбара, меню «⋯» и окна настроек). Открытое окно пункта
+  // следует за ним: закрепление в окне — уже применённое, ✕ окна его не откатывает.
+  function aeSetPin(id, on) {
+    aeCommit(aePin(ae.draft, id, on), id);
+    if (!(iw?.ae && iw.key === id)) return;
+    iw.pinned = on;
+    const start = JSON.parse(iw.start);
+    start[2] = on;
+    iw.start = JSON.stringify(start);
+    renderItemWin();
+    placeAeItemWin(id);
   }
 
   function aeCommit(draft, selected = null) {
@@ -2647,10 +2660,14 @@
     $('#iwIcon').innerHTML = iconHTML({ ...ALL_SECTIONS[id], customIcon: it.icon });
     renderItemWin();
     itemWin.hidden = false;
+    placeAeItemWin(id);
+    $('.sme-tb__btn--gear', aeList)?.classList.add('is-active');
+  }
+  // окно — справа от пункта в 8, верх — по верху пункта
+  function placeAeItemWin(id) {
     const r = stageRect($(`.ae-w[data-id="${id}"]`, aeList));
     itemWin.style.left = Math.round(Math.min(r.left + r.width + 8, 1600 - itemWin.offsetWidth)) + 'px';
     itemWin.style.top = Math.round(Math.max(0, Math.min(r.top, 900 - itemWin.offsetHeight))) + 'px';
-    $('.sme-tb__btn--gear', aeList)?.classList.add('is-active');
   }
 
   function closeItemWin() {
@@ -2773,8 +2790,9 @@
   iwTitle.addEventListener('blur', () => { if (iw && !iw.title.trim()) iwTitleBack(); });
   $('#iwPanel').addEventListener('click', () => iwSet({ panel: !iw.panel }));
   $('#iwSide').addEventListener('click', (e) => { const b = e.target.closest('[data-side]'); if (b) iwSet({ side: b.dataset.side }); });
-  $('#iwPin').addEventListener('click', () => iwSet({ pinned: true }));
-  $('#iwUnpin').addEventListener('click', () => iwSet({ pinned: false }));
+  // у пункта аккордеона чипса и × свойства — то же действие, что в тулбаре: применяются сразу
+  $('#iwPin').addEventListener('click', () => (iw.ae ? aeSetPin(iw.key, true) : iwSet({ pinned: true })));
+  $('#iwUnpin').addEventListener('click', () => (iw.ae ? aeSetPin(iw.key, false) : iwSet({ pinned: false })));
 
   // Выпадающие списки окна («Вложенность», «Команда», «Выводить»): первый пункт встаёт на место ссылки, выбранный — с точкой.
   let iwMenuFor = null;
