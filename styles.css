@@ -967,12 +967,12 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .stage[data-scenario="acc-setup"] :is(.ctor-header, .content, .right-panel) { pointer-events: none; }
 .stage[data-scenario="acc-setup"] :is(#menuBtn, #logoBtn) { pointer-events: auto; }
 /* «Настроить» — кнопка-ссылка label внизу аккордеона по центру, 8 от низа; только в этом сценарии и в широком аккордеоне.
-   Иконка 16 и отступ 4, текст 14; цвета — аккордеона (label-цвета макета на тёмном фоне не видны): иконки команд, ховер — как у команд */
-.acc-setup { display: none; margin: auto auto 8px; height: 24px; align-items: center; gap: 4px; color: var(--acc-cmd-dots); transition: color .12s; }
+   Иконка 16 и отступ 4, текст 14; цвета — из макета: label #8991a9, ховер label_hover #313e78 */
+.acc-setup { display: none; margin: auto auto 8px; height: 24px; align-items: center; gap: 4px; color: #8991a9; transition: color .12s; }
 .stage[data-scenario="acc-setup"] .accordion:not(.is-narrow) .acc-setup { display: flex; }
 .acc-setup .ico { color: inherit; padding-bottom: 1px; }
 .acc-setup__text { padding-bottom: 1px; font-size: 14px; letter-spacing: -.1974px; }
-.acc-setup:hover { color: var(--acc-cmd-hover); }
+.acc-setup:hover { color: #313e78; }
 .kind { display: flex; flex-direction: column; gap: 12px; }
 .kind[hidden] { display: none; }
 .kind__label { font-size: 16px; font-weight: 600; letter-spacing: -.2256px; color: #000; } /* подпись на светлом фоне конструктора */
