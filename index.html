@@ -699,12 +699,12 @@
         <div class="sme-card" id="smeCard"></div>
       </section>
 
-      <!-- Редактор аккордеона («Настройка аккордеона»): как редактор подменю; слева в шапке — птичка и saby (виджет шапки,
-           клик — окно «Логотип»), в карточке — аккордеон в его цветах, пункты — виджеты -->
+      <!-- Редактор аккордеона («Настройка аккордеона»): как редактор подменю, ширина 300; в шапке слева «+» (страница — пунктом в конец).
+           Под шапкой — аккордеон во всю высоту в его цветах: строка шапки (птичка и saby, клик — окно «Логотип»), группа, пункты-виджеты -->
       <section class="sm-editor acc-editor" id="accEditor" hidden aria-label="Редактор аккордеона">
         <div class="sme-head">
           <div class="sme-head__left">
-            <div class="acc-header__row ae-brand" id="aeBrand"><span class="acc-bird ae-bird"></span><span class="acc-logo" id="aeLogo"></span></div>
+            <button class="sme-plus" type="button" id="aePlus" aria-label="Добавить пункт"><span class="ico24">&#xEADD;</span></button>
           </div>
           <div class="sme-head__right">
             <div class="sme-cmds">
@@ -719,6 +719,7 @@
           </div>
         </div>
         <div class="ae-card" id="aeCard">
+          <div class="acc-header__row ae-brand" id="aeBrand"><span class="acc-bird ae-bird"></span><span class="acc-logo" id="aeLogo"></span></div>
           <div class="acc-group ae-group"><span class="acc-burger"><span class="acc-icon16">&#xE91F;</span></span><span class="acc-group__title">предприятие</span></div>
           <div class="ae-list" id="aeList"></div>
         </div>

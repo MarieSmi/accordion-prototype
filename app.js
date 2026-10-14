@@ -2224,10 +2224,13 @@
     accEditor.hidden = false;
     stage.classList.add('is-ae-open');
     accGear.classList.add('is-active');
-    // птичка шапки окна — ровно на птичку аккордеона
-    const a = stageRect($('.accordion .acc-bird')), b = stageRect($('.ae-bird', accEditor));
-    accEditor.style.left = Math.round(Math.max(0, accEditor.offsetLeft + a.left - b.left)) + 'px';
-    accEditor.style.top = Math.round(Math.max(0, Math.min(accEditor.offsetTop + a.top - b.top, 900 - accEditor.offsetHeight))) + 'px';
+    // аккордеон окна — на аккордеоне страницы (у левого края сцены окно прижимается к краю), до низа сцены
+    const acc = stageRect($('.accordion'));
+    const card = $('.ae-card', accEditor);
+    const top = Math.round(Math.max(0, acc.top - card.offsetTop));
+    accEditor.style.left = Math.round(Math.max(0, acc.left - card.offsetLeft)) + 'px';
+    accEditor.style.top = top + 'px';
+    accEditor.style.height = (900 - top) + 'px';
   }
   function closeAe() {
     stopAeEdit(false);
@@ -2448,6 +2451,9 @@
   $('#aeBrand').addEventListener('click', () => setWindow(openWin === 'logo' && openFrom ? null : 'logo', $('.ae-bird', accEditor)));
 
   accGear.addEventListener('click', () => (ae ? null : openAe()));
+  // «+» шапки окна — меню «+», страница встаёт пунктом в конец
+  const aePlus = $('#aePlus');
+  aePlus.addEventListener('click', () => (plusMenu.hidden ? openPlusMenu(aePlus) : closePlusMenu()));
   aeUndo.addEventListener('click', () => aeGo(-1));
   aeRedo.addEventListener('click', () => aeGo(1));
   aeReset.addEventListener('click', () => aeCommit(aeBase()));
