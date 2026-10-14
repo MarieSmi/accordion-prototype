@@ -697,9 +697,9 @@ ul { list-style: none; margin: 0; padding: 0; }
 .click-pin::before { content: ""; position: absolute; inset: 0; border-radius: 32px; background: #6cc; opacity: .5; }
 .click-pin img { position: absolute; left: 26px; top: 26px; }
 .stage[data-scenario^="tab-"]:not(.tabs-added) .rp-btn[data-rp="shop"]:not(.is-active) .click-pin { display: block; }
-/* «Добавление пунктов»: пин на «+» шапки аккордеона — пока пункт не добавлен и меню «+» не открыто */
+/* «Настройка аккордеона»: пин на «+» шапки аккордеона — пока пункт не добавлен и меню «+» не открыто */
 .acc-plus { position: relative; }
-.stage[data-scenario="acc-add-items"]:not(.items-added) .acc-plus:not(.is-active) .click-pin { display: block; }
+.stage[data-scenario="acc-setup"]:not(.items-added) .acc-plus:not(.is-active) .click-pin { display: block; }
 /* «Настройка аккордеона»: пин на «Настроить», пока редактор не открыт */
 .acc-setup { position: relative; }
 .stage[data-scenario="acc-setup"] .acc-setup:not(.is-active) .click-pin { display: block; }
@@ -987,10 +987,6 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .stage[data-scenario="submenu-editor"] :is(.icon-pick, .item-win) { z-index: 47; }
 .stage[data-scenario="submenu-editor"] :is(.plus-menu, .iw-menu) { z-index: 48; } /* меню — поверх окна настроек пункта */
 .stage[data-scenario="submenu-editor"] .confirm-layer { z-index: 48; }
-/* «Добавление пунктов»: экран общего демо, работает только аккордеон. В шапке кликаются лишь «Меню» и «Логотип» —
-   их окна открываются, закрываются и перетаскиваются, но настройки внутри не нажимаются */
-.stage[data-scenario="acc-add-items"] :is(.ctor-header, .content, .right-panel, #menuWin .set-win__body, #logoWin .set-win__body) { pointer-events: none; }
-.stage[data-scenario="acc-add-items"] :is(#menuBtn, #logoBtn) { pointer-events: auto; }
 /* «Настройка аккордеона»: живые только аккордеон, «Меню» и «Логотип» (с их окнами); остальное — статика без ховеров */
 .stage[data-scenario="acc-setup"] :is(.ctor-header, .content, .right-panel) { pointer-events: none; }
 .stage[data-scenario="acc-setup"] :is(#menuBtn, #logoBtn) { pointer-events: auto; }
@@ -1932,7 +1928,7 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 
 /* ⚙ тулбара виджета, пока открыто окно настроек */
 .sme-tb__btn.is-active { background: var(--pill-active); }
-/* элемент справа у виджетов редактора («Добавление пунктов») — как в подменю, на светлой карточке */
+/* элемент справа у виджетов редактора («Настройка аккордеона», «Подменю → Редактор») — как в подменю, на светлой карточке */
 .sme-w .sm-right { padding-left: 12px; }
 .sme-w .sm-right::before { display: none; }
 .sme-w .sm-right--plus .ico, .sme-w .sm-right--arrow .ico { color: var(--label); }

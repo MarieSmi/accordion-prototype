@@ -771,7 +771,7 @@
       </section>
 
       <!-- Окно настроек пункта подменю (Figma 9eLwMJLQCwT0xHKviN2j1P 18562:24378): по ⚙ тулбара виджета редактора,
-           пока только в сценарии «Добавление пунктов». Встаёт справа от виджета, как «Вкладки» от виджета вкладок.
+           в «Настройке аккордеона» и «Подменю → Редактор». Встаёт справа от виджета, как «Вкладки» от виджета вкладок.
            Оно же — настройки пункта аккордеона в его редакторе (Figma 18585:28421): иконка у названия, «Наполнение пункта», «Закрепить пункт снизу» -->
       <section class="set-win item-win" id="itemWin" hidden aria-label="Настройка пункта">
         <div class="set-win__head">
@@ -1174,10 +1174,9 @@
     </div>
     <!-- Сценарии внизу панели, над ссылками: тот же общий выбор одного сценария на всю панель -->
     <div class="sys-card sys-card--scen sys-card--bottom" role="radiogroup" aria-label="Сценарий: аккордеон и подменю">
-      <!-- «Добавление пунктов»: экран общего демо, интерактивен только аккордеон; «Меню» и «Логотип» открывают окна без настроек (styles.css) -->
+      <!-- «Настройка аккордеона»: экран общего демо, интерактивен только аккордеон (с «+» шапки и редактором); «Меню» и «Логотип» — свои окна (styles.css) -->
       <div class="sys-group">Аккордеон</div>
       <div class="sys-options">
-        <button class="sys-radio" type="button" role="radio" aria-checked="false" data-scenario="acc-add-items"><span class="sys-radio__box"></span><span class="sys-radio__text">Добавление пунктов</span></button>
         <button class="sys-radio" type="button" role="radio" aria-checked="false" data-scenario="acc-setup"><span class="sys-radio__box"></span><span class="sys-radio__text">Настройка аккордеона</span></button>
       </div>
       <div class="sys-group">Подменю</div>

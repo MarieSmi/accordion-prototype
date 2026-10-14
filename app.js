@@ -85,7 +85,7 @@
     title: s.title, short: s.short, icon: null, head: s.submenu.headLabel ? null : s.submenu.head ?? s.title, headRight: s.submenu.headRight ?? null, showHead: true, cols: s.submenu.cols.map((c) => c.slice()),
   }]));
 
-  // Все разделы по id — и исходные, и добавленные в сценарии «Добавление пунктов» (отмена / повтор возвращает их в список).
+  // Все разделы по id — и исходные, и добавленные в сценарии «Настройка аккордеона» (отмена / повтор возвращает их в список).
   const ALL_SECTIONS = Object.fromEntries(SECTIONS.map((s) => [s.id, s]));
 
   // Виды панели (окно «Меню» → «Состояние панели»): широкий аккордеон и три вида узкого.
@@ -172,7 +172,7 @@
     closeTabsWin();
     selectTabs(false);
     resetTabs(radio.dataset.scenario.startsWith('tab-'));
-    removeAddedSections(); // пункты, добавленные в «Добавлении пунктов», живут только в этом сценарии
+    removeAddedSections(); // пункты, добавленные в «Настройке аккордеона», живут только в этом сценарии
     resetHistory(); // смена сценария — не правка: история начинается заново
     setInside(scenario);
     setEditorOnly();
@@ -1033,13 +1033,13 @@
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !rpMoreMenu.hidden) closeRpMore(); });
 
   // ---------- Меню «⋮» пункта аккордеона (Figma xMQ3ZEN4AUINgwjVoxR8hS 19401:31603) ----------
-  // В «Общем демо» и «Аккордеон → Добавление пунктов». Крестик меню — ровно поверх «⋮» (крестик: right −14, top 8, 28×28).
+  // В «Общем демо» и «Аккордеон → Настройка аккордеона». Крестик меню — ровно поверх «⋮» (крестик: right −14, top 8, 28×28).
   // «Настроить подменю» — редактор подменю; «Переименовать» — каретка в названии на месте; «Переместить» — только ховер
   // (подменю «Вверх / Вниз / В другой раздел» без действий); «Удалить» — пункт уходит (отмена в шапке возвращает).
   // У второй строки (выбранный пункт подменю) то же меню, действия — с этим пунктом подменю.
   const accMore = $('#accMore');
   let am = null; // { id, sub, li }
-  const accMoreOn = () => ['demo', 'acc-add-items', 'acc-setup'].includes(stage.dataset.scenario);
+  const accMoreOn = () => ['demo', 'acc-setup'].includes(stage.dataset.scenario);
   function toggleAccMore(id, cmd, sub) {
     if (am && am.id === id && am.sub === sub) { closeAccMore(); return; }
     closeAccMore();
@@ -1247,7 +1247,7 @@
       tb.append(b);
       return b;
     };
-    // ⚙ — окно настроек пункта (пока только в «Добавлении пунктов»; в остальных сценариях — наведение)
+    // ⚙ — окно настроек пункта (в «Настройке аккордеона» и «Подменю → Редактор»; в остальных сценариях — наведение)
     const gear = btn('sme-tb__btn--gear' + (iw && iw.key === ed.selected ? ' is-active' : ''), '', 'Настройки');
     // у выделенной пустой колонки («col:N») ⚙ — пока только наведение
     if (itemSettingsOn() && !ed.selected.startsWith('col:')) gear.addEventListener('click', () => (iw && iw.key === ed.selected ? closeItemWin() : openItemWin(ed.selected)));
@@ -1330,7 +1330,7 @@
       const w = el('div', 'sme-w' + (sub ? ' sme-w--sub' : '') + (key === selected ? ' is-selected' : ''));
       w.dataset.key = key;
       w.append(el('span', 'sme-w__text', title), mk('top', ci, ii), mk('bottom', ci, key === 'head' ? 0 : ii + 1));
-      // в «Добавлении пунктов» у виджета виден элемент справа из окна настроек
+      // в «Настройке аккордеона» у виджета виден элемент справа из окна настроек
       if (itemSettingsOn() && right) $('.sme-w__text', w).insertAdjacentHTML('afterend', rightHTML(right));
       if (key === selected) w.append(toolbar());
       return w;
@@ -2139,7 +2139,7 @@
     const match = (t) => !q || t.toLowerCase().includes(q);
     const fromAcc = accEditor.contains(plusOwner); // плюс у пункта в редакторе аккордеона
     const fromEditor = plusOwner !== accPlus && !fromAcc;
-    // В «Добавлении пунктов» и «Подменю → Редактор» уже добавленной страницы в меню нет: в редакторе — пунктов
+    // В «Настройке аккордеона» и «Подменю → Редактор» уже добавленной страницы в меню нет: в редакторе — пунктов
     // и заголовка подменю, в «+» шапки аккордеона — добавленных пунктов аккордеона.
     const used = new Set(fromAcc ? ae.draft.map((it) => it.title) : fromEditor
       ? (itemSettingsOn() ? [ed.draft.showHead ? ed.draft.head : null, ...ed.draft.cols.flat().map((it) => it.title)] : [])
@@ -2166,7 +2166,7 @@
       // В меню «+» шапки аккордеона не кликаются страницы и пустые группы («Деньги», «Торги»).
       row('', `<span class="ico pm-ico">${arrow}</span><span>${n.title}</span>`,
         n.kind === 'group' && (fromEditor || fromAcc || n.items.length) ? () => { n.open = !n.open; renderPlusMenu(); } : null);
-      // В «Добавлении пунктов» страница «Моей компании» из «+» шапки аккордеона добавляет пункт в аккордеон.
+      // В «Настройке аккордеона» страница «Моей компании» из «+» шапки аккордеона добавляет пункт в аккордеон.
       const onPage = (t) => (fromAcc ? () => aeAddPage(t) : fromEditor ? () => addPage(t) : accAddItems() && n.title === 'Моей компании' ? () => addAccItem(t) : null);
       if (n.open || (q && kids.length)) for (const t of (q ? kids : pages(n))) row('pm-row--page', `<span>${t}</span>`, onPage(t));
     }
@@ -2196,9 +2196,9 @@
     commit(draft);
   }
 
-  // Сценарий «Аккордеон → Добавление пунктов»: страница из меню «+» шапки аккордеона становится пунктом в конце аккордеона
+  // Сценарий «Аккордеон → Настройка аккордеона»: страница из меню «+» шапки аккордеона становится пунктом в конце аккордеона
   // и открывается её страница (скелетон). Пустого подменю нет: в нём сразу заголовок — название пункта. Редактор подменю — по ✎ пункта, как у остальных разделов.
-  const accAddItems = () => stage.dataset.scenario === 'acc-add-items';
+  const accAddItems = () => stage.dataset.scenario === 'acc-setup';
   const ADDED_ICON = ICON_GROUPS[0].icons[0]; // иконка нового пункта — первая из выбора иконок (меняется в редакторе)
   let addedCount = 0;
   function addAccItem(title) {
@@ -2352,7 +2352,7 @@
     renderAe();
   }
 
-  // Новый пункт из меню «+» — как в «Добавлении пунктов»: своя иконка, подменю из одного заголовка; встаёт на место плюса.
+  // Новый пункт из меню «+» — как при добавлении из «+» шапки аккордеона: своя иконка, подменю из одного заголовка; встаёт на место плюса.
   function aeAddPage(title) {
     const id = 'added-' + ++addedCount;
     ALL_SECTIONS[id] = { id, title, short: title, added: true, customIcon: ADDED_ICON, submenu: { head: title, cols: [[]] } };
@@ -2518,7 +2518,7 @@
   });
 
   // ---------- Окно настроек пункта подменю (Figma 9eLwMJLQCwT0xHKviN2j1P 18562:24378) ----------
-  // По ⚙ тулбара выделенного виджета, в «Добавлении пунктов» и «Подменю → Редактор». Встаёт справа от виджета (как «Вкладки»),
+  // По ⚙ тулбара выделенного виджета, в «Настройке аккордеона» и «Подменю → Редактор». Встаёт справа от виджета (как «Вкладки»),
   // перетаскивается за шапку. Правки сразу видны на виджете: ✓ — одним шагом в черновик редактора, ✕ — без изменений,
   // ↺ — к виду на момент открытия. У заголовка подменю нет «Вложенности» и «Закрепить», зато есть «Размещение» плюса.
   const itemWin = $('#itemWin');
@@ -2528,8 +2528,8 @@
   const IW_CMDS = [['none', 'Не выбрано'], ['count', 'Счетчик'], ['panel', 'Открытие панели'], ['add', 'Добавление']];
   const IW_SHOWS = [['both', 'Новые и общие события'], ['new', 'Только новые события'], ['total', 'Общее количество событий']];
   const IW_DEMO = { accent: '3', count: '12' }; // демо-цифры счётчика, если своих у пункта нет
-  // окно — в «Добавлении пунктов» и в «Подменю → Редактор»
-  function itemSettingsOn() { return ['acc-add-items', 'submenu-editor'].includes(stage.dataset.scenario); }
+  // окно — в «Настройке аккордеона» и в «Подменю → Редактор»
+  function itemSettingsOn() { return ['acc-setup', 'submenu-editor'].includes(stage.dataset.scenario); }
 
   // Элемент справа пункта ⇄ настройки окна
   function iwFromRight(r) {
@@ -3463,7 +3463,7 @@
     if (!s.tabsAdded) selectTabs(false);
     renderTabs();
     // разделы; открытый пункт подменю, которого больше нет, снимается
-    // список разделов — по снимку (добавленные в «Добавлении пунктов» уходят и возвращаются)
+    // список разделов — по снимку (добавленные в «Настройке аккордеона» уходят и возвращаются)
     SECTIONS.splice(0, SECTIONS.length, ...s.sections.map((d) => ALL_SECTIONS[d.id]));
     if (state.page.section && !SECTIONS.some((x) => x.id === state.page.section)) { state.page = { section: null, item: null }; updatePage(); }
     SECTIONS.forEach((sec, i) => {
