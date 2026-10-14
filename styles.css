@@ -1928,6 +1928,11 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .iw-chips { display: flex; flex-wrap: wrap; padding: 8px 12px 4px; }
 .iw-chip { height: 28px; padding: 0 12px; border-radius: 100px; background: #fff; font-size: 14px; letter-spacing: -.1974px; color: var(--label); transition: color .12s; }
 .iw-chip:hover { color: var(--text); }
+/* свойство «Закреплен снизу ×»: значение 14 text-color, крестик 16 unaccented #ccc через 4; высота как у чипсы, чтобы окно не прыгало */
+.iw-prop { height: 28px; display: flex; align-items: center; gap: 4px; font-size: 14px; letter-spacing: -.1974px; color: var(--text); }
+.iw-prop__x { display: flex; align-items: center; padding-top: 1px; }
+.iw-prop__x .ico { color: #ccc; transition: color .12s; }
+.iw-prop__x:hover .ico { color: #999; }
 
 /* ⚙ тулбара виджета, пока открыто окно настроек */
 .sme-tb__btn.is-active { background: var(--pill-active); }

@@ -2675,7 +2675,8 @@
     $('#iwShow').textContent = IW_SHOWS.find(([v]) => v === iw.show)[1];
     $('#iwPanel').classList.toggle('is-on', iw.panel);
     for (const b of $('#iwSide').children) b.classList.toggle('is-on', b.dataset.side === iw.side);
-    $('#iwPin').textContent = iw.pinned ? 'Открепить пункт' : 'Закрепить пункт снизу';
+    $('#iwPin').hidden = iw.pinned; // закреплённый — свойство «Закреплен снизу ×» вместо чипсы
+    $('#iwPinned').hidden = !iw.pinned;
     $('#iwReset').disabled = iwState() === iw.start;
     // настройки сразу видны на виджете (название, уровень, элемент справа); в черновик — по ✓, ✕ возвращает виджет как был
     if (acc) {
@@ -2772,7 +2773,8 @@
   iwTitle.addEventListener('blur', () => { if (iw && !iw.title.trim()) iwTitleBack(); });
   $('#iwPanel').addEventListener('click', () => iwSet({ panel: !iw.panel }));
   $('#iwSide').addEventListener('click', (e) => { const b = e.target.closest('[data-side]'); if (b) iwSet({ side: b.dataset.side }); });
-  $('#iwPin').addEventListener('click', () => iwSet({ pinned: !iw.pinned }));
+  $('#iwPin').addEventListener('click', () => iwSet({ pinned: true }));
+  $('#iwUnpin').addEventListener('click', () => iwSet({ pinned: false }));
 
   // Выпадающие списки окна («Вложенность», «Команда», «Выводить»): первый пункт встаёт на место ссылки, выбранный — с точкой.
   let iwMenuFor = null;
