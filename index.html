@@ -559,6 +559,23 @@
         </div>
         <button class="mw-menu__close" type="button" id="rpMoreClose" aria-label="Закрыть"><img src="assets/img/close-menu.svg" width="12" height="12" alt=""></button>
       </div>
+      <!-- Меню «⋮» пункта аккордеона (Figma xMQ3ZEN4AUINgwjVoxR8hS 19401:31603): крестик — поверх «⋮»;
+           «Переместить» — только ховер, по нему подменю «Вверх / Вниз / В другой раздел» (19404:32415) -->
+      <div class="mw-menu acc-more" id="accMore" hidden>
+        <div class="mw-menu__list">
+          <button class="mw-menu__item acc-more__item" type="button" data-act="edit"><span class="ico24">&#xE660;</span><span class="mw-menu__text">Настроить подменю</span></button>
+          <button class="mw-menu__item acc-more__item" type="button" data-act="rename"><span class="ico24">&#xE698;</span><span class="mw-menu__text">Переименовать</span></button>
+          <div class="mw-menu__item acc-more__item acc-more__move"><span class="ico24">&#xE63F;</span><span class="mw-menu__text">Переместить</span><span class="acc-more__arrow"><span class="ico">&#xE9AB;</span></span>
+            <div class="acc-more__sub">
+              <div class="mw-menu__item acc-more__item"><span class="ico24">&#xE672;</span><span class="mw-menu__text">Вверх</span></div>
+              <div class="mw-menu__item acc-more__item"><span class="ico24">&#xE673;</span><span class="mw-menu__text">Вниз</span></div>
+              <div class="mw-menu__item acc-more__item"><span class="ico24">&#xE63F;</span><span class="mw-menu__text">В другой раздел</span></div>
+            </div>
+          </div>
+          <button class="mw-menu__item acc-more__item" type="button" data-act="delete"><span class="ico24 acc-more__danger">&#xEB72;</span><span class="mw-menu__text">Удалить</span></button>
+        </div>
+        <button class="mw-menu__close" type="button" id="accMoreClose" aria-label="Закрыть"><img src="assets/img/close-menu.svg" width="12" height="12" alt=""></button>
+      </div>
       <div class="mw-menu rp-menu" id="rpMenu" hidden>
         <div class="mw-menu__list" id="rpMenuList"></div>
         <button class="mw-menu__close" type="button" id="rpMenuClose" aria-label="Закрыть"><img src="assets/img/close-menu.svg" width="12" height="12" alt=""></button>

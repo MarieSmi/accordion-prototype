@@ -828,6 +828,32 @@ ul { list-style: none; margin: 0; padding: 0; }
 .rp-switch:hover::before { background-color: #b8bdc3; }
 .rp-switch.is-on::before { background: var(--accent) radial-gradient(circle 6px at 16px 8px, #fff 5.5px, transparent 6px); }
 .rp-switch.is-on:hover::before { background-color: #e5622b; }
+/* меню «⋮» пункта аккордеона (Figma xMQ3ZEN4AUINgwjVoxR8hS 19401:31603): 232 шириной, отступы 8, между пунктами 6 */
+.mw-menu.acc-more { width: 232px; }
+.acc-more .mw-menu__list { padding: 8px; }
+.mw-menu__item.acc-more__item { position: relative; padding: 0 8px 0 12px; cursor: default; }
+.acc-more__item .ico24 { flex: none; height: 32px; margin-right: 8px; color: #656c87; } /* icon/secondary_icon-color */
+.acc-more__item .ico24.acc-more__danger { color: #c2140a; } /* icon/danger_icon-color */
+.acc-more__arrow { flex: none; width: 32px; height: 32px; margin-right: -8px; display: flex; align-items: center; justify-content: center; }
+.acc-more__arrow .ico { color: #656c87; padding-bottom: 1px; }
+/* «Переместить» — только ховер: подменю справа от пункта через 8, первый пункт на уровне «Переместить» (Figma 19404:32415) */
+.acc-more__sub {
+  position: absolute; left: calc(100% + 8px); top: -12px; width: 194px; display: none;
+  flex-direction: column; gap: 6px; padding: 12px 8px; background: #fff; border-radius: 8px; box-shadow: var(--win-shadow);
+}
+.acc-more__sub::before { content: ""; position: absolute; left: -8px; top: 0; bottom: 0; width: 8px; } /* мостик: ховер не теряется по пути */
+.acc-more__move:hover { background: var(--menu-item-hover); }
+.acc-more__move:hover .acc-more__sub { display: flex; }
+.acc-more__sub .acc-more__item:hover { background: var(--menu-item-hover); }
+/* переименование пункта аккордеона: поле на месте названия — только каретка, без подчёркивания */
+.acc-rename {
+  position: absolute; z-index: 2; margin: 0; padding: 0; border: 0; outline: none; background: transparent;
+  font-family: inherit; color: var(--acc-text);
+}
+.acc-item.is-renaming .acc-item__title,
+.acc-item.is-renaming .acc-item__sub-title,
+.acc-item.is-renaming .acc-item__count { visibility: hidden; }
+.acc-item.is-renaming .acc-cmds { display: none; }
 .mw-menu.rp-menu { width: 160px; } /* Figma 18452:13240 */
 
 /* ---------- Подменю ---------- */

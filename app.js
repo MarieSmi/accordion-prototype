@@ -165,6 +165,7 @@
     closePlusMenu();
     closeIconPick();
     closeRpMore();
+    closeAccMore();
     closeSubmenu();
     // каждый сценарий начинается с исходных вкладок; в «Добавлении вкладки» — одна «Главный», виджета вкладок нет
     closeTabsWin();
@@ -252,7 +253,8 @@
       subRow.type = 'button';
       subRow.addEventListener('click', (e) => {
         const cmd = e.target.closest('.acc-cmd');
-        if (cmd) { if (!cmd.classList.contains('acc-cmd--dots')) openEditor(sec.id); return; }
+        if (cmd) { if (cmd.classList.contains('acc-cmd--dots')) toggleAccMore(sec.id, cmd, true); else openEditor(sec.id); return; }
+        if (li.classList.contains('is-renaming')) return;
         btn.click();
       });
       const group = el('div', 'acc-item__group');
@@ -270,6 +272,7 @@
         }
       });
       li.addEventListener('mouseleave', () => {
+        if (li.classList.contains('is-menu')) return; // пока открыто меню «⋮», строка остаётся подсвеченной, с командами
         clearTimeout(timer);
         li.classList.remove('is-hover', 'is-delay', 'is-sub-hover');
       });
@@ -284,9 +287,10 @@
       btn.addEventListener('mouseenter', () => hoverRow(false));
       subRow.addEventListener('mouseenter', () => hoverRow(true));
       btn.addEventListener('click', (e) => {
-        // ✎ открывает редактор подменю; ⋮ — поведение по клику пока не задано.
+        // ✎ открывает редактор подменю; ⋮ — меню действий пункта.
         const cmd = e.target.closest('.acc-cmd');
-        if (cmd) { if (!cmd.classList.contains('acc-cmd--dots')) openEditor(sec.id); return; }
+        if (cmd) { if (cmd.classList.contains('acc-cmd--dots')) toggleAccMore(sec.id, cmd, false); else openEditor(sec.id); return; }
+        if (li.classList.contains('is-renaming')) return;
         // Подменю для раздела ещё не нарисовано — переходим сразу на страницу раздела.
         if (!hasMenu(sec)) { navigate(sec.id, null); return; }
         if (state.openSection === sec.id) { if (trigger() === 'click') closeSubmenu(); }
@@ -1003,6 +1007,119 @@
     if (!rpMoreMenu.hidden && !e.target.closest('#rpMoreMenu, #rpMore')) closeRpMore();
   });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !rpMoreMenu.hidden) closeRpMore(); });
+
+  // ---------- Меню «⋮» пункта аккордеона (Figma xMQ3ZEN4AUINgwjVoxR8hS 19401:31603) ----------
+  // В «Общем демо» и «Аккордеон → Добавление пунктов». Крестик меню — ровно поверх «⋮» (крестик: right −14, top 8, 28×28).
+  // «Настроить подменю» — редактор подменю; «Переименовать» — каретка в названии на месте; «Переместить» — только ховер
+  // (подменю «Вверх / Вниз / В другой раздел» без действий); «Удалить» — пункт уходит (отмена в шапке возвращает).
+  // У второй строки (выбранный пункт подменю) то же меню, действия — с этим пунктом подменю.
+  const accMore = $('#accMore');
+  let am = null; // { id, sub, li }
+  const accMoreOn = () => ['demo', 'acc-add-items'].includes(stage.dataset.scenario);
+  function toggleAccMore(id, cmd, sub) {
+    if (am && am.id === id && am.sub === sub) { closeAccMore(); return; }
+    closeAccMore();
+    if (!accMoreOn()) return;
+    closeOtherWindows();
+    closeSubmenu();
+    const li = cmd.closest('.acc-item');
+    am = { id, sub, li };
+    li.classList.add('is-menu');
+    accMore.hidden = false;
+    const r = stageRect(cmd);
+    // у левого края сцены меню не помещается целиком — прижимается к краю (крестик тогда правее «⋮»)
+    accMore.style.left = Math.max(0, Math.round(r.left + r.width / 2 - accMore.offsetWidth)) + 'px';
+    accMore.style.top = Math.round(r.top + r.height / 2 - 8 - 14) + 'px';
+  }
+  function closeAccMore() {
+    if (!am) return;
+    const { li } = am;
+    am = null;
+    accMore.hidden = true;
+    li.classList.remove('is-menu');
+    if (!li.matches(':hover')) li.dispatchEvent(new Event('mouseleave'));
+  }
+  $('#accMoreClose').addEventListener('click', closeAccMore);
+  stage.addEventListener('mousedown', (e) => {
+    if (am && !e.target.closest('#accMore, .acc-cmd--dots')) closeAccMore();
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && am) closeAccMore(); });
+  accMore.addEventListener('click', (e) => {
+    const act = e.target.closest('[data-act]')?.dataset.act;
+    if (!act || !am) return;
+    const { id, sub, li } = am;
+    closeAccMore();
+    if (act === 'edit') openEditor(id);
+    else if (act === 'rename') startAccRename(li, id, sub);
+    else if (act === 'delete') deleteAccItem(id, sub);
+  });
+
+  // Переименование на месте: поле поверх названия, каретка в конце. Enter или уход фокуса — применить, Esc — отменить.
+  // Название раздела не меняет заголовок подменю (как в редакторе); у второй строки меняется название пункта подменю.
+  function startAccRename(li, id, sub) {
+    const sec = SECTIONS.find((s) => s.id === id);
+    const title = $(sub ? '.acc-item__sub-title' : '.acc-item__title', li);
+    const row = $(sub ? '.acc-item__sub' : '.acc-item__btn', li);
+    const t = stageRect(title), l = stageRect(li), rw = stageRect(row);
+    const cs = getComputedStyle(title);
+    const input = el('input', 'acc-rename');
+    input.value = title.textContent;
+    Object.assign(input.style, {
+      left: (t.left - l.left) + 'px', top: (t.top - l.top) + 'px', height: t.height + 'px',
+      width: (rw.left + rw.width - t.left - 12) + 'px', paddingTop: cs.paddingTop,
+      fontSize: cs.fontSize, fontWeight: cs.fontWeight, letterSpacing: cs.letterSpacing,
+    });
+    li.classList.add('is-renaming');
+    li.append(input);
+    input.focus();
+    input.setSelectionRange(input.value.length, input.value.length);
+    let done = false;
+    const finish = (apply) => {
+      if (done) return;
+      done = true;
+      const value = input.value.replace(/\s+/g, ' ').trim();
+      input.remove();
+      li.classList.remove('is-renaming');
+      if (!apply || !value || value === title.textContent) return;
+      if (sub) {
+        const [ci, ii] = state.page.item.split(':').map(Number);
+        sec.submenu.cols = sec.submenu.cols.map((c) => c.slice());
+        sec.submenu.cols[ci][ii] = { ...sec.submenu.cols[ci][ii], title: value };
+      } else {
+        if (!sec.submenu.headLabel && sec.submenu.head == null) sec.submenu.head = sec.title;
+        sec.title = value;
+        sec.short = value === PRISTINE[id].title ? PRISTINE[id].short : value;
+      }
+      renderAccordion();
+      record();
+    };
+    input.addEventListener('blur', () => finish(true));
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); finish(true); }
+      else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); finish(false); }
+    });
+    // клики по полю не доходят до пункта (не открывают подменю)
+    for (const type of ['click', 'mousedown']) input.addEventListener(type, (e) => e.stopPropagation());
+  }
+
+  // Удаление: раздел уходит из аккордеона (открытая страница раздела — на «Главную»);
+  // у второй строки — пункт подменю (страница — раздела по умолчанию), пустая вторая колонка пропадает.
+  function deleteAccItem(id, sub) {
+    const sec = SECTIONS.find((s) => s.id === id);
+    if (sub) {
+      const [ci, ii] = state.page.item.split(':').map(Number);
+      sec.submenu.cols = sec.submenu.cols.map((c) => c.slice());
+      sec.submenu.cols[ci].splice(ii, 1);
+      if (ci > 0 && !sec.submenu.cols[ci].length) sec.submenu.cols.splice(ci, 1);
+      state.page.item = null;
+      updatePage();
+    } else {
+      SECTIONS.splice(SECTIONS.indexOf(sec), 1);
+      if (state.page.section === id) goPage(null, null);
+    }
+    renderAccordion();
+    record();
+  }
 
   // ---------- Редактор подменю ----------
   // ✎ (команда пункта или плавающая кнопка подменю) закрывает подменю и открывает окно редактора:
@@ -2051,9 +2168,11 @@
     goPage(id, null);
     record();
   }
+  // Смена сценария: добавленные пункты уходят, удалённые меню «⋮» исходные разделы возвращаются на свои места.
+  const ORIGINAL_IDS = SECTIONS.map((s) => s.id);
   function removeAddedSections() {
-    const keep = SECTIONS.filter((s) => !s.added);
-    if (keep.length === SECTIONS.length) return;
+    const keep = ORIGINAL_IDS.map((id) => ALL_SECTIONS[id]);
+    if (keep.length === SECTIONS.length && keep.every((s, i) => SECTIONS[i] === s)) return;
     SECTIONS.splice(0, SECTIONS.length, ...keep);
     if (ALL_SECTIONS[state.page.section]?.added) goPage(null, null);
     renderAccordion();
