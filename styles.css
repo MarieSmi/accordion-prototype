@@ -1218,10 +1218,13 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 /* реестр («Аккордеон и подменю»): колонки не подсвечиваются и пунктиром не выделяются; между колонками — линия (как в рантайме);
    пустая колонка — по клику меню «+» */
 /* реестр: между колонками только линия 1px, так что от виджетов до него те же 7px, что и до края карточки;
-   линия — пунктир как обводка выделенной колонки (Figma rHabzni5OI5D4fxBLQdj2m 3279:4851): #7b62f8 60%, штрих 4 / 4 */
+   линия — пунктир как обводка выделенной колонки (Figma rHabzni5OI5D4fxBLQdj2m 3279:4851), штрих 4 / 4, но сильно бледнее: #7b62f8 20% */
 .sme-card.is-registry { gap: 1px; } /* зазор — под линию */
-.is-registry .sme-list + .sme-list::before { content: ""; position: absolute; left: -1px; top: 0; bottom: 0; width: 1px; background: repeating-linear-gradient(to bottom, rgba(123, 98, 248, .6) 0 4px, transparent 4px 8px); pointer-events: none; }
+.is-registry .sme-list + .sme-list::before { content: ""; position: absolute; left: -1px; top: 0; bottom: 0; width: 1px; background: repeating-linear-gradient(to bottom, rgba(123, 98, 248, .2) 0 4px, transparent 4px 8px); pointer-events: none; }
 .sme-list.is-empty { cursor: pointer; }
+/* пустую колонку реестра можно выделить, как виджет: рамка info и тулбар виджета; «+» в середине — меню «+» */
+.sme-list.is-empty:hover { border: 1px solid var(--info-border-soft); border-radius: 2px; }
+.sme-list.is-empty.is-selected { border: 1px solid var(--info-border); border-radius: 2px; }
 
 /* плюсы (Figma rHabzni5OI5D4fxBLQdj2m 399:49380): кружок 8px → при наведении 16px с «+», при нажатии темнее */
 .sme-mk { position: absolute; z-index: 2; width: 20px; height: 20px; display: none; align-items: center; justify-content: center; cursor: pointer; }

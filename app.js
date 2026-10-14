@@ -1226,7 +1226,8 @@
     };
     // ⚙ — окно настроек пункта (пока только в «Добавлении пунктов»; в остальных сценариях — наведение)
     const gear = btn('sme-tb__btn--gear' + (iw && iw.key === ed.selected ? ' is-active' : ''), '', 'Настройки');
-    if (itemSettingsOn()) gear.addEventListener('click', () => (iw && iw.key === ed.selected ? closeItemWin() : openItemWin(ed.selected)));
+    // у выделенной пустой колонки («col:N») ⚙ — пока только наведение
+    if (itemSettingsOn() && !ed.selected.startsWith('col:')) gear.addEventListener('click', () => (iw && iw.key === ed.selected ? closeItemWin() : openItemWin(ed.selected)));
     btn('sme-tb__btn--del', '', 'Удалить').addEventListener('click', deleteSelected);
     btn('', '', 'Ещё');
     return tb;
@@ -1321,6 +1322,8 @@
       if (empty) Object.assign(l.dataset, { col: ci, at: 0 });
       l.classList.toggle('is-empty', empty);
       if (empty) l.append(el('div', 'sme-empty', '<span class="sme-empty__btn"><span class="ico24">&#xE6D3;</span></span>'));
+      // пустую колонку можно выделить, как виджет (ключ «col:N»): рамка и тулбар виджета
+      if (empty && selected === `col:${ci}`) { l.classList.add('is-selected'); l.append(toolbar()); }
       if (!registry) l.append(mk('top'), mk('bottom'), mk('left'), mk('right'));
       smeCard.append(l);
     });
@@ -1408,6 +1411,7 @@
     if (!key) return;
     const draft = cloneDraft(ed.draft);
     if (key === 'head') draft.showHead = false;
+    else if (key.startsWith('col:')) draft.cols.splice(+key.slice(4), 1); // пустая колонка
     else {
       const [ci, ii] = key.split(':').map(Number);
       draft.cols[ci].splice(ii, 1);
@@ -1495,6 +1499,12 @@
         return;
       }
       stopItemEdit(true);
+    }
+    // пустая колонка реестра: клик мимо «+» выделяет её (как виджет), «+» — меню «+» без смены выделения
+    const cell = e.target.closest('.sme-list.is-empty');
+    if (cell) {
+      if (!e.target.closest('.sme-empty__btn')) select(`col:${cell.dataset.col}`);
+      return;
     }
     const w = e.target.closest('.sme-w');
     // второе нажатие двойного клика по тексту — переименование (без выделения слова)
@@ -2674,7 +2684,7 @@
   smePlus.addEventListener('click', () => (plusMenu.hidden ? openPlusMenu(smePlus) : closePlusMenu()));
   accPlus.addEventListener('click', () => (plusMenu.hidden ? openPlusMenu(accPlus) : closePlusMenu()));
   smeCard.addEventListener('click', (e) => {
-    const m = e.target.closest('.sme-mk, .sme-list.is-empty');
+    const m = e.target.closest('.sme-mk') ?? (e.target.closest('.sme-empty__btn') && e.target.closest('.sme-list.is-empty'));
     if (!m || m.dataset.at == null) return; // вне реестра плюсы пока ничего не добавляют
     const again = !plusMenu.hidden && plusOwner === m;
     if (!plusMenu.hidden) closePlusMenu();
@@ -2683,7 +2693,7 @@
   $('#plusMenuClose').addEventListener('click', closePlusMenu);
   plusSearch.addEventListener('input', renderPlusMenu);
   stage.addEventListener('mousedown', (e) => {
-    if (plusMenu.hidden || e.target.closest('#plusMenu') || e.target.closest('.sme-plus, .acc-plus, .sme-mk, .sme-list.is-empty')) return;
+    if (plusMenu.hidden || e.target.closest('#plusMenu') || e.target.closest('.sme-plus, .acc-plus, .sme-mk, .sme-list.is-empty .sme-empty__btn')) return;
     closePlusMenu();
   }, true);
 
