@@ -1242,8 +1242,8 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .ae-brand .acc-bird:hover { background: var(--acc-bird-hover); }
 .ae-group { pointer-events: none; margin-bottom: 5px; } /* «ПРЕДПРИЯТИЕ» не трогаем: без ховера и выделения */
 .ae-list { position: relative; display: flex; flex-direction: column; padding: 0 3px; } /* 3 + рамка 1 = 4, как отступ пункта: ширина пункта как в аккордеоне */
-.sme-w.ae-w { height: 40px; padding: 0; border-radius: 8px; color: var(--acc-text); font-weight: inherit; line-height: normal; letter-spacing: normal; }
-.ae-w .acc-item__btn { height: 38px; cursor: default; }
+.sme-w.ae-w { height: 40px; padding: 0; border-radius: 2px; color: var(--acc-text); font-weight: inherit; line-height: normal; letter-spacing: normal; }
+.ae-w .acc-item__btn { height: 38px; border-radius: 2px; cursor: default; }
 .ae-w .acc-item__btn .acc-item__count { padding: 1px 0 0; } /* счётчик — как в аккордеоне, не как у виджетов подменю */
 .ae-w :is(.acc-item__icon, .acc-cal, .acc-item__photo) { cursor: pointer; }
 .ae-w .acc-item__title[contenteditable="plaintext-only"] { cursor: text; outline: none; text-overflow: clip; caret-color: var(--acc-text); }
