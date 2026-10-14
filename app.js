@@ -672,11 +672,18 @@
   const isMobile = () => stage.classList.contains('is-mobile');
   const MOB_PAGES = { main: 'assets/img/mobile/main.png', skeleton: 'assets/img/mobile/skeleton.png' };
 
-  function nnpIconHTML(sec) {
+  // У активного пункта ННП иконка залитая (Figma 18871:38476: Контакты E928 → E98E, Главная E933 → E98A) — пары из Accordion-Font.
+  // Свои иконки, фото и календарь — без заливки, только темнее.
+  const NNP_FILLED = {
+    '': '', '': '', '': '', '': '', '': '', '': '',
+    '': '', '': '', '': '', '': '', '': '', '': '',
+  };
+  const nnpGlyph = (ch, on) => `<span class="nnp__glyph">${on ? NNP_FILLED[ch] ?? ch : ch}</span>`;
+  function nnpIconHTML(sec, on) {
     if (sec.customIcon) return customGlyph(sec.customIcon);
     if (sec.photo) return `<img class="acc-item__photo" src="${sec.photo}" alt="">`;
     if (sec.calendar) return calendarHTML();
-    return `<span class="nnp__glyph">${sec.icon}</span>`;
+    return nnpGlyph(sec.icon, on);
   }
   function nnpItemHTML(id, icon, text, on, count) {
     return `<button class="nnp__item${on ? ' is-on' : ''}" type="button" data-id="${id}">
@@ -687,8 +694,8 @@
     if (!stage.classList.contains('is-mobile')) return;
     const { section } = state.page;
     $('#mobPage').src = MOB_PAGES[section ? 'skeleton' : 'main'];
-    $('#nnpList').innerHTML = nnpItemHTML('', '<span class="nnp__glyph">&#xE98A;</span>', 'Главная', !section)
-      + SECTIONS.map((s) => nnpItemHTML(s.id, nnpIconHTML(s), s.short, s.id === section, secCount(s)?.accent)).join('');
+    $('#nnpList').innerHTML = nnpItemHTML('', nnpGlyph('', !section), 'Главная', !section)
+      + SECTIONS.map((s) => nnpItemHTML(s.id, nnpIconHTML(s, s.id === section), s.short, s.id === section, secCount(s)?.accent)).join('');
     $('#mobAccList').innerHTML = SECTIONS.map((s) => `<li class="mob-acc__item${s.id === section ? ' is-selected' : ''}${s.pinned ? ' is-pinned' : ''}">
       <div class="mob-acc__btn"><span class="mob-acc__icon">${iconHTML(s)}</span><span class="mob-acc__title">${s.title}</span></div></li>`).join('');
   }
