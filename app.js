@@ -2122,7 +2122,7 @@
     // «Добавить колонку» — пока колонка одна (вторая без виджетов при удалении последнего пропадает).
     if (!q && fromEditor) {
       row('', '<span class="ico pm-ico">&#xEADD;</span><span>Добавить виджет</span>');
-      if (itemSettingsOn() && ed.draft.cols.length < 2) row('', '<span class="ico pm-ico">&#xEADD;</span><span>Добавить колонку</span>', addColumn);
+      if (itemSettingsOn() && ed.draft.cols.length < 2) row('', '<span class="ico24 pm-ico pm-ico--col">&#xEAEE;</span><span>Добавить колонку</span>', addColumn);
     }
     for (const n of PLUS_TREE) {
       if (n.sep) { if (!q) plusList.append(el('div', 'pm-sep')); continue; }

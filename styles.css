@@ -1278,6 +1278,7 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .pm-row:hover { background: #ebf4ff; }
 .pm-row--page { padding-left: 54px; }
 .pm-ico { color: #8991a9; }
+.pm-ico--col { flex: none; font-size: 16px; width: 16px; height: 16px; } /* иконка «Добавить колонку» (Figma 9eLwMJLQCwT0xHKviN2j1P 18577:20780), по размеру значков меню */
 .pm-sep { flex: none; margin: 8px 12px 4px; height: 20px; background: linear-gradient(rgba(0, 0, 0, .04), rgba(0, 0, 0, .04)) center / 100% 1px no-repeat; }
 .sme-plus.is-active { background: var(--pill-bg); }
 
