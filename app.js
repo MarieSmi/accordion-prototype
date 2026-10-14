@@ -2433,7 +2433,13 @@
     const up = () => {
       document.removeEventListener('mousemove', move);
       document.removeEventListener('mouseup', up);
-      if (!dragging) { aeSelect(w.dataset.id); return; } // повторный клик по выделенному — пока ничего (окно настроек позже)
+      if (!dragging) {
+        // повторный клик по выделенному — окно настроек пункта, как по ⚙ (если ещё не открыто)
+        const id = w.dataset.id;
+        if (ae.selected === id && e.detail === 1 && iw?.key !== id) openAeItemWin(id);
+        else aeSelect(id);
+        return;
+      }
       aeList.classList.remove('is-dragging');
       const draft = ae.draft.slice();
       draft.splice(to, 0, ...draft.splice(from, 1));
