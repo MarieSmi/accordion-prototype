@@ -1247,9 +1247,14 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
   flex: 1 1 0; min-height: 0; width: calc(var(--acc-gap) - 1px);
   background: var(--acc-bg); color: var(--acc-text); font-weight: var(--acc-weight); -webkit-font-smoothing: antialiased;
 }
-/* виджет шапки — строка шапки аккордеона (птичка и saby) с её ховерами; клик — окно «Логотип» */
-.ae-brand { margin-bottom: 2px; }
-.ae-brand .acc-bird:hover { background: var(--acc-bird-hover); }
+/* виджет шапки — строка шапки аккордеона (птичка и saby), ховер как у виджета: рамка info 60%, скругление 2px, без подложки;
+   птичка отдельно не подсвечивается, плюсов и тулбара нет. Клик — окно «Логотип» справа; пока оно открыто — рамка info.
+   Отступы как у пунктов: 3 + рамка 1 = 4, содержимое на прежнем месте */
+.ae-brand { margin: 3px 3px 2px; padding: 3px 4px 3px 8px; border: 1px solid transparent; border-radius: 2px; transition: border-color .12s; }
+.ae-brand:hover { background: none; border-color: var(--info-border-soft); }
+.ae-brand.is-win-open { border-color: var(--info-border); }
+.ae-brand:hover .acc-bird { background: none; }
+.ae-brand:hover .acc-logo { -webkit-text-stroke-color: var(--acc-bg); }
 .ae-group { pointer-events: none; margin-bottom: 5px; } /* «ПРЕДПРИЯТИЕ» не трогаем: без ховера и выделения */
 .ae-list { position: relative; display: flex; flex-direction: column; padding: 0 3px; } /* 3 + рамка 1 = 4, как отступ пункта: ширина пункта как в аккордеоне */
 .sme-w.ae-w { height: 40px; padding: 0; border-radius: 2px; color: var(--acc-text); font-weight: inherit; line-height: normal; letter-spacing: normal; }

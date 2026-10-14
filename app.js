@@ -688,7 +688,8 @@
   // Из шапки: левый край по кнопке, верх по верху шапки, кнопка подсвечена. Из аккордеона (птичка): окно
   // встаёт углом на угол шапки аккордеона (отступы 12 и 7 от птички), кнопка в шапке не подсвечена.
   let openFrom = null;
-  function setWindow(name, from = null) {
+  // from — элемент, от которого открыто окно (птичка аккордеона — окно на нём); side = { right } — окно справа от right в 8px, верх — по from
+  function setWindow(name, from = null, side = null) {
     if (name) closeOtherWindows();
     if (openWin) {
       const w = windows[openWin];
@@ -696,12 +697,18 @@
       w.btn.classList.remove('is-active');
       w.onClose();
     }
+    openFrom?.classList.remove('is-win-open');
     openWin = name;
     openFrom = from;
     if (!name) return;
+    from?.classList.add('is-win-open');
     const w = windows[name];
     w.win.hidden = false;
-    if (from) {
+    if (from && side) {
+      const r = stageRect(from), edge = stageRect(side.right);
+      w.win.style.left = Math.round(Math.min(edge.left + edge.width + 8, 1600 - w.win.offsetWidth)) + 'px';
+      w.win.style.top = Math.round(Math.max(0, r.top)) + 'px';
+    } else if (from) {
       const r = stageRect(from);
       w.win.style.left = Math.round(Math.max(0, r.left - 12)) + 'px';
       w.win.style.top = Math.round(Math.max(0, r.top - 7)) + 'px';
@@ -2457,7 +2464,7 @@
   shield.addEventListener('mousedown', () => { if (!ae) return; stopAeEdit(true); aeSelect(null); });
   $('.sme-head', accEditor).addEventListener('mousedown', (e) => startDrag(e, accEditor));
   // виджет шапки: клик — окно «Логотип» (повторный — закрывает)
-  $('#aeBrand').addEventListener('click', () => setWindow(openWin === 'logo' && openFrom ? null : 'logo', $('.ae-bird', accEditor)));
+  $('#aeBrand').addEventListener('click', (e) => setWindow(openWin === 'logo' && openFrom ? null : 'logo', e.currentTarget, { right: $('.ae-card', accEditor) }));
 
   // в узком аккордеоне (снизу только карандаш) сначала разворачиваем его, редактор — по окончании анимации
   accGear.addEventListener('click', () => {
