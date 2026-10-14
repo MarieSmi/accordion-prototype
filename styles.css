@@ -1983,7 +1983,7 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 /* вкладка «Центр уведомлений» справа от экрана (Figma 18863:28165) — без действий */
 .mob-cu {
   position: absolute; left: 400px; top: 0; width: 31px; height: 160px; padding: 12px 7px;
-  background: #f8f8f8; border-radius: 0 8px 8px 0;
+  background: var(--content-bg); border-radius: 0 8px 8px 0; /* как фон экрана (в Figma — тот же #f8f8f8) */
   writing-mode: vertical-rl; font-size: 14px; letter-spacing: -.1974px; line-height: 17px; color: #999; white-space: nowrap;
 }
 
