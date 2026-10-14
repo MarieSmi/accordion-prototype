@@ -818,11 +818,12 @@
               </div>
             </div>
             <button class="iw-check" type="button" id="iwPanel" data-row="show"><span class="iw-check__box"></span><span>Открывать панель по клику на счетчик</span></button>
+            <!-- закреплённый пункт: вместо чипсы — свойство «Закреплен снизу ×» на белой подложке блока, в 8 ниже (редактор PropertyGrid,
+                 Figma lw5BTOhkhczQmdiTvlnhnG 14423:35467); × открепляет -->
+            <span class="iw-prop" id="iwPinned" hidden><span>Закреплен снизу</span><button class="iw-prop__x" type="button" id="iwUnpin" aria-label="Открепить"><span class="ico">&#xE66C;</span></button></span>
           </div>
         </div>
-        <div class="iw-chips" data-row="pin"><button class="iw-chip" type="button" id="iwPin">Закрепить пункт снизу</button>
-          <!-- закреплённый пункт: вместо чипсы — свойство «Закреплен снизу ×» (редактор PropertyGrid, Figma lw5BTOhkhczQmdiTvlnhnG 14423:35467); × открепляет -->
-          <span class="iw-prop" id="iwPinned" hidden><span>Закреплен снизу</span><button class="iw-prop__x" type="button" id="iwUnpin" aria-label="Открепить"><span class="ico">&#xE66C;</span></button></span></div>
+        <div class="iw-chips" data-row="pin"><button class="iw-chip" type="button" id="iwPin">Закрепить пункт снизу</button></div>
       </section>
       <div class="mw-menu iw-menu" id="iwMenu" hidden>
         <div class="mw-menu__list" id="iwMenuList"></div>

@@ -2664,7 +2664,7 @@
     const acc = !!iw.ae; // пункт аккордеона в его редакторе
     const head = !acc && iw.key === 'head';
     // «Закрепить пункт снизу» — только у пункта аккордеона; «Вложенность» и «По клику» — только у пункта подменю
-    const rows = { main: !acc, level: !head && !acc, show: iw.cmd === 'count', side: head && iw.cmd === 'add', pin: acc };
+    const rows = { main: !acc, level: !head && !acc, show: iw.cmd === 'count', side: head && iw.cmd === 'add', pin: acc && !iw.pinned };
     $('#iwIcon').hidden = !acc;
     $('#iwFillTitle').textContent = acc ? 'Наполнение пункта' : 'Дополнительно';
     $('#iwCmdName').textContent = acc ? 'Команды' : 'Команда';
@@ -2675,8 +2675,7 @@
     $('#iwShow').textContent = IW_SHOWS.find(([v]) => v === iw.show)[1];
     $('#iwPanel').classList.toggle('is-on', iw.panel);
     for (const b of $('#iwSide').children) b.classList.toggle('is-on', b.dataset.side === iw.side);
-    $('#iwPin').hidden = iw.pinned; // закреплённый — свойство «Закреплен снизу ×» вместо чипсы
-    $('#iwPinned').hidden = !iw.pinned;
+    $('#iwPinned').hidden = !(acc && iw.pinned); // закреплённый — свойство «Закреплен снизу ×» в блоке вместо чипсы
     $('#iwReset').disabled = iwState() === iw.start;
     // настройки сразу видны на виджете (название, уровень, элемент справа); в черновик — по ✓, ✕ возвращает виджет как был
     if (acc) {
