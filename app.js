@@ -1320,13 +1320,14 @@
       const empty = registry && !l.querySelector('.sme-w');
       if (empty) Object.assign(l.dataset, { col: ci, at: 0 });
       l.classList.toggle('is-empty', empty);
+      if (empty) l.append(el('div', 'sme-empty', '<span class="sme-empty__btn"><span class="ico24">&#xE6D3;</span></span>'));
       if (!registry) l.append(mk('top'), mk('bottom'), mk('left'), mk('right'));
       smeCard.append(l);
     });
     // пустое подменю — заглушка «+» на всю карточку
     if (!smeCard.querySelector('.sme-w')) {
       smeCard.innerHTML = '';
-      const stub = el('button', 'sme-stub', '<span class="ico24">&#xE6D3;</span>');
+      const stub = el('button', 'sme-stub sme-empty', '<span class="sme-empty__btn"><span class="ico24">&#xE6D3;</span></span>');
       stub.type = 'button';
       stub.setAttribute('aria-label', 'Добавить');
       stub.addEventListener('click', () => smePlus.click());

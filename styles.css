@@ -947,10 +947,13 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 /* пункт аккордеона в рантайме — на полосе аккордеона шириной 220, как на сцене */
 .rt-acc { width: 220px; padding: 4px 0; border-radius: 8px; background: var(--acc-bg); color: var(--acc-text); font-weight: var(--acc-weight); -webkit-font-smoothing: antialiased; }
 .editor-only__design { padding-left: 40px; }
-/* заглушка пустого подменю в редакторе — «+» как у «Виджет» в пустом дашборде */
-.sme-stub { flex: 1; height: 120px; display: flex; align-items: center; justify-content: center; border-radius: 8px; }
-.sme-stub .ico24 { width: 66px; height: 54px; display: flex; align-items: center; justify-content: center; border-radius: 8px; color: var(--accent2);
-  background: radial-gradient(ellipse 160% 120% at 27% 178%, #fcf0e4, rgba(255, 248, 245, 0)), var(--c-surface); }
+/* пустое представление (Figma 9eLwMJLQCwT0xHKviN2j1P 18578:20785): бледная подложка, по центру кнопка 32 с «+» в квадрате —
+   у пустой колонки реестра и у пустого подменю (заглушка на всю карточку) */
+.sme-empty { flex: 1; display: flex; align-items: center; justify-content: center; padding: 0 24px; border-radius: 4px; background: rgba(218, 218, 218, .12); }
+.sme-empty__btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 100px; transition: background-color .12s; }
+.sme-empty__btn .ico24 { padding-top: .5px; color: #8991a9; } /* icon/label_icon-color */
+:is(.sme-list.is-empty, .sme-stub):hover .sme-empty__btn { background: rgba(51, 51, 51, .05); }
+.sme-stub { height: 120px; }
 .stage[data-scenario="submenu-editor"] :is(.icon-pick, .item-win) { z-index: 47; }
 .stage[data-scenario="submenu-editor"] :is(.plus-menu, .iw-menu) { z-index: 48; } /* меню — поверх окна настроек пункта */
 .stage[data-scenario="submenu-editor"] .confirm-layer { z-index: 48; }
