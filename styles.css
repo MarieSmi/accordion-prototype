@@ -212,17 +212,41 @@ ul { list-style: none; margin: 0; padding: 0; }
 .acc-item { position: relative; padding: 0 4px; }
 .acc-item__btn {
   position: relative; width: 100%; height: 40px; display: flex; align-items: center; gap: 14px;
-  padding: 0 8px 0 14px; border-radius: 8px; text-align: left; overflow: hidden;
+  padding: 0 4px 0 14px; border-radius: 8px; text-align: left; overflow: hidden; /* справа 4 — как у пункта Figma 7706:22744 */
   transition: background-color .12s;
 }
 .acc-item__btn--photo { gap: 11px; padding-left: 11px; }
 .acc-item__icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; flex: none; padding-top: 1px; }
 .acc-item__title { font-size: 16px; letter-spacing: -.2256px; white-space: nowrap; color: var(--acc-text); padding-top: 1px; }
-/* счётчики — как в подменю (.sm-count), прижаты вправо; плотнее, чтобы «Документы 20 20.7K» влезали в 220 */
-.acc-item__btn .acc-item__count { margin-left: auto; padding: 1px 0 0; gap: 6px; }
+/* элемент справа пункта (Figma nuC4KFMiS36uDWDUp9wKGl 7706:22744, счётчик 7706:22867): плашка 26, скругление 14,
+   слева 4, справа 11 — текст в 15 от края пункта. При наведении на пункт плашка цвета фона аккордеона вырастает
+   влево до 11 (псевдоэлементом), поэтому счётчики не сдвигаются. Двойной — 3 + 3 между числами.
+   Акцентное число — акцент темы (navigation_primary #cc3d00), второе — navigation_unaccented #7694b8;
+   у кликабельного счётчика (панель) по наведению на него — светлее: #e27140 / #72b8ff */
+.acc-item__btn .acc-item__count {
+  position: relative; z-index: 0; margin-left: auto; height: 26px; align-self: center; padding: 1px 11px 0 4px; gap: 6px;
+}
 .acc-item__btn .acc-item__count::before { display: none; }
-.acc-item__btn .acc-item__count .sm-count { padding: 0; }
+.acc-item__btn .acc-item__count::after {
+  content: ""; position: absolute; z-index: -1; inset: 0 0 0 -7px; border-radius: 14px; background: var(--acc-bg); opacity: 0;
+}
+:is(.acc-item.is-hover, .acc-item.is-open) .acc-item__btn .acc-item__count::after { opacity: 1; }
+.acc-item__btn .acc-item__count .sm-count { padding: 0; transition: color .12s; }
+.acc-item__btn .acc-item__count .sm-count--accent { color: var(--accent2); }
+.acc-item__btn .acc-item__count.sm-right--btn:hover .sm-count { color: #72b8ff; }
+.acc-item__btn .acc-item__count.sm-right--btn:hover .sm-count--accent { color: color-mix(in srgb, var(--accent2) 70%, #fff); }
+/* «Открытие панели» — стрелка 8×16 (ArrowCutForward), плашка 11.5 по бокам: правый край в 15.5 от края пункта */
+.acc-item__btn .acc-item__count--arrow { padding: 0 11.5px; color: var(--acc-cmd-dots); transition: color .12s; } /* #668199 */
+.acc-item__btn .acc-item__count--arrow:hover { color: #bbe9ff; }
+.acc-arrow { width: 8px; height: 16px; background: currentColor; -webkit-mask: url("assets/img/arrow-cut-forward.svg") no-repeat; mask: url("assets/img/arrow-cut-forward.svg") no-repeat; }
+/* «Добавление» — «+» 16 в круге 28 (отступ 6), по наведению на него — подложка */
+.acc-item__btn .acc-item__count--plus { width: 28px; height: 28px; padding: 0 0 1px; justify-content: center; border-radius: 50%; color: var(--acc-text); transition: background-color .12s; }
+.acc-item__btn .acc-item__count--plus::after { display: none; }
+.acc-item__btn .acc-item__count--plus:hover { background: var(--acc-plus-hover-bg); }
+.acc-item__btn .acc-item__count--plus .ico { color: inherit; }
 .acc-item__title:has(+ .acc-item__count) { min-width: 0; margin-right: -6px; overflow: hidden; text-overflow: ellipsis; }
+/* название, которое не влезает до счётчика, не обрывается «…», а растворяется на последних 12px (gradient_background в Figma 7706:22744) */
+.acc-item__title.is-cut { text-overflow: clip; -webkit-mask-image: linear-gradient(to left, transparent, #000 12px); mask-image: linear-gradient(to left, transparent, #000 12px); }
 .acc-item__photo { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; flex: none; }
 
 .acc-cal { position: relative; width: 20px; height: 20px; flex: none; color: var(--acc-icon); }
@@ -1259,7 +1283,6 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .ae-list { position: relative; display: flex; flex-direction: column; padding: 0 3px; } /* 3 + рамка 1 = 4, как отступ пункта: ширина пункта как в аккордеоне */
 .sme-w.ae-w { height: 40px; padding: 0; border-radius: 2px; color: var(--acc-text); font-weight: inherit; line-height: normal; letter-spacing: normal; }
 .ae-w .acc-item__btn { height: 38px; border-radius: 2px; cursor: default; }
-.ae-w .acc-item__btn .acc-item__count { padding: 1px 0 0; } /* счётчик — как в аккордеоне, не как у виджетов подменю */
 .ae-w :is(.acc-item__icon, .acc-cal, .acc-item__photo) { cursor: pointer; }
 .ae-w .acc-item__title[contenteditable="plaintext-only"] { cursor: text; outline: none; text-overflow: clip; caret-color: var(--acc-text); }
 /* перетаскивание мышью: пункт едет за курсором, остальные расступаются */
@@ -1918,7 +1941,7 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .sm-right--btn { padding: 0 6px 0 8px; margin-right: -4px; border-radius: 15px; transition: background-color .12s; }
 .sm-right--btn::before { display: none; }
 .sm-right--btn:hover { background: var(--acc-plus-hover-bg); }
-.acc-item__btn .acc-item__count.sm-right--btn { height: 28px; align-self: center; padding: 0 8px; margin-right: -4px; }
+.acc-item__btn .acc-item__count.sm-right--btn { padding: 1px 11px 0 4px; margin-right: 0; background: none; } /* как у обычного счётчика — не прыгает */
 /* «Добавление» слева (только у заголовка подменю): по долгому наведению «+» встаёт вместо иконки — в подменю и в пункте аккордеона */
 :is(.acc-item__btn, .sm-head).has-plus-left .acc-item__icon { position: relative; }
 :is(.acc-item__btn, .sm-head).has-plus-left .acc-item__icon::after {

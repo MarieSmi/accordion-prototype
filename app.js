@@ -230,8 +230,20 @@
     const r = isCount(sec.submenu?.headRight) ? sec.submenu.headRight : sec.submenu?.cols[0]?.[0]?.right;
     return isCount(r) ? r : null;
   }
-  const accRightHTML = (r) => (r ? rightHTML(r).replace('sm-right', 'sm-right acc-item__count') : '');
+  // у пункта аккордеона стрелка и «+» — свои (Figma 7706:22867): стрелка ArrowCutForward 8×16, «+» в круге 28
+  function accRightHTML(r) {
+    if (!r || r === 'plus-left') return '';
+    if (r === 'arrow') return '<span class="sm-right acc-item__count acc-item__count--arrow"><span class="acc-arrow"></span></span>';
+    if (r === 'plus') return '<span class="sm-right acc-item__count acc-item__count--plus"><span class="ico">&#xEB25;</span></span>';
+    return rightHTML(r).replace('sm-right', 'sm-right acc-item__count');
+  }
   const accCountHTML = (sec) => accRightHTML(secCount(sec));
+
+  // Название пункта, не влезающее до элемента справа, помечается is-cut (CSS растворяет его конец) — следим за размером
+  const cutObserver = new ResizeObserver((entries) => {
+    for (const { target: t } of entries) t.classList.toggle('is-cut', t.scrollWidth > t.clientWidth + .5);
+  });
+  const watchCut = (root) => { for (const t of root.querySelectorAll('.acc-item__title')) cutObserver.observe(t); };
 
   function renderAccordion() {
     list.innerHTML = '';
@@ -302,6 +314,7 @@
       });
     }
     syncAccordion();
+    watchCut(list);
   }
 
   // Пункт подменю по ключу «колонка:строка».
@@ -2288,6 +2301,7 @@
       if (it.id === selected) w.append(mk('top', i), mk('bottom', i + 1), aeToolbar());
       aeList.append(w);
     });
+    watchCut(aeList);
     aeUndo.disabled = ae.at === 0;
     aeRedo.disabled = ae.at === ae.hist.length - 1;
     aeReset.disabled = aeKey(draft) === aeKey(aeBase());
