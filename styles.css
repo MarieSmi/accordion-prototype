@@ -679,6 +679,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 /* «Настройка аккордеона»: пин на «Настроить», пока редактор не открыт */
 .acc-setup { position: relative; }
 .stage[data-scenario="acc-setup"] .acc-setup:not(.is-active) .click-pin { display: block; }
+.acc-setup .click-pin { left: 100%; } /* центр пина — в конце слова */
 /* Точка-подсказка (Figma 18348:17461, clickDot 6×6) у элементов добавления вкладки в сценариях «Добавление вкладки»:
    плюс в колонке информеров и ссылка «+вкладка» — справа вверху. Пока вкладка не добавлена и меню не открыто. */
 #infPlus, #dashAddTab { position: relative; }
