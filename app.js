@@ -2336,7 +2336,7 @@
     return tb;
   }
 
-  // Меню «⋯» тулбара пункта (Figma 18588:28495): в 8 под тулбаром, иконки пунктов — ровно под иконками тулбара
+  // Меню «⋯» тулбара пункта (Figma 18588:28495): в 8 под тулбаром, иконки пунктов — ровно под «⋯»
   const aeMore = $('#aeMore');
   const aeMoreOpen = () => !aeMore.hidden;
   function openAeMore(btnMore) {
@@ -2347,11 +2347,11 @@
     aeMore.hidden = false;
     btnMore.classList.add('is-active');
     const tb = btnMore.closest('.sme-tb');
-    const t = stageRect(tb), firstIco = stageRect($('.ico24', tb));
+    const t = stageRect(tb), moreIco = stageRect($('.ico24', btnMore));
     aeMore.style.left = '0px';
     aeMore.style.top = Math.round(t.top + t.height + 8) + 'px';
     const shift = stageRect($('.ico24', aeMore)).left - stageRect(aeMore).left; // от края меню до первой иконки
-    aeMore.style.left = Math.round(firstIco.left - shift) + 'px';
+    aeMore.style.left = Math.round(moreIco.left - shift) + 'px';
   }
   function closeAeMore() {
     if (aeMore.hidden) return;
