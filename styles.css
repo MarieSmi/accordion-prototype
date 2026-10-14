@@ -853,6 +853,8 @@ ul { list-style: none; margin: 0; padding: 0; }
 .rp-switch.is-on:hover::before { background-color: #e5622b; }
 /* меню «⋮» пункта аккордеона (Figma xMQ3ZEN4AUINgwjVoxR8hS 19401:31603): 232 шириной, отступы 8, между пунктами 6 */
 .mw-menu.acc-more { width: 232px; }
+.mw-menu.ae-more { width: auto; } /* по ширине пунктов (крестик — поверх правого края) */
+.ae-more .mw-menu__item.acc-more__item { padding-right: 16px; }
 .acc-more .mw-menu__list { padding: 8px; }
 .mw-menu__item.acc-more__item { position: relative; padding: 0 8px 0 12px; cursor: default; }
 .mw-menu__item.acc-more__item[data-act] { cursor: pointer; } /* кликабельные пункты; «Переместить» и его подменю — только ховер */

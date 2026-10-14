@@ -2266,6 +2266,7 @@
   }
   function closeAe() {
     closeItemWin();
+    closeAeMore();
     stopAeEdit(false);
     closeIconPick();
     closePlusMenu();
@@ -2285,6 +2286,7 @@
   function renderAe() {
     const { draft, selected } = ae;
     if (iw?.ae && iw.key !== selected) closeItemWin(); // окно настроек — только у выделенного пункта
+    closeAeMore(); // меню «⋯» — от тулбара, который сейчас перерисуется
     aeList.innerHTML = '';
     const mk = (side, at) => {
       const m = el('span', `sme-mk sme-mk--${side}`);
@@ -2328,9 +2330,45 @@
     btn('sme-tb__btn--del', '', 'Удалить').addEventListener('click', () => {
       aeCommit(ae.draft.filter((it) => it.id !== ae.selected));
     });
-    btn('', '', 'Ещё');
+    const more = btn('sme-tb__btn--more' + (aeMoreOpen() ? ' is-active' : ''), '', 'Ещё');
+    more.addEventListener('click', () => (aeMoreOpen() ? closeAeMore() : openAeMore(more)));
     return tb;
   }
+
+  // Меню «⋯» тулбара пункта (Figma 18588:28495): в 8 под тулбаром, иконки пунктов — ровно под иконками тулбара
+  const aeMore = $('#aeMore');
+  const aeMoreOpen = () => !aeMore.hidden;
+  function openAeMore(btnMore) {
+    closeIwMenu();
+    const pinned = !!ae.draft.find((it) => it.id === ae.selected)?.pinned;
+    $('#aeMorePinIco').textContent = pinned ? '' : '';
+    $('#aeMorePinText').textContent = pinned ? 'Открепить' : 'Закрепить снизу';
+    aeMore.hidden = false;
+    btnMore.classList.add('is-active');
+    const tb = btnMore.closest('.sme-tb');
+    const t = stageRect(tb), firstIco = stageRect($('.ico24', tb));
+    aeMore.style.left = '0px';
+    aeMore.style.top = Math.round(t.top + t.height + 8) + 'px';
+    const shift = stageRect($('.ico24', aeMore)).left - stageRect(aeMore).left; // от края меню до первой иконки
+    aeMore.style.left = Math.round(firstIco.left - shift) + 'px';
+  }
+  function closeAeMore() {
+    if (aeMore.hidden) return;
+    aeMore.hidden = true;
+    $('.sme-tb__btn--more.is-active', aeList)?.classList.remove('is-active');
+  }
+  $('#aeMoreClose').addEventListener('click', closeAeMore);
+  stage.addEventListener('mousedown', (e) => { if (aeMoreOpen() && !e.target.closest('#aeMore, .sme-tb__btn--more')) closeAeMore(); }, true);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && aeMoreOpen()) closeAeMore(); });
+  aeMore.addEventListener('click', (e) => {
+    const act = e.target.closest('[data-act]')?.dataset.act;
+    if (!act || !ae?.selected) return;
+    const id = ae.selected;
+    closeAeMore();
+    if (act === 'pin') aeCommit(aePin(ae.draft, id, !ae.draft.find((it) => it.id === id).pinned), id);
+    else if (act === 'settings') openAeItemWin(id);
+    else if (act === 'delete') aeCommit(ae.draft.filter((it) => it.id !== id));
+  });
 
   // Закрепить снизу можно только один пункт: он уходит в самый низ, у прежнего закреплённого закрепление снимается.
   // Открепленный пункт остаётся на месте.
