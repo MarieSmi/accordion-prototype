@@ -234,9 +234,10 @@ ul { list-style: none; margin: 0; padding: 0; }
 .acc-item__btn .acc-item__count--arrow { padding: 0 11.5px; color: var(--acc-cmd-dots); transition: color .12s; } /* #668199 */
 .ae-w .acc-item__count--arrow:hover { color: #bbe9ff; }
 .acc-arrow { width: 8px; height: 16px; background: currentColor; -webkit-mask: url("assets/img/arrow-cut-forward.svg") no-repeat; mask: url("assets/img/arrow-cut-forward.svg") no-repeat; }
-/* «Добавление» — «+» 16 в круге 28 (отступ 6), по наведению на него (в редакторе) — подложка */
-.acc-item__btn .acc-item__count--plus { width: 28px; height: 28px; padding: 0 0 1px; justify-content: center; border-radius: 50%; color: var(--acc-text); transition: background-color .12s; }
-.ae-w .acc-item__count--plus:hover { background: var(--acc-plus-hover-bg); }
+/* «Добавление» — «+» 16 в круге 28 (отступ 6), Figma 7706:22876 / ховер 7706:22878: иконка navigation_icon_plus #98b2ca;
+   по наведению на него (в редакторе) — круг navigation_counter_hover_background #314454, иконка #bbe9ff */
+.acc-item__btn .acc-item__count--plus { width: 28px; height: 28px; padding: 0 0 1px; justify-content: center; border-radius: 50%; color: var(--acc-plus); transition: background-color .12s, color .12s; }
+.ae-w .acc-item__count--plus:hover { background: #314454; color: #bbe9ff; }
 .acc-item__btn .acc-item__count--plus .ico { color: inherit; }
 .acc-item__title:has(+ .acc-item__count) { min-width: 0; margin-right: -6px; overflow: hidden; text-overflow: ellipsis; }
 /* название, которое не влезает до счётчика, не обрывается «…», а растворяется на последних 12px (gradient_background в Figma 7706:22744) */
@@ -1924,6 +1925,10 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .sme-tb__btn.is-active { background: var(--pill-active); }
 /* элемент справа у виджетов редактора («Настройка аккордеона», «Подменю → Редактор») — как в подменю, на светлой карточке */
 .sme-w .sm-right { padding-left: 12px; }
+/* у пунктов редактора аккордеона отступ слева — как в аккордеоне, иначе «+» в круге съезжает вправо */
+.sme-w.ae-w .acc-item__count { padding-left: 4px; }
+.sme-w.ae-w .acc-item__count--arrow { padding-left: 11.5px; }
+.sme-w.ae-w .acc-item__count--plus { padding-left: 0; }
 .sme-w .sm-right::before { display: none; }
 .sme-w .sm-right--plus .ico, .sme-w .sm-right--arrow .ico { color: var(--label); }
 
