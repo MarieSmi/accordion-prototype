@@ -1866,6 +1866,12 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
   font-size: 16px; font-weight: 600; letter-spacing: -.2256px; color: var(--text); white-space: nowrap; overflow: hidden;
   background: linear-gradient(var(--border), var(--border)) bottom / 100% 1px no-repeat; outline: none; cursor: text;
 }
+/* у пункта аккордеона — иконка пункта перед названием (Figma 18582:27850): 8 + 4 от края, 24, до названия 4 */
+.iw-icon { margin-left: 12px; width: 24px; height: 24px; flex: none; display: flex; align-items: center; justify-content: center; padding-bottom: 2px; }
+.iw-icon .acc-item__icon { display: flex; }
+.iw-icon .acc-glyph { font-size: 20px; letter-spacing: -.282px; color: #333; }
+.iw-icon .acc-item__photo { width: 24px; height: 24px; border-radius: 50%; }
+.iw-icon:not([hidden]) + .iw-title { margin-left: 4px; }
 .iw-blocks { display: flex; flex-direction: column; gap: 4px; }
 /* подписи — колонкой по самой длинной, 8 до редакторов; строки 24, между строками 8 */
 .iw-grid { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 8px; }

@@ -771,9 +771,11 @@
       </section>
 
       <!-- Окно настроек пункта подменю (Figma 9eLwMJLQCwT0xHKviN2j1P 18562:24378): по ⚙ тулбара виджета редактора,
-           пока только в сценарии «Добавление пунктов». Встаёт справа от виджета, как «Вкладки» от виджета вкладок -->
+           пока только в сценарии «Добавление пунктов». Встаёт справа от виджета, как «Вкладки» от виджета вкладок.
+           Оно же — настройки пункта аккордеона в его редакторе (Figma 18585:28421): иконка у названия, «Наполнение пункта», «Закрепить пункт снизу» -->
       <section class="set-win item-win" id="itemWin" hidden aria-label="Настройка пункта">
         <div class="set-win__head">
+          <span class="iw-icon" id="iwIcon" hidden></span>
           <span class="iw-title" id="iwTitle" spellcheck="false" contenteditable="plaintext-only"></span>
           <div class="set-win__cmds">
             <button class="sw-reset" type="button" id="iwReset" aria-label="Сбросить настройки" disabled><span class="ico24">&#xE629;</span></button>
@@ -782,7 +784,7 @@
           </div>
         </div>
         <div class="iw-blocks">
-          <div class="set-win__body iw-grid">
+          <div class="set-win__body iw-grid" data-row="main">
             <span class="iw-name" data-row="level">Вложенность</span>
             <button class="mw-link iw-link" type="button" id="iwLevel" data-row="level"></button>
             <span class="iw-name">По клику</span>
@@ -793,9 +795,9 @@
             </div>
           </div>
           <div class="set-win__body iw-fill">
-            <div class="iw-fill__title">Дополнительно</div>
+            <div class="iw-fill__title" id="iwFillTitle">Дополнительно</div>
             <div class="iw-grid">
-              <span class="iw-name">Команда</span>
+              <span class="iw-name" id="iwCmdName">Команда</span>
               <button class="mw-link iw-link" type="button" id="iwCmd"></button>
               <span class="iw-name" data-row="show">Выводить</span>
               <button class="mw-link iw-link" type="button" id="iwShow" data-row="show"></button>

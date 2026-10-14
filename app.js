@@ -224,11 +224,14 @@
 
   // ---------- Аккордеон ----------
   // Счётчик пункта аккордеона — из подменю: счётчик заголовка подменю, а без него — первого пункта (страница раздела по умолчанию).
-  function accCountHTML(sec) {
+  // Счётчик пункта аккордеона — счётчик заголовка подменю или его первого пункта
+  function secCount(sec) {
     const isCount = (r) => r && typeof r === 'object';
     const r = isCount(sec.submenu?.headRight) ? sec.submenu.headRight : sec.submenu?.cols[0]?.[0]?.right;
-    return isCount(r) ? rightHTML(r).replace('sm-right', 'sm-right acc-item__count') : '';
+    return isCount(r) ? r : null;
   }
+  const accRightHTML = (r) => (r ? rightHTML(r).replace('sm-right', 'sm-right acc-item__count') : '');
+  const accCountHTML = (sec) => accRightHTML(secCount(sec));
 
   function renderAccordion() {
     list.innerHTML = '';
@@ -2249,6 +2252,7 @@
     accEditor.style.height = (900 - top) + 'px';
   }
   function closeAe() {
+    closeItemWin();
     stopAeEdit(false);
     closeIconPick();
     closePlusMenu();
@@ -2262,8 +2266,12 @@
     ae = null;
   }
 
+  // элемент справа пункта в редакторе: свой из окна настроек или счётчик раздела
+  const aeRight = (it) => ('right' in it ? it.right : secCount(ALL_SECTIONS[it.id]));
+
   function renderAe() {
     const { draft, selected } = ae;
+    if (iw?.ae && iw.key !== selected) closeItemWin(); // окно настроек — только у выделенного пункта
     aeList.innerHTML = '';
     const mk = (side, at) => {
       const m = el('span', `sme-mk sme-mk--${side}`);
@@ -2276,16 +2284,17 @@
       const w = el('div', 'sme-w ae-w' + (it.id === selected ? ' is-selected' : ''));
       w.dataset.id = it.id;
       w.append(el('div', 'acc-item__btn' + (view.photo && !view.customIcon ? ' acc-item__btn--photo' : ''),
-        `${iconHTML(view)}<span class="acc-item__title">${it.title}</span>${accCountHTML(view)}`));
+        `${iconHTML(view)}<span class="acc-item__title">${it.title}</span>${accRightHTML(aeRight(it))}`));
       if (it.id === selected) w.append(mk('top', i), mk('bottom', i + 1), aeToolbar());
       aeList.append(w);
     });
     aeUndo.disabled = ae.at === 0;
     aeRedo.disabled = ae.at === ae.hist.length - 1;
     aeReset.disabled = aeKey(draft) === aeKey(aeBase());
+    if (iw?.ae) renderItemWin(); // правки окна настроек видны на пункте и после перерисовки
   }
 
-  // Тулбар выделенного пункта — как в редакторе подменю: удаление работает, ⚙ и ⋯ — наведение.
+  // Тулбар выделенного пункта — как в редакторе подменю: ⚙ — окно настроек пункта справа, удаление работает, ⋯ — наведение.
   function aeToolbar() {
     const tb = el('div', 'sme-tb');
     const btn = (cls, ch, label) => {
@@ -2295,7 +2304,8 @@
       tb.append(b);
       return b;
     };
-    btn('sme-tb__btn--gear', '', 'Настройки');
+    btn('sme-tb__btn--gear' + (iw?.ae && iw.key === ae.selected ? ' is-active' : ''), '', 'Настройки')
+      .addEventListener('click', () => (iw?.ae && iw.key === ae.selected ? closeItemWin() : openAeItemWin(ae.selected)));
     btn('sme-tb__btn--del', '', 'Удалить').addEventListener('click', () => {
       aeCommit(ae.draft.filter((it) => it.id !== ae.selected));
     });
@@ -2544,17 +2554,41 @@
     $('.sme-tb__btn--gear', editor)?.classList.add('is-active');
   }
 
+  // Пункт аккордеона в его редакторе: то же окно (Figma 18585:28421) — иконка у названия, «Наполнение пункта»
+  // (Команды, Выводить, чекбокс) и «Закрепить пункт снизу»; встаёт справа от пункта в 8px.
+  function openAeItemWin(id) {
+    closeOtherWindows();
+    if (!plusMenu.hidden) closePlusMenu();
+    closeIconPick();
+    const it = ae.draft.find((x) => x.id === id);
+    iw = { ae: true, key: id, title: it.title, level: 1, pinned: !!it.pinned, ...iwFromRight(aeRight(it)) };
+    iw.start = iwState();
+    iwTitle.textContent = iw.title;
+    $('#iwIcon').innerHTML = iconHTML({ ...ALL_SECTIONS[id], customIcon: it.icon });
+    renderItemWin();
+    itemWin.hidden = false;
+    const r = stageRect($(`.ae-w[data-id="${id}"]`, aeList));
+    itemWin.style.left = Math.round(Math.min(r.left + r.width + 8, 1600 - itemWin.offsetWidth)) + 'px';
+    itemWin.style.top = Math.round(Math.max(0, Math.min(r.top, 900 - itemWin.offsetHeight))) + 'px';
+    $('.sme-tb__btn--gear', aeList)?.classList.add('is-active');
+  }
+
   function closeItemWin() {
     if (!iw) return;
     iw = null;
     closeIwMenu();
     itemWin.hidden = true;
-    $('.sme-tb__btn--gear', editor)?.classList.remove('is-active');
+    for (const g of document.querySelectorAll('.sme-tb__btn--gear.is-active')) g.classList.remove('is-active');
   }
 
   function renderItemWin() {
-    const head = iw.key === 'head';
-    const rows = { level: !head, show: iw.cmd === 'count', side: head && iw.cmd === 'add', pin: false }; // «Закрепить пункт снизу» — в настройках пункта аккордеона, не подменю: чипса скрыта
+    const acc = !!iw.ae; // пункт аккордеона в его редакторе
+    const head = !acc && iw.key === 'head';
+    // «Закрепить пункт снизу» — только у пункта аккордеона; «Вложенность» и «По клику» — только у пункта подменю
+    const rows = { main: !acc, level: !head && !acc, show: iw.cmd === 'count', side: head && iw.cmd === 'add', pin: acc };
+    $('#iwIcon').hidden = !acc;
+    $('#iwFillTitle').textContent = acc ? 'Наполнение пункта' : 'Дополнительно';
+    $('#iwCmdName').textContent = acc ? 'Команды' : 'Команда';
     for (const n of itemWin.querySelectorAll('[data-row]')) n.hidden = !rows[n.dataset.row];
     $('#iwLevel').textContent = IW_LEVELS.find(([v]) => v === iw.level)[1];
     $('#iwPage').textContent = iw.title;
@@ -2565,6 +2599,14 @@
     $('#iwPin').textContent = iw.pinned ? 'Открепить пункт' : 'Закрепить пункт снизу';
     $('#iwReset').disabled = iwState() === iw.start;
     // настройки сразу видны на виджете (название, уровень, элемент справа); в черновик — по ✓, ✕ возвращает виджет как был
+    if (acc) {
+      const aw = $(`.ae-w[data-id="${iw.key}"]`, aeList);
+      if (!aw) return;
+      $('.acc-item__title', aw).textContent = iw.title;
+      $('.acc-item__count', aw)?.remove();
+      $('.acc-item__title', aw).insertAdjacentHTML('afterend', accRightHTML(iwRight()));
+      return;
+    }
     const w = $(`.sme-w[data-key="${iw.key}"]`, editor);
     if (!w) return;
     $('.sme-w__text', w).textContent = iw.title;
@@ -2600,14 +2642,43 @@
   }
   // ✓: настройки — в черновик одним шагом. Виджет остаётся выделенным.
   function applyItemWin() {
+    if (iw.ae) { applyAeItemWin(); return; }
     const { draft, selKey } = iwDraft();
     closeItemWin();
     commit(draft);
     select(selKey);
   }
 
+  // ✓ у пункта аккордеона: название, элемент справа (если отличается от счётчика раздела) и закрепление — шагом в черновик;
+  // закреплённый пункт уходит в конец списка. Пункт остаётся выделенным.
+  function applyAeItemWin() {
+    const id = iw.key;
+    const title = iw.title.replace(/\s+/g, ' ').trim() || JSON.parse(iw.start)[0];
+    const right = iwRight();
+    const same = JSON.stringify(right) === JSON.stringify(secCount(ALL_SECTIONS[id]));
+    const { pinned } = iw;
+    const wasPinned = !!ae.draft.find((it) => it.id === id).pinned;
+    let draft = ae.draft.map((it) => {
+      if (it.id !== id) return it;
+      const next = { ...it, title };
+      delete next.right;
+      delete next.pinned;
+      if (!same) next.right = right;
+      if (pinned) next.pinned = true;
+      return next;
+    });
+    if (pinned && !wasPinned) draft = [...draft.filter((it) => it.id !== id), draft.find((it) => it.id === id)];
+    closeItemWin();
+    aeCommit(draft, id);
+  }
+
   $('#iwDone').addEventListener('click', applyItemWin);
-  $('#iwClose').addEventListener('click', () => { closeItemWin(); renderEditor(); }); // виджет — снова из черновика
+  $('#iwClose').addEventListener('click', () => {
+    const acc = iw?.ae;
+    closeItemWin();
+    if (acc) renderAe();
+    else renderEditor(); // виджет — снова из черновика
+  });
   $('#iwReset').addEventListener('click', () => {
     const [title, level, pinned, right] = JSON.parse(iw.start);
     iwTitle.textContent = title;
@@ -2665,9 +2736,12 @@
       const m = owner.classList.contains('sme-mk') && owner.className.match(/sme-mk--\w+/)[0];
       const w = m && owner.parentElement.closest('.sme-w');
       const li = owner.classList.contains('sme-list') ? [...smeCard.children].indexOf(owner) : -1;
+      const acc = iw.ae;
       closeItemWin();
-      renderEditor();
-      if (w) owner = $(`.sme-w[data-key="${w.dataset.key}"] > .${m}`, smeCard);
+      if (acc) renderAe();
+      else renderEditor();
+      if (w && acc) owner = $(`.ae-w[data-id="${w.dataset.id}"] > .${m}`, aeList);
+      else if (w) owner = $(`.sme-w[data-key="${w.dataset.key}"] > .${m}`, smeCard);
       else if (li >= 0) owner = smeCard.children[li];
     }
     if (owner !== accPlus) stopTitleEdit(true);
