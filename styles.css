@@ -966,16 +966,13 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 /* «Настройка аккордеона»: живые только аккордеон, «Меню» и «Логотип» (с их окнами); остальное — статика без ховеров */
 .stage[data-scenario="acc-setup"] :is(.ctor-header, .content, .right-panel) { pointer-events: none; }
 .stage[data-scenario="acc-setup"] :is(#menuBtn, #logoBtn) { pointer-events: auto; }
-/* «Настроить» — кнопка-ссылка unaccented внизу аккордеона по центру, 8 от низа; только в этом сценарии и в широком аккордеоне.
-   Иконка 16 (E9E2) и отступ 4, текст 14; цвета — из макета (Figma 17890:5974 / ховер 17890:6158):
-   иконка #ccc, текст #999; ховер — иконка #999, текст #666 с подчёркиванием */
-.acc-setup { display: none; margin: auto auto 8px; height: 24px; align-items: center; gap: 4px; color: #999; transition: color .12s; }
+/* «Настроить» — кнопка-ссылка label внизу аккордеона по центру, 8 от низа; только в этом сценарии и в широком аккордеоне.
+   Иконка 16 и отступ 4, текст 14; цвета — из макета: label #8991a9, ховер label_hover #313e78 */
+.acc-setup { display: none; margin: auto auto 8px; height: 24px; align-items: center; gap: 4px; color: #8991a9; transition: color .12s; }
 .stage[data-scenario="acc-setup"] .accordion:not(.is-narrow) .acc-setup { display: flex; }
-.acc-setup .ico { color: #ccc; padding-bottom: 1px; transition: color .12s; }
+.acc-setup .ico { color: inherit; padding-bottom: 1px; }
 .acc-setup__text { padding-bottom: 1px; font-size: 14px; letter-spacing: -.1974px; }
-.acc-setup:hover { color: #666; }
-.acc-setup:hover .ico { color: #999; }
-.acc-setup:hover .acc-setup__text { text-decoration: underline; }
+.acc-setup:hover { color: #313e78; }
 /* Шапка редактора аккордеона, слева (Figma 18581:22935): «+» и валик — иконки-кнопки 32, между ними 4;
    иконка 24 icon-color #333, ховер hover_icon-color #575757 (Figma 17890:8501 / 17890:8599) */
 .acc-editor .sme-head__left { gap: 4px; }
