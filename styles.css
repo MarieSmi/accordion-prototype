@@ -2036,3 +2036,11 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .mob-acc__icon .acc-item__photo { width: 26px; height: 26px; }
 .mob-acc__icon:has(.acc-item__photo) { padding: 0; }
 .mob-acc__title { font-size: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--acc-text); }
+/* логотип в шапке мобильной Главной (largeHeader 18867:36647): слева 20, по центру шапки 52 (сверху 8), иконка 21×28, 3 до «saby» 24 */
+.mob-logo { position: absolute; left: 20px; top: 17px; height: 34px; display: flex; align-items: center; gap: 3px; }
+.mob-logo[hidden] { display: none; }
+.mob-logo__bird { width: 21px; height: 28px; display: flex; align-items: center; justify-content: center; }
+.mob-logo__bird .ico24 { font-size: 28px; width: 21px; height: 28px; }
+.mob-logo__bird .logo-img { width: 24px; height: 24px; }
+.mob-logo__saby { display: flex; color: #000; }
+.mob-logo__saby svg { width: 57.84px; height: 28.58px; }

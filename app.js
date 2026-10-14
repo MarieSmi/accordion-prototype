@@ -694,6 +694,7 @@
     if (!stage.classList.contains('is-mobile')) return;
     const { section } = state.page;
     $('#mobPage').src = MOB_PAGES[section ? 'skeleton' : 'main'];
+    $('#mobLogo').hidden = !!section; // логотип — только в шапке Главной
     $('#nnpList').innerHTML = nnpItemHTML('', nnpGlyph('', !section), 'Главная', !section)
       + SECTIONS.map((s) => nnpItemHTML(s.id, nnpIconHTML(s, s.id === section), s.short, s.id === section, secCount(s)?.accent)).join('');
     $('#mobAccList').innerHTML = SECTIONS.map((s) => `<li class="mob-acc__item${s.id === section ? ' is-selected' : ''}${s.pinned ? ' is-pinned' : ''}">
@@ -722,7 +723,7 @@
   }
   $('#devDesktop').addEventListener('click', () => setMobile(false));
   $('#devMobile').addEventListener('click', () => setMobile(true));
-  $('.mob-acc__saby').innerHTML = $('#goHome').innerHTML;
+  for (const n of document.querySelectorAll('.mob-acc__saby, .mob-logo__saby')) n.innerHTML = $('#goHome').innerHTML;
   $('#nnpMenu').addEventListener('click', () => setMobAcc($('#mobAcc').hidden));
   $('#mobVeil').addEventListener('click', () => setMobAcc(false));
   $('#nnpList').addEventListener('click', (e) => {
