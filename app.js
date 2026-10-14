@@ -3014,7 +3014,8 @@
     }
     cwReset.disabled = JSON.stringify(c) === JSON.stringify(cwOrig);
   }
-  // anchor — кнопка, открывшая окно не из шапки (валик редактора аккордеона): окно встаёт под ней
+  // anchor — кнопка, открывшая окно не из шапки (валик редактора аккордеона): окно встаёт по ней так же, как по кружку
+  // в шапке — центр вызывающего элемента в точке (37, 22) окна, окно его накрывает
   function openColorWin(key, anchor) {
     closeOtherWindows();
     closePopups();
@@ -3027,8 +3028,8 @@
     // окно — над своим кружком: левый край на 23px левее нажатого кружка
     const sw = stageRect(anchor ?? $(`#themeSwatches .swatch[data-key="${key}"]`));
     colorWin.hidden = false;
-    colorWin.style.left = Math.round(Math.min(sw.left - (anchor ? 0 : 23), 1600 - colorWin.offsetWidth)) + 'px';
-    colorWin.style.top = anchor ? Math.round(sw.top + sw.height + 4) + 'px' : '0';
+    colorWin.style.left = Math.round(Math.max(0, Math.min(sw.left + sw.width / 2 - 37, 1600 - colorWin.offsetWidth))) + 'px';
+    colorWin.style.top = anchor ? Math.round(Math.max(0, sw.top + sw.height / 2 - 22)) + 'px' : '0';
     aeTheme.classList.toggle('is-active', !!anchor);
     cwRender(true);
   }
