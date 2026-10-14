@@ -156,6 +156,7 @@
       r.classList.toggle('is-on', on);
       r.setAttribute('aria-checked', on);
     }
+    setMobile(false); // мобильный вид — только в «Общем демо»
     stage.dataset.scenario = scenario;
     if (variant) stage.dataset.variant = variant;
     else delete stage.dataset.variant;
@@ -334,6 +335,7 @@
       li.classList.toggle('has-sub', hasSub);
       if (hasSub) $('.acc-item__sub-title', li).textContent = subTitle(SECTIONS.find((s) => s.id === section), item);
     }
+    renderMobile(); // ННП и мобильный аккордеон повторяют пункты и выбранную страницу
   }
 
   // Вид аккордеона по настройкам: раскрытый, узкий (с названиями / без), панель (свёрнута / раскрыта).
@@ -615,6 +617,7 @@
     const page = state.page.section ? 'skeleton' : 'main';
     pageMain.hidden = page !== 'main';
     pageSkeleton.hidden = page !== 'skeleton';
+    renderMobile();
   }
   // Строки-заглушки реестра в скелетоне
   $('#skList').innerHTML = '<div class="sk-row"><div class="sk-row__pic"></div><div class="sk-row__body"><div class="sk-row__lines"></div><div class="sk-row__tag"></div></div></div>'.repeat(SKELETON_ROWS);
@@ -657,7 +660,68 @@
     updatePage();
     closeSubmenu();
     setPanelOpen(false);
+    setMobAcc(false); // выбор страницы закрывает мобильный аккордеон
   }
+
+  // ---------- Мобильный вид ----------
+  // Кнопка «мобилка» в шапке (только «Общее демо»): вместо аккордеона и контента — экран 400 с картинкой страницы
+  // (Главная / скелетон раздела) и ННП внизу. ННП: «Меню», «Главная», затем разделы аккордеона по порядку;
+  // клик по разделу открывает его страницу. «Меню» открывает аккордеон поверх экрана: закрывается по затемнению,
+  // повторному «Меню» и выбору страницы; пункты мобильного аккордеона без кликов (только ховер / нажатие).
+  // Узлы ищутся при каждом вызове: renderMobile зовётся и из рендера аккордеона при запуске.
+  const isMobile = () => stage.classList.contains('is-mobile');
+  const MOB_PAGES = { main: 'assets/img/mobile/main.png', skeleton: 'assets/img/mobile/skeleton.png' };
+
+  function nnpIconHTML(sec) {
+    if (sec.customIcon) return customGlyph(sec.customIcon);
+    if (sec.photo) return `<img class="acc-item__photo" src="${sec.photo}" alt="">`;
+    if (sec.calendar) return calendarHTML();
+    return `<span class="nnp__glyph">${sec.icon}</span>`;
+  }
+  function nnpItemHTML(id, icon, text, on, count) {
+    return `<button class="nnp__item${on ? ' is-on' : ''}" type="button" data-id="${id}">
+      <span class="nnp__icon">${icon}</span><span class="nnp__text">${text}</span>${count ? `<span class="nnp__count">${count}</span>` : ''}</button>`;
+  }
+
+  function renderMobile() {
+    if (!stage.classList.contains('is-mobile')) return;
+    const { section } = state.page;
+    $('#mobPage').src = MOB_PAGES[section ? 'skeleton' : 'main'];
+    $('#nnpList').innerHTML = nnpItemHTML('', '<span class="nnp__glyph">&#xE98A;</span>', 'Главная', !section)
+      + SECTIONS.map((s) => nnpItemHTML(s.id, nnpIconHTML(s), s.short, s.id === section, secCount(s)?.accent)).join('');
+    $('#mobAccList').innerHTML = SECTIONS.map((s) => `<li class="mob-acc__item${s.id === section ? ' is-selected' : ''}${s.pinned ? ' is-pinned' : ''}">
+      <div class="mob-acc__btn"><span class="mob-acc__icon">${iconHTML(s)}</span><span class="mob-acc__title">${s.title}</span></div></li>`).join('');
+  }
+
+  function setMobAcc(open) {
+    const box = $('#mobAcc');
+    if (box) box.hidden = !open;
+    $('#nnpMenu')?.classList.toggle('is-on', open);
+  }
+
+  function setMobile(on) {
+    if (on && stage.dataset.scenario !== 'demo') return;
+    if (on === isMobile()) return;
+    closeOtherWindows();
+    closePopups();
+    closeSubmenu();
+    closeAccMore();
+    stage.classList.toggle('is-mobile', on);
+    $('#mob').hidden = !on;
+    $('#devDesktop').classList.toggle('is-active', !on);
+    $('#devMobile').classList.toggle('is-active', on);
+    setMobAcc(false);
+    renderMobile();
+  }
+  $('#devDesktop').addEventListener('click', () => setMobile(false));
+  $('#devMobile').addEventListener('click', () => setMobile(true));
+  $('.mob-acc__saby').innerHTML = $('#goHome').innerHTML;
+  $('#nnpMenu').addEventListener('click', () => setMobAcc($('#mobAcc').hidden));
+  $('#mobVeil').addEventListener('click', () => setMobAcc(false));
+  $('#nnpList').addEventListener('click', (e) => {
+    const item = e.target.closest('.nnp__item');
+    if (item) navigate(item.dataset.id || null, null);
+  });
 
   // На «Главную» ведёт клик по строке шапки, кроме птички (открывает окно «Логотип») и «+».
   // В узком аккордеоне (любой вид) птичка не кнопка: клик по ней, как и по всей шапке, ведёт на «Главную».

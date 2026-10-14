@@ -49,8 +49,9 @@
               <button class="tb-btn is-active" type="button" role="radio" data-align="stretch" aria-label="Растянуть" aria-checked="true"><span class="ico">&#xE6C2;</span></button>
             </div>
             <div class="pill-group pill-group--r12">
-              <button class="tb-btn is-active" type="button"><span class="ico">&#xE730;</span></button>
-              <button class="tb-btn" type="button"><span class="ico">&#xE637;</span></button>
+              <!-- Десктоп / мобилка: мобильный вид — только в «Общем демо» -->
+              <button class="tb-btn is-active" type="button" id="devDesktop" aria-label="Десктоп"><span class="ico">&#xE730;</span></button>
+              <button class="tb-btn" type="button" id="devMobile" aria-label="Мобильная версия"><span class="ico">&#xE637;</span></button>
               <button class="tb-btn" type="button"><span class="ico">&#xEAB4;</span></button>
             </div>
             <div class="pill-group pill-group--r12">
@@ -428,6 +429,30 @@
               </div>
             </section>
           </div>
+        </div>
+
+        <!-- Мобильный вид (кнопка «мобилка» в шапке, только «Общее демо»; Figma xMQ3ZEN4AUINgwjVoxR8hS 18851:22733, скелетон 18871:38216):
+             экран 400 по центру, страница — картинка, внизу ННП (18867:31160), по «Меню» — аккордеон поверх (AccordeonMobile 18867:32583) -->
+        <div class="mob" id="mob" hidden>
+          <div class="mob__screen">
+            <img class="mob__page" id="mobPage" src="assets/img/mobile/main.png" width="400" height="791" alt="">
+            <nav class="nnp" aria-label="Нижняя навигационная панель">
+              <button class="nnp__item" type="button" id="nnpMenu"><span class="nnp__icon"><span class="nnp__glyph">&#xE91F;</span></span><span class="nnp__text">Меню</span></button>
+              <div class="nnp__list" id="nnpList"></div>
+              <span class="nnp__shadow" aria-hidden="true"></span>
+            </nav>
+            <div class="mob-acc" id="mobAcc" hidden>
+              <div class="mob-acc__veil" id="mobVeil"></div>
+              <nav class="mob-acc__panel" aria-label="Навигация приложения">
+                <div class="mob-acc__head">
+                  <div class="mob-acc__logo"><span class="acc-bird mob-acc__bird"><span class="ico24">&#xE9E2;</span></span><span class="mob-acc__saby"></span></div>
+                  <span class="mob-acc__group">предприятие</span>
+                </div>
+                <ul class="mob-acc__list" id="mobAccList"></ul>
+              </nav>
+            </div>
+          </div>
+          <div class="mob-cu"><span class="mob-cu__text">Центр уведомлений</span></div>
         </div>
       </main>
 
