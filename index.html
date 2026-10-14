@@ -85,7 +85,7 @@
         <ul class="acc-list" id="accList"></ul>
         <!-- «Настройка аккордеона»: вход в редактор аккордеона — кнопка-ссылка «Настроить» внизу по центру
              (Figma nuC4KFMiS36uDWDUp9wKGl 17890:7577, ховер 17890:7593) -->
-        <button class="acc-setup" type="button" id="accGear"><span class="ico">&#xE9E2;</span><span class="acc-setup__text">Настроить</span></button>
+        <button class="acc-setup" type="button" id="accGear"><span class="ico">&#xE660;</span><span class="acc-setup__text">Настроить</span></button>
       </nav>
 
       <!-- Контент: середина свёрстана (Figma 16106:372823, скелетон 18711:38376), информеры и ЦУ — скриншот -->
@@ -700,12 +700,14 @@
         <div class="sme-card" id="smeCard"></div>
       </section>
 
-      <!-- Редактор аккордеона («Настройка аккордеона»): как редактор подменю, ширина 300; в шапке слева «+» (страница — пунктом в конец).
+      <!-- Редактор аккордеона («Настройка аккордеона»): как редактор подменю, ширина 300; в шапке слева (Figma 18581:22935) «+»
+           (страница — пунктом в конец) и валик (окно цвета аккордеона — как первый кружок «Темы»).
            Под шапкой — аккордеон во всю высоту в его цветах: строка шапки (птичка и saby, клик — окно «Логотип»), группа, пункты-виджеты -->
       <section class="sm-editor acc-editor" id="accEditor" hidden aria-label="Редактор аккордеона">
         <div class="sme-head">
           <div class="sme-head__left">
-            <button class="sme-plus" type="button" id="aePlus" aria-label="Добавить пункт"><span class="ico24">&#xEADD;</span></button>
+            <button class="sme-plus ae-cmd" type="button" id="aePlus" aria-label="Добавить пункт"><span class="ico24">&#xEADD;</span></button>
+            <button class="ae-cmd" type="button" id="aeTheme" aria-label="Цвет аккордеона"><span class="ae-roller"></span></button>
           </div>
           <div class="sme-head__right">
             <div class="sme-cmds">

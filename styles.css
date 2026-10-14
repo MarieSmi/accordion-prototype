@@ -976,6 +976,14 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .acc-setup:hover { color: #666; }
 .acc-setup:hover .ico { color: #999; }
 .acc-setup:hover .acc-setup__text { text-decoration: underline; }
+/* Шапка редактора аккордеона, слева (Figma 18581:22935): «+» и валик — иконки-кнопки 32, между ними 4;
+   иконка 24 icon-color #333, ховер hover_icon-color #575757 (Figma 17890:8501 / 17890:8599) */
+.acc-editor .sme-head__left { gap: 4px; }
+.ae-cmd { width: 32px; height: 32px; flex: none; display: flex; align-items: center; justify-content: center; padding-bottom: 2px; color: #333; transition: color .12s; }
+.acc-editor .sme-plus.ae-cmd { width: 32px; height: 32px; background: none; border: 0; border-radius: 0; }
+.ae-cmd .ico24 { color: inherit; }
+.ae-cmd:hover, .ae-cmd.is-active { color: #575757; }
+.ae-roller { width: 24px; height: 24px; background: currentColor; -webkit-mask: url("assets/img/roller.svg") center / 24px 24px no-repeat; mask: url("assets/img/roller.svg") center / 24px 24px no-repeat; }
 .kind { display: flex; flex-direction: column; gap: 12px; }
 .kind[hidden] { display: none; }
 .kind__label { font-size: 16px; font-weight: 600; letter-spacing: -.2256px; color: #000; } /* подпись на светлом фоне конструктора */

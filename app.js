@@ -2235,6 +2235,7 @@
     stopAeEdit(false);
     closeIconPick();
     closePlusMenu();
+    if ($('#aeTheme').classList.contains('is-active')) closeColorWin();
     if (openWin === 'logo') setWindow(null);
     smeConfirm.hidden = true;
     accEditor.hidden = true;
@@ -2981,6 +2982,7 @@
   const CW_ACCENT = ['#943253', '#f16767', '#f6733c', '#e5cb45', '#009918', '#0c94ff', '#326194', '#4c3294', '#943288', '#999999',
     '#ffe3ec', '#ffe5e3', '#fff1e3', '#fffbe3', '#e3ffe8', '#e3faff', '#e3f1ff', '#eae3ff', '#ffe3fa', '#ededed'];
   const colorWin = $('#colorWin');
+  const aeTheme = $('#aeTheme');
   const cwHex = $('#cwHex');
   const cwAlpha = $('#cwAlpha');
   const cwReset = $('#cwReset');
@@ -3012,7 +3014,8 @@
     }
     cwReset.disabled = JSON.stringify(c) === JSON.stringify(cwOrig);
   }
-  function openColorWin(key) {
+  // anchor — кнопка, открывшая окно не из шапки (валик редактора аккордеона): окно встаёт под ней
+  function openColorWin(key, anchor) {
     closeOtherWindows();
     closePopups();
     cwKey = key;
@@ -3022,13 +3025,16 @@
     cwOrig = cwCurrent();
     cwSnap = JSON.stringify({ themeId, userTheme });
     // окно — над своим кружком: левый край на 23px левее нажатого кружка
-    const sw = stageRect($(`#themeSwatches .swatch[data-key="${key}"]`));
+    const sw = stageRect(anchor ?? $(`#themeSwatches .swatch[data-key="${key}"]`));
     colorWin.hidden = false;
-    colorWin.style.left = Math.round(Math.min(sw.left - 23, 1600 - colorWin.offsetWidth)) + 'px';
-    colorWin.style.top = '0';
+    colorWin.style.left = Math.round(Math.min(sw.left - (anchor ? 0 : 23), 1600 - colorWin.offsetWidth)) + 'px';
+    colorWin.style.top = anchor ? Math.round(sw.top + sw.height + 4) + 'px' : '0';
+    aeTheme.classList.toggle('is-active', !!anchor);
     cwRender(true);
   }
-  function closeColorWin() { colorWin.hidden = true; cwKey = null; }
+  function closeColorWin() { colorWin.hidden = true; cwKey = null; aeTheme.classList.remove('is-active'); }
+  // валик в шапке редактора аккордеона — то же окно, что и первый кружок «Темы» (цвет аккордеона); повторный клик закрывает
+  aeTheme.addEventListener('click', () => (aeTheme.classList.contains('is-active') ? closeColorWin() : openColorWin('acc', aeTheme)));
 
   $('#themeSwatches').addEventListener('click', (e) => {
     const sw = e.target.closest('.swatch');
