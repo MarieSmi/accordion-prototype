@@ -1273,10 +1273,11 @@ button.sm-head:hover .sm-head__title { background: var(--submenu-item-hover); }
 .ae-brand:hover .acc-bird { background: none; }
 .ae-brand:hover .acc-logo { -webkit-text-stroke-color: var(--acc-bg); }
 .ae-group { pointer-events: none; margin-bottom: 5px; } /* «ПРЕДПРИЯТИЕ» не трогаем: без ховера и выделения */
-/* закреплённый снизу пункт — в самом низу аккордеона, в 8 от края (список растягивается на всю высоту) */
+/* закреплённый снизу пункт — в самом низу аккордеона (список растягивается на всю высоту): в аккордеоне в 8 от края,
+   в редакторе — как по бокам */
 .ae-card { display: flex; flex-direction: column; }
 .ae-list:has(.is-pinned) { flex: 1 0 auto; }
-.ae-w.is-pinned { margin-top: auto; margin-bottom: 8px; }
+.ae-w.is-pinned { margin-top: auto; margin-bottom: 3px; } /* в редакторе снизу — как по бокам: 3 до рамки виджета */
 .acc-list:has(> .is-pinned) { flex: 1 0 auto; }
 .acc-item.is-pinned { margin-top: auto; margin-bottom: 8px; }
 .ae-list { position: relative; display: flex; flex-direction: column; padding: 0 3px; } /* 3 + рамка 1 = 4, как отступ пункта: ширина пункта как в аккордеоне */
