@@ -1213,8 +1213,8 @@
     else if (ed) closeEditor();
   }
 
-  // Плавающий тулбар выделенного виджета (Figma rHabzni5OI5D4fxBLQdj2m 131:17364, состав 854:7145): ‹, ⚙, удалить, ⋯.
-  // ‹ снимает выделение, удаление работает, ⚙ и ⋯ — пока только наведение.
+  // Плавающий тулбар выделенного виджета (Figma rHabzni5OI5D4fxBLQdj2m 131:17364, состав 854:7145): ⚙, удалить, ⋯ (без ‹).
+  // Удаление работает, ⚙ и ⋯ — пока только наведение.
   function toolbar() {
     const tb = el('div', 'sme-tb');
     const btn = (cls, ch, label) => {
@@ -1224,7 +1224,6 @@
       tb.append(b);
       return b;
     };
-    btn('', '', 'Назад').addEventListener('click', () => select(null));
     // ⚙ — окно настроек пункта (пока только в «Добавлении пунктов»; в остальных сценариях — наведение)
     const gear = btn('sme-tb__btn--gear' + (iw && iw.key === ed.selected ? ' is-active' : ''), '', 'Настройки');
     if (itemSettingsOn()) gear.addEventListener('click', () => (iw && iw.key === ed.selected ? closeItemWin() : openItemWin(ed.selected)));
@@ -1234,7 +1233,7 @@
   }
 
   // Тулбар текста на время переименования виджета (Figma 44fX18O5Huk4hmoaANMNIC 10467:56588, без удаления):
-  // ‹ — закончить правку; стиль, «Т» и цвет — пока только наведение. Нажатие в тулбаре не уводит фокус из текста.
+  // Стиль, «Т» и цвет — пока только наведение (без ‹). Нажатие в тулбаре не уводит фокус из текста.
   function textToolbar() {
     const tb = el('div', 'sme-tb sme-tb--text');
     tb.addEventListener('mousedown', (e) => e.preventDefault());
@@ -1245,7 +1244,6 @@
       tb.append(b);
       return b;
     };
-    btn('', '<span class="ico24">&#xE9A9;</span>', 'Назад').addEventListener('click', () => stopItemEdit(true));
     btn('sme-tb__style', 'Заголовок 4<span class="ico">&#xE9AA;</span>', 'Стиль текста');
     btn('', '<span class="ico24">&#xEAC9;</span>', 'Начертание');
     btn('sme-tb__color', '<span class="sme-tb__swatch"></span>', 'Цвет текста');
@@ -2196,7 +2194,7 @@
   // ховер как в аккордеоне, клик — окно «Логотип». В карточке — аккордеон в его цветах: «ПРЕДПРИЯТИЕ» — статика,
   // разделы — виджеты. Клик выделяет (повторный — пока ничего, окно настроек позже), двойной клик по названию —
   // переименование, клик по иконке — выбор иконки, перетаскивание мышью — порядок, плюсы выделенного — меню «+»
-  // (страница встаёт новым пунктом), тулбар: ‹, ⚙ и ⋯ — наведение, удаление. Правки — в черновике с отменой; ✓ применяет.
+  // (страница встаёт новым пунктом), тулбар: ⚙ и ⋯ — наведение, удаление. Правки — в черновике с отменой; ✓ применяет.
   const accEditor = $('#accEditor');
   const aeList = $('#aeList');
   const accGear = $('#accGear');
@@ -2268,7 +2266,7 @@
     aeReset.disabled = aeKey(draft) === aeKey(aeBase());
   }
 
-  // Тулбар выделенного пункта — как в редакторе подменю: ‹ снимает выделение, удаление работает, ⚙ и ⋯ — наведение.
+  // Тулбар выделенного пункта — как в редакторе подменю: удаление работает, ⚙ и ⋯ — наведение.
   function aeToolbar() {
     const tb = el('div', 'sme-tb');
     const btn = (cls, ch, label) => {
@@ -2278,7 +2276,6 @@
       tb.append(b);
       return b;
     };
-    btn('', '', 'Назад').addEventListener('click', () => aeSelect(null));
     btn('sme-tb__btn--gear', '', 'Настройки');
     btn('sme-tb__btn--del', '', 'Удалить').addEventListener('click', () => {
       aeCommit(ae.draft.filter((it) => it.id !== ae.selected));
