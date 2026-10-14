@@ -249,7 +249,7 @@
     list.innerHTML = '';
     stage.classList.toggle('items-added', SECTIONS.some((s) => s.added)); // пин на «+» аккордеона — до первого добавленного пункта
     for (const sec of SECTIONS) {
-      const li = el('li', 'acc-item');
+      const li = el('li', 'acc-item' + (sec.pinned ? ' is-pinned' : ''));
       li.dataset.id = sec.id;
       const btn = el('button', 'acc-item__btn' + (sec.photo ? ' acc-item__btn--photo' : '') + (sec.submenu?.headRight === 'plus-left' ? ' has-plus-left' : ''),
         `${iconHTML(sec)}<span class="acc-item__title">${sec.title}</span>${accCountHTML(sec)}
@@ -2238,7 +2238,7 @@
   // ae: { draft — [{ id, title, icon }], hist, at, selected — id | null }
   let ae = null;
   let aeEdit = null; // переименование: { text, id }
-  const aeItem = (s) => ({ id: s.id, title: s.title, icon: s.customIcon ?? null });
+  const aeItem = (s) => ({ id: s.id, title: s.title, icon: s.customIcon ?? null, ...(s.pinned ? { pinned: true } : {}) });
   const aeKey = (d) => JSON.stringify(d);
   const aeBase = () => ORIGINAL_IDS.map((id) => ({ id, title: PRISTINE[id].title, icon: null })); // «Вернуть исходное»
 
@@ -2294,7 +2294,7 @@
     draft.forEach((it, i) => {
       const s = ALL_SECTIONS[it.id];
       const view = { ...s, title: it.title, customIcon: it.icon };
-      const w = el('div', 'sme-w ae-w' + (it.id === selected ? ' is-selected' : ''));
+      const w = el('div', 'sme-w ae-w' + (it.id === selected ? ' is-selected' : '') + (it.pinned ? ' is-pinned' : ''));
       w.dataset.id = it.id;
       w.append(el('div', 'acc-item__btn' + (view.photo && !view.customIcon ? ' acc-item__btn--photo' : ''),
         `${iconHTML(view)}<span class="acc-item__title">${it.title}</span>${accRightHTML(aeRight(it))}`));
@@ -2389,6 +2389,7 @@
       s.title = it.title;
       s.short = it.title === PRISTINE[it.id].title ? PRISTINE[it.id].short : it.title;
       s.customIcon = it.icon;
+      s.pinned = !!it.pinned; // закреплённый снизу — в самом низу аккордеона
       return s;
     });
     SECTIONS.splice(0, SECTIONS.length, ...items);
@@ -3424,7 +3425,7 @@
     submenuTrigger: settings.submenuTrigger,
     logo, align: state.align, informers: state.informers, themeId, userTheme,
     tabs, tabsAdded: stage.classList.contains('tabs-added'),
-    sections: SECTIONS.map((s) => ({ id: s.id, title: s.title, short: s.short, customIcon: s.customIcon ?? null,
+    sections: SECTIONS.map((s) => ({ id: s.id, title: s.title, short: s.short, customIcon: s.customIcon ?? null, pinned: !!s.pinned,
       head: s.submenu.head ?? null, headRight: s.submenu.headRight ?? null, noHead: !!s.submenu.noHead, cols: s.submenu.cols })),
   });
 
@@ -3486,7 +3487,7 @@
     if (state.page.section && !SECTIONS.some((x) => x.id === state.page.section)) { state.page = { section: null, item: null }; updatePage(); }
     SECTIONS.forEach((sec, i) => {
       const d = s.sections[i];
-      Object.assign(sec, { title: d.title, short: d.short, customIcon: d.customIcon });
+      Object.assign(sec, { title: d.title, short: d.short, customIcon: d.customIcon, pinned: d.pinned });
       Object.assign(sec.submenu, { head: d.head ?? undefined, headRight: d.headRight ?? undefined, noHead: d.noHead, cols: d.cols });
     });
     const { section, item } = state.page;
