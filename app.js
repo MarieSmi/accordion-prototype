@@ -166,6 +166,7 @@
     closeIconPick();
     closeRpMore();
     closeAccMore();
+    if (ae) closeAe();
     closeSubmenu();
     // каждый сценарий начинается с исходных вкладок; в «Добавлении вкладки» — одна «Главный», виджета вкладок нет
     closeTabsWin();
@@ -714,7 +715,7 @@
   }
 
   function startDrag(e, win) {
-    if (e.button !== 0 || e.target.closest('button, .sme-title, .sme-icon, .iw-title')) return;
+    if (e.button !== 0 || e.target.closest('button, .sme-title, .sme-icon, .iw-title, .ae-brand')) return;
     e.preventDefault();
     closePopups();
     const startX = e.clientX, startY = e.clientY;
@@ -841,7 +842,7 @@
 
   // Логотип применяется сразу: в шапке аккордеона и в превью окна.
   function renderLogo() {
-    $('.acc-bird').innerHTML = logoHTML();
+    for (const b of document.querySelectorAll('.acc-bird')) b.innerHTML = logoHTML(); // и птичка в шапке редактора аккордеона
     $('#lwBird .lw-bird__logo').innerHTML = logoHTML();
     logoReset.disabled = logo === null;
   }
@@ -1015,7 +1016,7 @@
   // У второй строки (выбранный пункт подменю) то же меню, действия — с этим пунктом подменю.
   const accMore = $('#accMore');
   let am = null; // { id, sub, li }
-  const accMoreOn = () => ['demo', 'acc-add-items'].includes(stage.dataset.scenario);
+  const accMoreOn = () => ['demo', 'acc-add-items', 'acc-setup'].includes(stage.dataset.scenario);
   function toggleAccMore(id, cmd, sub) {
     if (am && am.id === id && am.sub === sub) { closeAccMore(); return; }
     closeAccMore();
@@ -1534,6 +1535,7 @@
     // Это же подтверждение спрашивает и окно «Вкладки», и ✕ шапки конструктора в сценарии «Админка».
     if (tw) { answerTabsConfirm(answer); return; }
     if (insideAsk) { answerInsideConfirm(answer); return; }
+    if (ae) { answerAeConfirm(answer); return; }
     if (answer === 'yes') saveEditor();
     else if (answer === 'no') closeEditor();
     else if (answer === 'cancel') smeConfirm.hidden = true;
@@ -2001,8 +2003,11 @@
   const iconPickList = $('#iconPickList');
   const iconPickTabs = $('#iconPickTabs');
 
+  // Выбор иконки открывает редактор подменю (иконка в шапке) и редактор аккордеона (иконка пункта):
+  // pick — { anchor — что нажато, cur — текущая иконка, apply(icon) — выбор }.
+  let pick = null;
   function renderIconPick() {
-    const cur = ed.draft.icon;
+    const cur = pick.cur;
     iconPickList.innerHTML = '';
     iconPickTabs.innerHTML = '';
     ICON_GROUPS.forEach((g, gi) => {
@@ -2014,7 +2019,7 @@
         const b = el('button', 'icon-pick__btn', `<span class="${ic.font === 'cbuc' ? 'ico' : 'ico24'}">${ic.ch}</span>`);
         b.type = 'button';
         if (cur && cur.font === ic.font && cur.ch === ic.ch) b.classList.add('is-current');
-        b.addEventListener('click', () => { closeIconPick(); commit({ ...cloneDraft(ed.draft), icon: ic }); });
+        b.addEventListener('click', () => { const { apply } = pick; closeIconPick(); apply(ic); });
         grid.append(b);
       }
       group.append(grid);
@@ -2039,30 +2044,36 @@
     [...iconPickTabs.children].forEach((t, i) => t.classList.toggle('is-active', i === active));
   });
 
-  function openIconPick() {
-    stopTitleEdit(true);
-    ed.selected = null;
-    renderEditor();
+  function openIconPick(anchor = smeIcon, cur, apply) {
+    if (anchor === smeIcon) {
+      stopTitleEdit(true);
+      ed.selected = null;
+      renderEditor();
+      cur = ed.draft.icon;
+      apply = (ic) => commit({ ...cloneDraft(ed.draft), icon: ic });
+    }
+    pick = { anchor, cur, apply };
     renderIconPick();
     $('#iconPickSearch').value = '';
     iconPick.hidden = false;
     iconPickList.scrollTop = 0;
-    smeIcon.classList.add('is-active');
-    // Панель — поверх иконки шапки редактора: левый верхний угол панели в левом верхнем углу иконки (как окна «Меню» и «Логотип»).
-    const r = stageRect(smeIcon);
+    anchor.classList.add('is-active');
+    // Панель — поверх иконки: левый верхний угол панели в левом верхнем углу иконки (как окна «Меню» и «Логотип»).
+    const r = stageRect(anchor);
     iconPick.style.left = Math.round(Math.max(0, Math.min(r.left, 1600 - iconPick.offsetWidth))) + 'px';
     iconPick.style.top = Math.round(Math.max(0, Math.min(r.top, 900 - iconPick.offsetHeight))) + 'px';
   }
   function closeIconPick() {
     iconPick.hidden = true;
-    smeIcon.classList.remove('is-active');
+    pick?.anchor.classList.remove('is-active');
+    pick = null;
   }
 
   smeIcon.addEventListener('click', () => (iconPick.hidden ? openIconPick() : closeIconPick()));
   $('#iconPickClose').addEventListener('click', closeIconPick);
   // Клик мимо панели закрывает её (клик по самой иконке переключает панель).
   stage.addEventListener('mousedown', (e) => {
-    if (iconPick.hidden || e.target.closest('#iconPick') || e.target.closest('#smeIcon')) return;
+    if (iconPick.hidden || e.target.closest('#iconPick') || pick?.anchor.contains(e.target)) return;
     closeIconPick();
   }, true);
 
@@ -2094,10 +2105,11 @@
   function renderPlusMenu() {
     const q = plusSearch.value.trim().toLowerCase();
     const match = (t) => !q || t.toLowerCase().includes(q);
-    const fromEditor = plusOwner !== accPlus;
+    const fromAcc = accEditor.contains(plusOwner); // плюс у пункта в редакторе аккордеона
+    const fromEditor = plusOwner !== accPlus && !fromAcc;
     // В «Добавлении пунктов» и «Подменю → Редактор» уже добавленной страницы в меню нет: в редакторе — пунктов
     // и заголовка подменю, в «+» шапки аккордеона — добавленных пунктов аккордеона.
-    const used = new Set(fromEditor
+    const used = new Set(fromAcc ? ae.draft.map((it) => it.title) : fromEditor
       ? (itemSettingsOn() ? [ed.draft.showHead ? ed.draft.head : null, ...ed.draft.cols.flat().map((it) => it.title)] : [])
       : (accAddItems() ? SECTIONS.filter((s) => s.added).map((s) => s.title) : []));
     const pages = (n) => (n.items || []).filter((t) => !used.has(t));
@@ -2121,9 +2133,9 @@
       const arrow = n.kind === 'folder' ? '' : (n.open || (q && kids.length)) ? '' : '';
       // В меню «+» шапки аккордеона не кликаются страницы и пустые группы («Деньги», «Торги»).
       row('', `<span class="ico pm-ico">${arrow}</span><span>${n.title}</span>`,
-        n.kind === 'group' && (fromEditor || n.items.length) ? () => { n.open = !n.open; renderPlusMenu(); } : null);
+        n.kind === 'group' && (fromEditor || fromAcc || n.items.length) ? () => { n.open = !n.open; renderPlusMenu(); } : null);
       // В «Добавлении пунктов» страница «Моей компании» из «+» шапки аккордеона добавляет пункт в аккордеон.
-      const onPage = (t) => (fromEditor ? () => addPage(t) : accAddItems() && n.title === 'Моей компании' ? () => addAccItem(t) : null);
+      const onPage = (t) => (fromAcc ? () => aeAddPage(t) : fromEditor ? () => addPage(t) : accAddItems() && n.title === 'Моей компании' ? () => addAccItem(t) : null);
       if (n.open || (q && kids.length)) for (const t of (q ? kids : pages(n))) row('pm-row--page', `<span>${t}</span>`, onPage(t));
     }
   }
@@ -2177,6 +2189,273 @@
     if (ALL_SECTIONS[state.page.section]?.added) goPage(null, null);
     renderAccordion();
   }
+
+  // ---------- Редактор аккордеона («Аккордеон → Настройка аккордеона») ----------
+  // Шестерёнка в шапке аккордеона (вместо «+», только в широком) открывает окно поверх аккордеона — как редактор подменю:
+  // птичка в шапке окна встаёт на птичку аккордеона. В шапке окна — виджет шапки (птичка и saby): не удаляется,
+  // ховер как в аккордеоне, клик — окно «Логотип». В карточке — аккордеон в его цветах: «ПРЕДПРИЯТИЕ» — статика,
+  // разделы — виджеты. Клик выделяет (повторный — пока ничего, окно настроек позже), двойной клик по названию —
+  // переименование, клик по иконке — выбор иконки, перетаскивание мышью — порядок, плюсы выделенного — меню «+»
+  // (страница встаёт новым пунктом), тулбар: ‹, ⚙ и ⋯ — наведение, удаление. Правки — в черновике с отменой; ✓ применяет.
+  const accEditor = $('#accEditor');
+  const aeList = $('#aeList');
+  const accGear = $('#accGear');
+  const aeUndo = $('#aeUndo'), aeRedo = $('#aeRedo'), aeReset = $('#aeReset');
+  $('#aeLogo').innerHTML = $('#goHome').innerHTML;
+
+  // ae: { draft — [{ id, title, icon }], hist, at, selected — id | null }
+  let ae = null;
+  let aeEdit = null; // переименование: { text, id }
+  const aeItem = (s) => ({ id: s.id, title: s.title, icon: s.customIcon ?? null });
+  const aeKey = (d) => JSON.stringify(d);
+  const aeBase = () => ORIGINAL_IDS.map((id) => ({ id, title: PRISTINE[id].title, icon: null })); // «Вернуть исходное»
+
+  function openAe() {
+    closeAccMore();
+    closeSubmenu();
+    closeOtherWindows();
+    cancelLeave();
+    const draft = SECTIONS.map(aeItem);
+    ae = { draft, hist: [aeKey(draft)], at: 0, selected: null };
+    smeConfirm.hidden = true;
+    $('.ae-bird', accEditor).innerHTML = logoHTML();
+    renderAe();
+    shield.hidden = false;
+    accEditor.hidden = false;
+    stage.classList.add('is-ae-open');
+    accGear.classList.add('is-active');
+    // птичка шапки окна — ровно на птичку аккордеона
+    const a = stageRect($('.accordion .acc-bird')), b = stageRect($('.ae-bird', accEditor));
+    accEditor.style.left = Math.round(Math.max(0, accEditor.offsetLeft + a.left - b.left)) + 'px';
+    accEditor.style.top = Math.round(Math.max(0, Math.min(accEditor.offsetTop + a.top - b.top, 900 - accEditor.offsetHeight))) + 'px';
+  }
+  function closeAe() {
+    stopAeEdit(false);
+    closeIconPick();
+    closePlusMenu();
+    if (openWin === 'logo') setWindow(null);
+    smeConfirm.hidden = true;
+    accEditor.hidden = true;
+    shield.hidden = true;
+    stage.classList.remove('is-ae-open');
+    accGear.classList.remove('is-active');
+    ae = null;
+  }
+
+  function renderAe() {
+    const { draft, selected } = ae;
+    aeList.innerHTML = '';
+    const mk = (side, at) => {
+      const m = el('span', `sme-mk sme-mk--${side}`);
+      Object.assign(m.dataset, { col: 0, at });
+      return m;
+    };
+    draft.forEach((it, i) => {
+      const s = ALL_SECTIONS[it.id];
+      const view = { ...s, title: it.title, customIcon: it.icon };
+      const w = el('div', 'sme-w ae-w' + (it.id === selected ? ' is-selected' : ''));
+      w.dataset.id = it.id;
+      w.append(el('div', 'acc-item__btn' + (view.photo && !view.customIcon ? ' acc-item__btn--photo' : ''),
+        `${iconHTML(view)}<span class="acc-item__title">${it.title}</span>${accCountHTML(view)}`));
+      if (it.id === selected) w.append(mk('top', i), mk('bottom', i + 1), aeToolbar());
+      aeList.append(w);
+    });
+    aeUndo.disabled = ae.at === 0;
+    aeRedo.disabled = ae.at === ae.hist.length - 1;
+    aeReset.disabled = aeKey(draft) === aeKey(aeBase());
+  }
+
+  // Тулбар выделенного пункта — как в редакторе подменю: ‹ снимает выделение, удаление работает, ⚙ и ⋯ — наведение.
+  function aeToolbar() {
+    const tb = el('div', 'sme-tb');
+    const btn = (cls, ch, label) => {
+      const b = el('button', 'sme-tb__btn' + (cls ? ' ' + cls : ''), `<span class="ico24">${ch}</span>`);
+      b.type = 'button';
+      b.setAttribute('aria-label', label);
+      tb.append(b);
+      return b;
+    };
+    btn('', '', 'Назад').addEventListener('click', () => aeSelect(null));
+    btn('sme-tb__btn--gear', '', 'Настройки');
+    btn('sme-tb__btn--del', '', 'Удалить').addEventListener('click', () => {
+      aeCommit(ae.draft.filter((it) => it.id !== ae.selected));
+    });
+    btn('', '', 'Ещё');
+    return tb;
+  }
+
+  function aeCommit(draft, selected = null) {
+    if (aeKey(draft) === aeKey(ae.draft)) { aeSelect(selected); return; }
+    ae.hist = ae.hist.slice(0, ae.at + 1);
+    ae.hist.push(aeKey(draft));
+    ae.at = ae.hist.length - 1;
+    ae.draft = draft;
+    ae.selected = selected;
+    renderAe();
+  }
+  function aeGo(step) {
+    const at = ae.at + step;
+    if (at < 0 || at >= ae.hist.length) return;
+    ae.at = at;
+    ae.draft = JSON.parse(ae.hist[at]);
+    ae.selected = null;
+    renderAe();
+  }
+  function aeSelect(id) {
+    if (!ae || ae.selected === id) return;
+    ae.selected = id;
+    renderAe();
+  }
+
+  // Новый пункт из меню «+» — как в «Добавлении пунктов»: своя иконка, подменю из одного заголовка; встаёт на место плюса.
+  function aeAddPage(title) {
+    const id = 'added-' + ++addedCount;
+    ALL_SECTIONS[id] = { id, title, short: title, added: true, customIcon: ADDED_ICON, submenu: { head: title, cols: [[]] } };
+    PRISTINE[id] = { title, short: title, icon: ADDED_ICON, head: title, showHead: true, cols: [[]] };
+    const draft = ae.draft.slice();
+    draft.splice(plusAt ? plusAt.at : draft.length, 0, { id, title, icon: ADDED_ICON });
+    closePlusMenu();
+    aeCommit(draft, id); // добавленный пункт — выделен
+  }
+
+  // ✓: аккордеон по черновику — порядок, названия, иконки; удалённые пропадают, новые встают. Заголовки подменю
+  // при переименовании не меняются (как в редакторе подменю).
+  function saveAe() {
+    const items = ae.draft.map((it) => {
+      const s = ALL_SECTIONS[it.id];
+      if (it.title !== s.title && !s.submenu.headLabel && s.submenu.head == null) s.submenu.head = s.title;
+      s.title = it.title;
+      s.short = it.title === PRISTINE[it.id].title ? PRISTINE[it.id].short : it.title;
+      s.customIcon = it.icon;
+      return s;
+    });
+    SECTIONS.splice(0, SECTIONS.length, ...items);
+    closeAe();
+    if (state.page.section && !SECTIONS.some((s) => s.id === state.page.section)) goPage(null, null);
+    renderAccordion();
+    record();
+  }
+  function answerAeConfirm(answer) {
+    if (answer === 'yes') saveAe();
+    else if (answer === 'no') closeAe();
+    else if (answer === 'cancel') smeConfirm.hidden = true;
+  }
+
+  // Переименование на месте: каретка там, куда кликнули (мимо текста — в конец). Enter или клик мимо — применить, Esc — отменить.
+  function startAeEdit(id, x, y) {
+    aeSelect(id);
+    const text = $(`.ae-w[data-id="${id}"] .acc-item__title`, aeList);
+    aeEdit = { text, id };
+    $('.sme-tb', text.closest('.ae-w'))?.remove();
+    text.contentEditable = 'plaintext-only';
+    text.focus();
+    let range = document.caretRangeFromPoint?.(x, y);
+    if (!range || !text.contains(range.startContainer)) {
+      range = document.createRange();
+      range.selectNodeContents(text);
+    }
+    range.collapse(false);
+    const s = getSelection();
+    s.removeAllRanges();
+    s.addRange(range);
+  }
+  function stopAeEdit(apply) {
+    if (!aeEdit) return;
+    const { text, id } = aeEdit;
+    aeEdit = null;
+    const value = text.textContent.replace(/\s+/g, ' ').trim();
+    if (apply && value) aeCommit(ae.draft.map((it) => (it.id === id ? { ...it, title: value } : it)), id);
+    else renderAe();
+  }
+  aeList.addEventListener('keydown', (e) => {
+    if (!aeEdit) return;
+    if (e.key === 'Enter') { e.preventDefault(); stopAeEdit(true); }
+    else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); stopAeEdit(false); }
+  });
+
+  // Перетаскивание: нажатие на пункт и сдвиг больше 4px — пункт едет за курсором по вертикали, остальные расступаются;
+  // отпускание ставит его на новое место. Без сдвига — клик: выделение.
+  function aeDrag(e, w) {
+    const ws = [...aeList.children];
+    const from = ws.indexOf(w);
+    const tops = ws.map((x) => x.offsetTop);
+    const step = ws.length > 1 ? tops[1] - tops[0] : w.offsetHeight;
+    const y0 = e.clientY;
+    let to = from, dragging = false;
+    const move = (ev) => {
+      const dy = (ev.clientY - y0) / scale;
+      if (!dragging) {
+        if (Math.abs(dy) < 4) return;
+        dragging = true;
+        aeList.classList.add('is-dragging');
+        w.classList.add('is-dragged');
+      }
+      const d = Math.max(tops[0] - tops[from], Math.min(tops[ws.length - 1] - tops[from], dy));
+      w.style.transform = `translateY(${d}px)`;
+      to = Math.max(0, Math.min(ws.length - 1, Math.round((tops[from] + d - tops[0]) / step)));
+      ws.forEach((x, i) => {
+        if (i === from) return;
+        const shift = from < i && i <= to ? -step : to <= i && i < from ? step : 0;
+        x.style.transform = shift ? `translateY(${shift}px)` : '';
+      });
+    };
+    const up = () => {
+      document.removeEventListener('mousemove', move);
+      document.removeEventListener('mouseup', up);
+      if (!dragging) { aeSelect(w.dataset.id); return; } // повторный клик по выделенному — пока ничего (окно настроек позже)
+      aeList.classList.remove('is-dragging');
+      const draft = ae.draft.slice();
+      draft.splice(to, 0, ...draft.splice(from, 1));
+      aeCommit(draft, w.dataset.id);
+    };
+    document.addEventListener('mousemove', move);
+    document.addEventListener('mouseup', up);
+  }
+
+  accEditor.addEventListener('mousedown', (e) => {
+    if (!ae || e.button !== 0 || e.target.closest('.sme-mk, .sme-tb, .sme-head')) return;
+    const w = e.target.closest('.ae-w');
+    if (aeEdit) {
+      if (aeEdit.text.contains(e.target)) return;
+      stopAeEdit(true);
+    }
+    if (!w) { aeSelect(null); return; }
+    const id = w.dataset.id;
+    // второе нажатие двойного клика по названию — переименование
+    if (e.detail === 2 && e.target.closest('.acc-item__title')) { e.preventDefault(); startAeEdit(id, e.clientX, e.clientY); return; }
+    // иконка — выбор иконки пункта
+    const icon = e.target.closest('.acc-item__icon, .acc-cal, .acc-item__photo');
+    if (icon) {
+      aeSelect(id);
+      const anchor = $(`.ae-w[data-id="${id}"] :is(.acc-item__icon, .acc-cal, .acc-item__photo)`, aeList);
+      if (pick?.anchor === anchor) { closeIconPick(); return; }
+      openIconPick(anchor, ae.draft.find((it) => it.id === id).icon, (ic) => aeCommit(ae.draft.map((it) => (it.id === id ? { ...it, icon: ic } : it)), id));
+      return;
+    }
+    e.preventDefault();
+    aeDrag(e, w);
+  });
+  aeList.addEventListener('click', (e) => {
+    const m = e.target.closest('.sme-mk');
+    if (!m) return;
+    const again = !plusMenu.hidden && plusOwner === m;
+    if (!plusMenu.hidden) closePlusMenu();
+    if (!again) openPlusMenu(m);
+  });
+  shield.addEventListener('mousedown', () => { if (!ae) return; stopAeEdit(true); aeSelect(null); });
+  $('.sme-head', accEditor).addEventListener('mousedown', (e) => startDrag(e, accEditor));
+  // виджет шапки: клик — окно «Логотип» (повторный — закрывает)
+  $('#aeBrand').addEventListener('click', () => setWindow(openWin === 'logo' && openFrom ? null : 'logo', $('.ae-bird', accEditor)));
+
+  accGear.addEventListener('click', () => (ae ? null : openAe()));
+  aeUndo.addEventListener('click', () => aeGo(-1));
+  aeRedo.addEventListener('click', () => aeGo(1));
+  aeReset.addEventListener('click', () => aeCommit(aeBase()));
+  $('#aeDone').addEventListener('click', saveAe);
+  $('#aeClose').addEventListener('click', () => {
+    if (aeKey(ae.draft) === ae.hist[0]) closeAe();
+    else smeConfirm.hidden = false;
+  });
 
   // ---------- Окно настроек пункта подменю (Figma 9eLwMJLQCwT0xHKviN2j1P 18562:24378) ----------
   // По ⚙ тулбара выделенного виджета, в «Добавлении пунктов» и «Подменю → Редактор». Встаёт справа от виджета (как «Вкладки»),
