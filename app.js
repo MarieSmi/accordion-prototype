@@ -2300,7 +2300,8 @@
       w.dataset.id = it.id;
       w.append(el('div', 'acc-item__btn' + (view.photo && !view.customIcon ? ' acc-item__btn--photo' : ''),
         `${iconHTML(view)}<span class="acc-item__title">${it.title}</span>${accRightHTML(aeRight(it))}`));
-      if (it.id === selected) w.append(mk('top', i), mk('bottom', i + 1), aeToolbar());
+      // у закреплённого снизу плюсов нет (над ним добавляют плюсом пункта выше)
+      if (it.id === selected) w.append(...(it.pinned ? [] : [mk('top', i), mk('bottom', i + 1)]), aeToolbar());
       aeList.append(w);
     });
     watchCut(aeList);
