@@ -2322,6 +2322,8 @@
   }
   function aeSelect(id) {
     if (!ae || ae.selected === id) return;
+    // выделен может быть только один виджет: выделение пункта закрывает «Логотип», открытый по шапке
+    if (id && openWin === 'logo' && openFrom === $('#aeBrand')) setWindow(null);
     ae.selected = id;
     renderAe();
   }
