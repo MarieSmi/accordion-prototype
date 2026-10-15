@@ -395,9 +395,11 @@ ul { list-style: none; margin: 0; padding: 0; }
 .informers__fio img { position: absolute; left: 3.372px; top: 16.016px; }
 .informers__btn { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
 .informers__btn .ico { font-size: 18.67px; width: 18.667px; height: 18.667px; color: #ccc; } /* неактивная: icon/unaccented_icon-color (Ghost readOnly, Figma nuC4KFMiS36uDWDUp9wKGl 17890:9860) */
-.inf-plus { display: none; width: 24px; height: 24px; margin: 2px 0; align-items: center; justify-content: center; border-radius: 100px; background: rgba(51, 51, 51, .05); transition: background-color .12s; } /* background/contrast/pale_color */
-.inf-plus .ico24 { color: #333; } /* icon/icon-color; глиф — как «+» в заголовке меню «вкладка», чтобы плюсы совпали */
-.inf-plus:hover, .inf-plus.is-active { background: rgba(51, 51, 51, .1); } /* наведения в макете нет */
+/* кнопка pale 24 (Figma nuC4KFMiS36uDWDUp9wKGl 17890:4318): фон background/contrast/pale_color, иконка s 16 icon/icon-color;
+   ховер (17890:4334) — рамка border/hover_border-color, фон тот же; пока открыто меню «+ вкладка» — как ховер */
+.inf-plus { display: none; width: 24px; height: 24px; margin: 2px 0; align-items: center; justify-content: center; padding-bottom: 1px; border: 1px solid transparent; border-radius: 100px; background: rgba(51, 51, 51, .05); }
+.inf-plus .ico { color: #333; }
+.inf-plus:hover, .inf-plus.is-active { border-color: #d0d0d0; }
 /* после добавления вкладки «+» остаётся — по нему создаются новые вкладки (кроме «По чипсе») */
 .stage[data-scenario="tab-toolbar"]:not([data-variant="chip"]) .informers__btn, .stage[data-scenario="tab-toolbar"][data-variant="chip"]:not(.tabs-added) .informers__btn, .stage[data-scenario="demo"] .informers__btn { display: none; }
 .stage[data-scenario="tab-toolbar"][data-variant="plus"] .inf-plus, .stage[data-scenario="demo"] .inf-plus { display: flex; } /* «Общее демо» — тоже с плюсом в тулбаре */

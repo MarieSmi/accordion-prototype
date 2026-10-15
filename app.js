@@ -158,7 +158,8 @@
         { id: 'editor-account', title: 'Аккаунт' },
         { id: 'editor-user', title: 'Пользователь', disabled: true, variants: [{ id: 'main', title: 'С главной' }, { id: 'settings', title: 'Из настроек' }] },
       ] },
-      { group: 'Добавление вкладки', items: [
+      // «Добавление вкладки» пока скрыто (сценарии готовы) — вернуть: убрать hidden
+      { group: 'Добавление вкладки', hidden: true, items: [
         { id: 'tab-toolbar', title: 'Из тулбара', variants: [{ id: 'plus', title: 'Плюс в тулбаре' }, { id: 'link', title: '+вкладка' }, { id: 'chip', title: 'Чипса в тулбаре' }] },
         { id: 'tab-dash-head', title: 'Из шапки дашборда', variants: [
           { id: 'no-filters', title: 'Без фильтров' }, { id: 'filters', title: 'С фильтрами' }, { id: 'chip', title: 'По чипсе' }, { id: 'chip-filters', title: 'По чипсе с фильтрами' },
