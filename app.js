@@ -136,64 +136,82 @@
   const pageMain = $('#pageMain');
   const pageSkeleton = $('#pageSkeleton');
 
-  // Сцена 1600×900 вписывается в область слева от вспомогательной панели с сохранением пропорций.
-  const viewport = $('.viewport');
+  // Рамка демо — модуль demo-frame (github.com/MarieSmi/demo-frame): шапка, сцена 1600×900 и вспомогательная панель
+  // справа масштабируются как одно целое. Выбранный сценарий — в data-scenario у сцены, подсценарий вилки — в data-variant.
   let scale = 1;
-  // Сцена прижата влево под шапкой демо, вспомогательная панель — справа от неё на ту же высоту.
-  const sysPanel = $('.sys');
-  const demoHead = $('.demo-head');
-
-  // Сценарии во вспомогательной панели: выбранный записывается в data-scenario у сцены, подсценарий вилки — в data-variant.
-  // Выбор сценария с вилкой включает его первый подсценарий; у выбранного подсценария отмечен и сам сценарий.
-  const sysRadios = [...sysPanel.querySelectorAll('.sys-radio')];
-  sysPanel.addEventListener('click', (e) => {
-    const radio = e.target.closest('.sys-radio');
-    if (!radio || radio.disabled || radio.classList.contains('is-on')) return;
-    const scenario = radio.dataset.scenario;
-    const variant = radio.dataset.variant || sysRadios.find((r) => r.dataset.scenario === scenario && r.dataset.variant)?.dataset.variant;
-    for (const r of sysRadios) {
-      const on = r.dataset.scenario === scenario && (!r.dataset.variant || r.dataset.variant === variant);
-      r.classList.toggle('is-on', on);
-      r.setAttribute('aria-checked', on);
-    }
-    setMobile(false); // мобильный вид — только в «Общем демо»
-    stage.dataset.scenario = scenario;
-    if (variant) stage.dataset.variant = variant;
-    else delete stage.dataset.variant;
-    // смена сценария закрывает все окна и меню на сцене
-    closeOtherWindows();
-    closePopups();
-    closePlusMenu();
-    closeIconPick();
-    closeRpMore();
-    closeAccMore();
-    if (ae) closeAe();
-    closeSubmenu();
-    // каждый сценарий начинается с исходных вкладок; в «Добавлении вкладки» — одна «Главный», виджета вкладок нет
-    closeTabsWin();
-    selectTabs(false);
-    resetTabs(radio.dataset.scenario.startsWith('tab-'));
-    removeAddedSections(); // пункты, добавленные в «Настройке аккордеона», живут только в этом сценарии
-    resetHistory(); // смена сценария — не правка: история начинается заново
-    setInside(scenario);
-    setEditorOnly();
+  DemoFrame.mount({
+    stage,
+    head: {
+      title: 'Настройка интерфейса в конструкторе', version: '27.1100',
+      href: 'https://axure.tensor.ru/StandardsV8/guidelines.html', status: 'Запущено согласование 30.09.26',
+    },
+    devices: [
+      { id: 'laptop', icon: 'laptop', label: 'Ноутбук', disabled: true }, // пока есть только монитор 1600×900
+      { id: 'monitor', icon: 'monitor', label: 'Монитор', size: '1600х900', name: 'монитор' },
+    ],
+    device: 'monitor',
+    // disabled — сценарий пока не сделан
+    scenarios: [
+      { id: 'demo', title: 'Общее демо' },
+      { group: 'Точка захода в редактор', items: [
+        { id: 'editor-inside', title: 'Админка (Inside)' },
+        { id: 'editor-account', title: 'Аккаунт' },
+        { id: 'editor-user', title: 'Пользователь', disabled: true, variants: [{ id: 'main', title: 'С главной' }, { id: 'settings', title: 'Из настроек' }] },
+      ] },
+      { group: 'Добавление вкладки', items: [
+        { id: 'tab-toolbar', title: 'Из тулбара', variants: [{ id: 'plus', title: 'Плюс в тулбаре' }, { id: 'link', title: '+вкладка' }, { id: 'chip', title: 'Чипса в тулбаре' }] },
+        { id: 'tab-dash-head', title: 'Из шапки дашборда', variants: [
+          { id: 'no-filters', title: 'Без фильтров' }, { id: 'filters', title: 'С фильтрами' }, { id: 'chip', title: 'По чипсе' }, { id: 'chip-filters', title: 'По чипсе с фильтрами' },
+        ] },
+      ] },
+    ],
+    // внизу панели, над ссылками
+    bottomScenarios: [
+      // «Настройка аккордеона»: экран общего демо, интерактивен только аккордеон (с «+» шапки и редактором); «Меню» и «Логотип» — свои окна
+      { group: 'Аккордеон', items: [{ id: 'acc-setup', title: 'Настройка аккордеона' }] },
+      // «Редактор» — вилка: scratch — редактор без пунктов, ready — готовое «Документы»
+      { group: 'Подменю', items: [
+        { id: 'submenu-kinds', title: 'Виды подменю и пунктов' },
+        { id: 'submenu-editor', title: 'Редактор', variants: [{ id: 'scratch', title: 'С нуля' }, { id: 'ready', title: 'Готовое подменю' }] },
+      ] },
+    ],
+    links: [
+      { title: 'Чистое небо - Кононов Влад', href: 'https://www.figma.com/proto/KY2gK7VQ4zhcgXpJhoIhao/%D0%9D%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B8-%D0%B8%D0%BD%D1%82%D0%B5%D1%80%D1%84%D0%B5%D0%B9%D1%81%D0%B0?node-id=371-54342&p=f&viewport=83%2C-2273%2C0.42&t=6iJnmJhQ3qHOKjv9-8&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=371%3A54342&page-id=292%3A18752&hide-ui=1' },
+      { title: 'Настройка аккордеона', href: 'https://www.figma.com/proto/9eLwMJLQCwT0xHKviN2j1P/%D0%9D%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B0-%D0%B0%D0%BA%D0%BA%D0%BE%D1%80%D0%B4%D0%B5%D0%BE%D0%BD%D0%B0-%D0%B2-%D0%BA%D0%BE%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BA%D1%82%D0%BE%D1%80%D0%B5?node-id=15961-69245&t=s00ww53K0w0788Dp-0&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=15961%3A69245&page-id=15961%3A68013&hide-ui=1' },
+    ],
+    team: [
+      { label: 'Design', name: 'Смирнова Мария', links: [
+        { title: 'Описание', href: 'https://project.sbis.ru/shared/disk/b5420018-3bcf-4a21-943d-7e19e3e7273a' },
+        { title: 'Разработка макета', href: 'https://online.sbis.ru/opendoc.html?guid=01a0b8a6-0896-7495-b6ef-bb87253c728a&client=3' },
+      ] },
+      { label: 'Develop' },
+    ],
+    value: { scenario: stage.dataset.scenario },
+    onScale: (s) => { scale = s; },
+    onChange: ({ scenario, variant }) => {
+      setMobile(false); // мобильный вид — только в «Общем демо»
+      stage.dataset.scenario = scenario;
+      if (variant) stage.dataset.variant = variant;
+      else delete stage.dataset.variant;
+      // смена сценария закрывает все окна и меню на сцене
+      closeOtherWindows();
+      closePopups();
+      closePlusMenu();
+      closeIconPick();
+      closeRpMore();
+      closeAccMore();
+      if (ae) closeAe();
+      closeSubmenu();
+      // каждый сценарий начинается с исходных вкладок; в «Добавлении вкладки» — одна «Главный», виджета вкладок нет
+      closeTabsWin();
+      selectTabs(false);
+      resetTabs(scenario.startsWith('tab-'));
+      removeAddedSections(); // пункты, добавленные в «Настройке аккордеона», живут только в этом сценарии
+      resetHistory(); // смена сценария — не правка: история начинается заново
+      setInside(scenario);
+      setEditorOnly();
+    },
   });
-  function fitStage() {
-    const css = getComputedStyle(document.documentElement);
-    const px = (name) => parseFloat(css.getPropertyValue(name));
-    // шапка, сцена и панель масштабируются как одно целое: (1600 + зазор + панель) × (шапка + 900)
-    const left = px('--demo-left');
-    const head = px('--head-h');
-    const w = viewport.clientWidth - left;
-    const h = viewport.clientHeight;
-    scale = Math.max(0.1, Math.min(w / (1600 + px('--sys-gap') + px('--sys-w')), h / (head + 900)));
-    const top = head * scale;
-    demoHead.style.transform = `scale(${scale})`;
-    stage.style.transform = `translate(${left}px, ${top}px) scale(${scale})`;
-    sysPanel.style.transform = `translate(${left + (1600 + px('--sys-gap')) * scale}px, ${top}px) scale(${scale})`;
-  }
-  new ResizeObserver(fitStage).observe(viewport);
-  fitStage();
 
   // Прямоугольник элемента в координатах сцены.
   function stageRect(node) {
@@ -1822,6 +1840,7 @@
   // Из окна «Вкладки» — «+» меню ровно поверх «+» окна (как меню «Иконка» в окне «Логотип»).
   // 20 — отступ заголовка слева, 12 — половина иконки; 8 — верхний отступ меню, 14 — половина строки заголовка.
   function openAddMenu(trigger, over = false) {
+    if (tw && !tabsWin.contains(trigger)) closeTabsWin(); // меню виджета и окно «Вкладки» вместе не открыты
     closeTabMenus();
     tabAddMenu.hidden = false;
     trigger.classList.add('is-active');
@@ -1835,6 +1854,7 @@
   }
   // «⋯»: под кнопкой на 4px, иконка первого пункта — под кнопкой (8 — отступ списка, 12 — отступ пункта).
   function openDotsMenu(trigger) {
+    if (tw && !tabsWin.contains(trigger)) closeTabsWin(); // меню виджета и окно «Вкладки» вместе не открыты
     closeTabMenus();
     tabDotsMenu.hidden = false;
     trigger.classList.add('is-active');
@@ -1888,6 +1908,8 @@
   $('#infAddTab').addEventListener('click', (e) => (tabAddMenu.hidden ? openAddMenu(e.currentTarget, true) : closeTabMenus()));
   // Сценарий «Из шапки дашборда»: ссылка «+вкладка» справа в шапке, «+» меню ровно поверх её «+».
   $('#dashAddTab').addEventListener('click', (e) => (tabAddMenu.hidden ? openAddMenu(e.currentTarget, true) : closeTabMenus()));
+  // Сценарий «Чипса в тулбаре»: вертикальная чипса в колонке информеров, «+» меню — по её центру.
+  $('#infChipTab').addEventListener('click', (e) => (tabAddMenu.hidden ? openAddMenu(e.currentTarget, true) : closeTabMenus()));
   // Подсценарий «По чипсе»: чипса «вкладки» открывает то же меню «+» поверх себя — «+» заголовка меню (иконка 24 в точке 20,10;
   // сам знак — с отступом 5 внутри) по середине чипсы, над началом слова. «С чистого листа» добавляет виджет вкладок, чипса пропадает.
   $('#dashChipTab').addEventListener('click', (e) => {
@@ -1901,11 +1923,11 @@
     tabAddMenu.style.left = Math.round(text.left - 5 - 20) + 'px';
     tabAddMenu.style.top = Math.round(r.top + r.height / 2 - 12 - 10) + 'px';
   });
-  // пока виджета вкладок нет (одна вкладка), «С чистого листа» сразу добавляет вкладку (addBlankTab)
+  // «С чистого листа» сразу добавляет вкладку «Страница N» (addBlankTab); из окна «Вкладки» — открывает экран новой вкладки
   $('#tabAddBlank').addEventListener('click', () => {
     closeTabMenus();
-    if (!stage.classList.contains('tabs-added')) addBlankTab();
-    else openTabsWin('new');
+    if (tw) openTabsWin('new'); // из окна «Вкладки» — экран новой вкладки
+    else addBlankTab(); // иначе сразу «Страница N»
   });
   tabDotsMenu.addEventListener('click', (e) => {
     const act = e.target.closest('[data-act]')?.dataset.act;
@@ -1913,7 +1935,7 @@
     else if (act === 'settings') { closeTabMenus(); openTabsWin('list'); }
   });
   stage.addEventListener('mousedown', (e) => {
-    if (!tabMenuOpen() || e.target.closest('#tabAddMenu, #tabDotsMenu, #tabsPlus, #tabsDots, #twPlus, #infPlus, #dashAddTab, #dashChipTab')) return;
+    if (!tabMenuOpen() || e.target.closest('#tabAddMenu, #tabDotsMenu, #tabsPlus, #tabsDots, #twPlus, #infPlus, #infChipTab, #dashAddTab, #dashChipTab')) return;
     closeTabMenus();
   });
 
@@ -3644,12 +3666,10 @@
 
   // ---------- Точка захода в редактор: «Админка (Inside)» и «Аккаунт» ----------
   // Экран приложения (Figma xMQ3ZEN4AUINgwjVoxR8hS: админка 18428:12935, аккаунт 18637:73187) поверх конструктора.
-  // Середина экрана одна на оба: превью красится токенами темы со сцены; логотип и надпись — как в аккордеоне.
-  // «Настроить» открывает конструктор (редактор), ✓ шапки — сохранить и вернуться, ✕ — вернуться; если были правки,
+  // Превью на обоих экранах красится токенами темы со сцены; логотип и надпись — как в аккордеоне.
+  // Клик по превью админки или «Настроить» аккаунта открывает конструктор (редактор), ✓ шапки — сохранить и вернуться, ✕ — вернуться; если были правки,
   // сначала «Сохранить изменения?»: «Да» — как ✓, «Нет» — откатить правки этого захода, «Отмена» — остаться в редакторе.
   const ENTRIES = { 'editor-inside': $('#inside'), 'editor-account': $('#account') };
-  // середина аккаунта — копия середины админки
-  $('#account .ins-main').append(...[...$('#inside .ins-main').children].map((n) => n.cloneNode(true)));
   let entry = null;      // экран текущего сценария захода в редактор; null — другой сценарий
   let insideSnap = null; // снимок при входе в редактор с экрана; null — редактор открыт не с экрана
   let insideAsk = false; // подтверждение открыто ✕ шапки в сценарии захода
@@ -3680,7 +3700,7 @@
   }
 
   for (const sec of Object.values(ENTRIES)) {
-    sec.querySelector('.ins-setup').addEventListener('click', () => {
+    sec.querySelector('.ins-pv, .ins-setup').addEventListener('click', () => {
       sec.hidden = true;
       resetHistory(); // отмена в редакторе — только в пределах этого захода
       insideSnap = snapshot();

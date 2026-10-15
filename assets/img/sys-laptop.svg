@@ -1,8 +1,0 @@
-<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g id="_iconDevice">
-<g id="Union">
-<path fill-rule="evenodd" clip-rule="evenodd" d="M1 5C1 3.34315 2.34315 2 4 2H12C13.6569 2 15 3.34315 15 5V12H1V5ZM4 3H12C13.1046 3 14 3.89543 14 5V11H2V5C2 3.89543 2.89543 3 4 3Z" fill="#8991A9"/>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M1 14.5C1 13.6716 1.67157 13 2.5 13H13.5C14.3284 13 15 13.6716 15 14.5C15 15.3284 14.3284 16 13.5 16H2.5C1.67157 16 1 15.3284 1 14.5ZM2.5 14H13.5C13.7761 14 14 14.2239 14 14.5C14 14.7761 13.7761 15 13.5 15H2.5C2.22386 15 2 14.7761 2 14.5C2 14.2239 2.22386 14 2.5 14Z" fill="#8991A9"/>
-</g>
-</g>
-</svg>
