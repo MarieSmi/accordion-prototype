@@ -153,7 +153,8 @@
     // disabled — сценарий пока не сделан
     scenarios: [
       { id: 'demo', title: 'Общее демо' },
-      { group: 'Точка захода в редактор', items: [
+      // «Точка захода в редактор» пока скрыта (сценарии готовы) — вернуть: убрать hidden
+      { group: 'Точка захода в редактор', hidden: true, items: [
         { id: 'editor-inside', title: 'Админка (Inside)' },
         { id: 'editor-account', title: 'Аккаунт' },
         { id: 'editor-user', title: 'Пользователь', disabled: true, variants: [{ id: 'main', title: 'С главной' }, { id: 'settings', title: 'Из настроек' }] },
