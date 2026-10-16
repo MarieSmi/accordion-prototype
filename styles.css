@@ -668,7 +668,10 @@ ul { list-style: none; margin: 0; padding: 0; }
 .sk-pills { flex: none; width: 123.429px; display: flex; gap: 10.286px; }
 .sk-pill { width: 30px; height: 17px; border-radius: 8px; background: var(--c-sk); }
 .sk-pill--on { background: var(--acc-marker); } /* акцент 1 */
-.pg-search--skeleton { margin-left: 111px; }
+/* поиск-заглушка (Figma `19519-71393`) */
+.sk-search { flex: none; width: 150px; height: 18px; margin-left: 111px; border-radius: 20px; background: var(--c-sk); }
+/* на скелетоне в правой панели нет фильтра, поиска и настроек */
+.stage.is-skeleton .rp-btn:is([data-rp="filter"], [data-rp="search"], [data-rp="settings"]) { display: none; }
 .sk-bar { display: block; height: 10px; border-radius: 16px; background: var(--c-sk); }
 .sk-bar--right { flex: none; width: 40px; margin-left: auto; border-radius: 8px; }
 .sk-bar--tab { width: 50px; }

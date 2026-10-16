@@ -177,7 +177,7 @@
       ] },
     ],
     links: [
-      { title: 'Чистое небо - Кононов Влад', href: 'https://www.figma.com/proto/KY2gK7VQ4zhcgXpJhoIhao/%D0%9D%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B8-%D0%B8%D0%BD%D1%82%D0%B5%D1%80%D1%84%D0%B5%D0%B9%D1%81%D0%B0?node-id=371-54342&p=f&viewport=83%2C-2273%2C0.42&t=6iJnmJhQ3qHOKjv9-8&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=371%3A54342&page-id=292%3A18752&hide-ui=1' },
+      { title: 'Макет', href: 'https://www.figma.com/proto/xMQ3ZEN4AUINgwjVoxR8hS/%D0%9D%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B0-%D0%B8%D0%BD%D1%82%D0%B5%D1%80%D1%84%D0%B5%D0%B9%D1%81%D0%B0-%D0%B2-%D0%BA%D0%BE%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BA%D1%82%D0%BE%D1%80%D0%B5?node-id=16219-76404&p=f&t=RLyxreNsun3BEvZg-0&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=16219%3A76404&page-id=15961%3A68013&hide-ui=1' },
       { title: 'Настройка аккордеона', href: 'https://www.figma.com/proto/9eLwMJLQCwT0xHKviN2j1P/%D0%9D%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B0-%D0%B0%D0%BA%D0%BA%D0%BE%D1%80%D0%B4%D0%B5%D0%BE%D0%BD%D0%B0-%D0%B2-%D0%BA%D0%BE%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BA%D1%82%D0%BE%D1%80%D0%B5?node-id=15961-69245&t=s00ww53K0w0788Dp-0&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=15961%3A69245&page-id=15961%3A68013&hide-ui=1' },
     ],
     team: [
@@ -636,6 +636,7 @@
     const page = state.page.section ? 'skeleton' : 'main';
     pageMain.hidden = page !== 'main';
     pageSkeleton.hidden = page !== 'skeleton';
+    stage.classList.toggle('is-skeleton', page === 'skeleton');
     renderMobile();
   }
   // Строки-заглушки реестра в скелетоне
@@ -3111,11 +3112,11 @@
     const e = { acc: t.acc, marker: t.marker, accent2: t.accent2, vars: t.vars };
     if (own.marker) e.marker = toCss(own.marker);
     if (own.accent2) e.accent2 = toCss(own.accent2);
-    if (own.bg) { e.bg = bgCss(own.bg); e.pvBg = bgPreview(own.bg); }
+    // свой фон — страница светлая: тёмные карточки темы «на всю страницу» не берём; аккордеон и фон под ЦУ остаются от темы
+    if (own.bg) { e.bg = bgCss(own.bg); e.pvBg = bgPreview(own.bg); e.vars = Object.fromEntries(Object.entries(t.vars).filter(([k]) => !k.startsWith('--c-'))); }
     if (own.acc) {
       e.acc = toCss(own.acc);
-      // свой фон — страница светлая: тёмные карточки темы «на всю страницу» и фон под ЦУ не берём
-      const page = own.bg ? {} : Object.fromEntries(Object.entries(t.vars).filter(([k]) => k.startsWith('--c-') || k === '--cu-bg'));
+      const page = Object.fromEntries(Object.entries(t.vars).filter(([k]) => (!own.bg && k.startsWith('--c-')) || k === '--cu-bg'));
       e.vars = { ...page, ...accVars(own.acc, own.marker ? own.marker.hex : t.marker) };
       // превью: цвета текста и иконок аккордеона под его новый фон
       e.pv = !e.vars['--acc-text'] ? PV_DARK : e.vars['--acc-text'] === '#000' ? { ...PV_LIGHT, sel: e.vars['--acc-item-selected'] } : PV_GRAY;
@@ -3370,8 +3371,8 @@
 
   // ---------- Фон (Figma 16385:63244, верхняя строка 16385:63266) ----------
   // Свой фон хранится в custom.bg и, как свои цвета, делает тему пользовательской; выбор системной темы возвращает фон темы.
-  // Цвет или градиент из палитры — как светлые темы: аккордеон прозрачный. Картинка — режим image коллекции «Тема аккордеона»:
-  // аккордеон белый 70%, под контентом, ЦУ и информерами забеление 70%, поля по бокам — картинка как есть.
+  // Фон не меняет цвет аккордеона и фон под ЦУ — они остаются от темы (или свои). Картинка: под серединой и информерами
+  // забеление 70%, поля по бокам — картинка как есть.
   // {kind: 'color', hex, a} · {kind: 'grad', c} — от акцента 10% к #f8f8f8 · {kind: 'img', i, fx} — fx: настройки «Картинки».
   const BG_GRADS = ['#943253', '#f16767', '#e59545', '#e5cb45', '#009918', '#0c94ff', '#326194', '#4c3294', '#943288'];
   const BG_COLORS = ['#ffe3ec', '#ffe5e3', '#fff1e3', '#fffbe3', '#e3ffe8', '#e3faff', '#e3f1ff', '#eae3ff', '#ffe3fa', '#ededed'];
@@ -3436,10 +3437,9 @@
   $('#bgCat').innerHTML = BG_IMGS.map((src, i) =>
     `<button class="bg-tile" type="button" data-img="${i}" style="--img:url(${src})" aria-label="Картинка ${i + 1}"><span class="bg-tool"><span class="ico">&#xE660;</span></span></button>`).join('');
 
-  // Новый фон: аккордеон — прозрачный (цвет, градиент) или белый 70% (картинка); тема становится пользовательской.
+  // Новый фон: аккордеон не трогаем; тема становится пользовательской.
   function setBg(b) {
     custom.bg = b;
-    custom.acc = b.kind === 'img' ? { hex: '#ffffff', a: 70 } : { hex: null, a: 0 };
     saveUserTheme();
     paintTheme();
     bgRender(true);
